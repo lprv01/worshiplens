@@ -1,0 +1,57 @@
+{title: Washed}
+{artist: Joe L Barnes, Joshua Holiday, Steven Furtick, Mitch Wong}
+{subtitle: (based on the recording by Elevation Rhythm | original key: B)}
+{key: G}
+{time: 4/4}
+{tempo: 139}
+{ccli_license: 365971}
+{ccli: 7263433}
+{copyright: 2025 Bell Music Publishing | Original Wong Publishing | Elevation Worship Publishing2 | Music by Elevation Worship Publishing | Remaining portion is unaffiliated}
+{footer: For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com}
+
+{comment: Chorus} (first time a cappella)
+I’ve been [G]washed in the water [C2]washed in the blood
+I’m as [Em7]good as new [D7sus]oh hallelujah
+I’ve been [G]washed in the water [C2]washed in the blood
+All be - [Em7]cause of You [D7sus]oh hallelujah   [(G)] (Last x)
+
+{comment: Turnaround}
+[|][G/B]  [C2]  [.]  [.][|][D(4)]  [Em7]  [.]  [.][|][G/B]  [C2]  [.]  [.][|][D(4)]  [Em7]  [.]  [.][|]
+
+{comment: Verse 1}
+I’m [G/B]clean  [C2]      [D(4)]sin  [Em7]was stained on [G/B]me  [C2]
+[D(4)]Shame  [Em7]was running [G/B]deep  [C2]
+But [D(4)]love  [Em7]was spilled on [Am7(4)]Calvary        [D7sus]oh hallelujah
+I’m [G/B]clean  [C2]      [D(4)]God  [Em7]how can it [G/B]be  [C2]
+I’m [D(4)]ran - [Em7]somed and re - [G/B]deemed  [C2]
+[D(4)]Stand - [Em7]ing in Your [Am7(4)]victory        [D7sus]oh hallelujah
+
+{comment: Verse 2}
+I’m [G/B]clean  [C2]    it's [D(4)]not  [Em7]what I have [G/B]done  [C2]
+But [D(4)]what  [Em7]You've done for [G/B]me  [C2]
+You [D(4)]paid  [Em7]it all up - [Am7(4)]on that tree [D7sus]oh hallelujah
+I’m [G/B]clean  [C2]    Your [D(4)]love  [Em7]has over - [G/B]come  [C2]
+Your [D(4)]mer - [Em7]cy is su - [G/B]preme  [C2]
+I’m [D(4)]danc - [Em7]ing in Your [Am7(4)]victory        [D7sus]oh hallelujah
+
+{comment: Bridge}
+'Cause You took away my [G]shame
+And You nailed it to the [C2]cross
+You got me running out the [Em7]grave
+Hallelujah here I [C2]come
+
+{comment: Tag}
+Hallelujah here I [G]come
+Hallelujah here I [C2]come
+Hallelujah here I [Em7]come
+Hallelujah here I [C2]come
+
+{comment: Instrumental}
+[||:][G/B]  [C2]  [.]  [.][|][D(4)]  [Em7]  [.]  [.][|][G/B]  [C2]  [.]  [.][|][D(4)]  [Em7]  [.]  [.][|]
+[|]   [G/B]  [C2]  [.]  [.][|][D(4)]  [Em7]  [.]  [.][|][Am7(4)]          [|][D7sus]               [:||]
+
+
+CCLI Song # 7263433
+© 2025 Bell Music Publishing | Original Wong Publishing | Elevation Worship Publishing2 | Music by Elevation Worship Publishing | Remaining portion is unaffiliated
+For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com
+CCLI License # 365971

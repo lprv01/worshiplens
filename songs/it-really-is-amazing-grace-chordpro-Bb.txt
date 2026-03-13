@@ -1,0 +1,70 @@
+{title: It Really Is (Amazing Grace)}
+{artist: Jonathan Smith, Phil Wickham, David Crowder}
+{subtitle: (based on the recording by Phil Wickham & Crowder)}
+{key: Bb}
+{tempo: 128}
+{time: 4/4}
+{ccli_license: 365971}
+{ccli: 7260988}
+{copyright: 2025 Capitol CMG Genesis | Inot Music | sixsteps Music | Be Essential Songs | Cashagamble Jet Music | Phil Wickham Music | Simply Global Songs}
+{footer: For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com}
+
+{comment: Intro}
+[|][Bb]        [|][Bb]        [|][Eb]        [|][Eb]        [|]
+[|][Bb]        [|][Bb]        [|][Eb]        [|][Eb]        [|]
+[|][Gm]       [|][Bb]        [|][Eb]        [|][Eb]        [|]
+
+{comment: Verse 1}
+A - [Bb]mazing   [Bb/D]grace how [Eb]sweet the [Bb]sound 
+That [Gm]saved   a [Bb]wretch like [F]me 
+I [Bb]once was [Bb/D]lost but [Eb]now I’m [Bb]found      [F/A]
+Was [Gm]blind but [F]now I [Bb]see 
+
+{comment: Chorus 1}
+Singing [Eb] Halle    [Bb]- lujah    [Gm] there’s no [Fsus]chains on me 
+[Eb] Thank You [Bb] Jesus    [Gm] You have [Fsus]set me free 
+You [Eb]welcomed me in [Bb]called me by name 
+Was [F]dead in my sin now I’m [Gm]dancing   [F]on that grave 
+[Eb] Halle    [Bb]- lujah    [F] it really is amazing grace 
+
+{comment: Turnaround}
+[|][Bb]        [|][Bb]        [|][Eb]        [|][Eb]        [|]
+
+{comment: Verse 2}
+‘Twas [Bb]grace that [Bb/D]taught my [Eb]heart to [Bb]fear 
+And [Gm]grace my [Bb]fears   re - [F]lieved 
+How [Bb]precious   [Bb/D]did that [Eb]grace ap - [Bb]pear      [F/A]
+The [Gm]hour   I [F]first be - [Bb]lieved      (To Ch. 1)
+
+{comment: Instrumental}
+[|][Bb]        [|][Bb]        [|][Bb]        [|][Bb]        [|]
+
+{comment: Bridge}
+[Bb] I’ll testify of what He did 
+[F] He gave me life I’m born again 
+[Gm] My heart is free [F] my soul is saved 
+[Eb] It really is amazing grace 
+(REPEAT)
+
+{comment: Tag}
+[Gm] It really is [Eb] it really is    [Bb] it really [F]is amazing grace 
+[Gm] It really is [Eb] it really is      [F]
+
+{comment: Chorus 2}
+Sing Hallelu - [Bb/D]jah    [Eb] Halle    [Bb]- lujah    [Gm] there’s no [Fsus]chains on me 
+[Eb] Thank You [Bb] Jesus    [Gm] You have [Fsus]set me free 
+You [Eb]welcomed me in [Bb]called me by name 
+Was [F]dead in my sin now I’m [Gm]dancing [F]on that grave 
+[Eb] Halle    [Bb]- lujah    [F] it really is amazing grace 
+
+{comment: Ending}
+[Bb]                   It really is   [Eb] it really is amazing grace 
+[Gm] It really is [Bb] it really is [Eb] it really is amazing grace 
+
+[|][N.C.]     [|][N.C.]     [|]
+
+
+CCLI Song # 7260988
+© 2025 Capitol CMG Genesis | Inot Music | sixsteps Music | Be Essential Songs | Cashagamble Jet Music | Phil Wickham Music | Simply Global Songs
+For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com
+CCLI License # 365971

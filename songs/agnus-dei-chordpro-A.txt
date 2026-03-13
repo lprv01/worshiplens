@@ -1,0 +1,37 @@
+{title: Agnus Dei}
+{artist: Michael W. Smith}
+{key: A}
+{time: 4/4}
+{tempo: 66 BPM}
+{ccli_license: 365971}
+{ccli: 626713}
+{copyright: 1990 Sony/ATV Milene Music}
+{footer: For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com}
+
+{comment: Verse}
+[A]Al   [A2sus]-   [A]le - [D/A]lu   [A]-  ia
+[A]Al   [A2sus]-   [A]le - [D/A]lu    [E/A]-    [D/A]ia
+For the [E/A]Lord   [D/A]God   [A]Al - [D/A]might   [A]-    [A2sus]y    [A]reigns
+
+[A]Al   [A2sus]-   [A]le - [D/A]lu   [A]-  i
+[A]Al   [A2sus]-   [A]le - [D/A]lu    [E/A]-    [D/A]ia
+[E/A]For   [D/A]the   [E/A]Lord   [D/A]God   [A]Al - [D/A]might   [A]-    [A2sus]y    [A]reigns
+
+[A]Al   [A2sus]-   [A]le - [D/A]lu    [E/A]-    [D/A]i
+
+{comment: Chorus}
+(You are) Ho [(E)]-   [A]ly      [E/A]ho - [A]ly
+Are You [D/A]Lord   [A]God Al - [F#m]might - [E]y
+[Bm]Worthy [A/C#]is the [D]Lamb    [Bm]worthy [A/C#]is the [D]Lamb
+
+You are ho - [A]ly      [E/A]ho - [A]ly
+Are You [D/A]Lord   [A]God Al - [F#m]might - [E]y
+[Bm]Worthy [A/C#]is the [D]Lamb    [Bm]worthy [A/C#]is the [D]Lamb (To Chorus)
+
+[D]A     [E]-     [A]men
+
+
+CCLI Song # 626713
+© 1990 Sony/ATV Milene Music
+For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com
+CCLI License # 365971

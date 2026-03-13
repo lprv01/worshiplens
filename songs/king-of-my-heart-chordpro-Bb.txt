@@ -1,0 +1,57 @@
+{title: King Of My Heart}
+{artist: John Mark McMillan, Sarah McMillan}
+{subtitle: (as published by Capitol CMG Publishing)}
+{key: Bb}
+{time: 4/4}
+{tempo: 68}
+{ccli_license: 365971}
+{ccli: 7046145}
+{copyright: 2015 Meaux Jeaux Music | Raucous Ruckus Publishing | Sarah McMillan Publishing}
+{footer: For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com}
+
+{comment: Verse 1}
+Let the [Bb]King of my heart be the [Eb]mountain where I [Bb]run 
+The [Gm]fountain I drink [F]from, oh, He [Eb]is my [Bb]song 
+Let the [Bb]King of my heart be the [Eb]shadow where I [Bb]hide 
+The [Gm]ransom for my [F]life, oh, He [Eb]is my [Bb]song 
+
+{comment: Chorus}
+You are [Gm]good, [F]good, [Eb]oh    [Bb]
+You are [Gm]good, [F]good, [Eb]oh    [Bb]
+You are [Gm]good, [F]good, [Eb]oh    [Bb]
+You are [Gm]good, [F]good, [Eb]oh    [Bb]
+
+{comment: Verse 2}
+Let the [Bb]King of my heart be the [Eb]wind inside my [Bb]sails 
+The [Gm]anchor in the [F]waves, oh, He [Eb]is my [Bb]song 
+Let the [Bb]King of my heart be the [Eb]fire inside my [Bb]veins 
+The [Gm]echo of my [F]days, oh, He [Eb]is my [Bb]song 
+
+{comment: Bridge 1a}
+[Bb]  You're never gonna let, never gonna let me down 
+[Gm]  You're never gonna let, never gonna let me down 
+[Bb]  You're never gonna let, never gonna let me down 
+[Gm]  You're [(F)]never gonna let
+(1.) [F]Never gonna let me down (To Bridge 1a)
+(2.) [Eb]Never gonna let me [F]down (To Chorus)
+
+{comment: Bridge 1b}
+[Gm]  You're [F]never gonna let, [Eb]never gonna let [Bb]me down 
+[Gm]  You're [F]never gonna let, [Eb]never gonna let [Bb]me down 
+[Gm]  You're [F]never gonna let, [Eb]never gonna let [Bb]me down 
+[Gm]  You're [F]never gonna let, [Eb]never gonna let [Bb]me down 
+
+{comment: Instrumental}
+[|] [Gm]    [F]    [|] [Eb]    [Bb]    [|] [Cm]    [Bb]    [|] [Eb]       [|] 
+
+{comment: Ending}
+When the [Gm]night is [F]holding [Eb]on to [Bb]me 
+[Cm]God is [Bb]holding [Eb]on 
+When the [Gm]night is [F]holding [Eb]on to [Bb]me 
+[Cm]God is [Bb]holding [Eb]on   [Bb]
+
+
+CCLI Song # 7046145
+© 2015 Meaux Jeaux Music | Raucous Ruckus Publishing | Sarah McMillan Publishing
+For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com
+CCLI License # 365971

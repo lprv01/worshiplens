@@ -1,0 +1,40 @@
+{title: Holy Holy Holy}
+{artist: John Bacchus Dykes, Reginald Heber}
+{key: D}
+{time: 4/4}
+{ccli_license: 365971}
+{ccli: 1156}
+{copyright: Words: Public Domain | Music: Public Domain}
+{footer: For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com}
+
+{comment: Verse 1}
+[D]Holy  [Bm]holy    [A7]ho  -  [D]ly         [G]Lord God Al - [D]mighty
+[A/C#]Early    [D]in    [A/C#]the    [Bm]morn - [A/C#]ing   [D]our  [A/E]song shall [E7]rise to [A]Thee    [A7] 
+[D]Holy  [Bm]holy    [A7]ho  -  [D]ly         [G]merciful and [D]mighty
+[Bm]God    [D7/F#]in three [G]per - [D7]sons    [G]blessed [A7]Trini - [D]ty
+
+{comment: Verse 2}
+[D]Holy  [Bm]holy    [A7]ho  -  [D]ly         [G]all the saints a - [D]dore Thee
+[A/C#]Casting [D]down [A/C#]their   [Bm]golden [A/C#]crowns  [D]a  -  [A/E]round the [E7]glassy [A]sea    [A7] 
+[D]Cheru - [Bm]bim and [A7]sera - [D]phim         [G]falling down be - [D]fore Thee
+[Bm]Which [D7/F#]wert and [G]art    [D7]and   [G]ever - [A7]more shalt [D]be
+
+{comment: Verse 3}
+[D]Holy  [Bm]holy    [A7]ho  -  [D]ly         [G]though the darkness [D]hide Thee
+[A/C#]Though the [D]eye  [A/C#]of   [Bm]sinful [A/C#]man   [D]Thy  [A/E]glory  [E7]may not [A]see    [A7] 
+[D]Only [Bm]Thou art [A7]ho  -  [D]ly         [G]there is none be - [D]side Thee
+[Bm]Per  -  [D7/F#]fect in [G]pow'r [D7]in    [G]love and [A7]puri - [D]ty
+
+{comment: Verse 4}
+[D]Holy  [Bm]holy    [A7]ho  -  [D]ly         [G]Lord God Al - [D]mighty
+[A/C#]All Thy [D]works [A/C#]shall   [Bm]praise Thy [A/C#]name   [D]in  [A/E]earth and [E7]sky and [A]sea    [A7] 
+[D]Holy  [Bm]holy    [A7]ho  -  [D]ly         [G]merciful and [D]mighty
+[Bm]God    [D7/F#]in three [G]per - [D7]sons    [G]blessed [A7]Trini - [D]ty
+
+
+
+
+CCLI Song # 1156
+© Words: Public Domain | Music: Public Domain
+For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com
+CCLI License # 365971

@@ -1,0 +1,61 @@
+{title: Our God}
+{artist: Chris Tomlin, Jesse Reeves, Jonas Myrin, Matt Redman}
+{subtitle: (as published by Capitol CMG Publishing)}
+{key: B}
+{time: 4/4}
+{tempo: 105}
+{ccli_license: 365971}
+{ccli: 5677416}
+{copyright: 2010 Atlas Mountain Songs | Rising Springs Music | Thankyou Music Ltd | Vamos Publishing | worshiptogether.com songs}
+{footer: For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com}
+
+{comment: Intro}
+[||:] [G#m/B]     [|] [E/B]           [|] [B]              [|] [F#sus/B]     [:||]
+
+{comment: Verse 1}
+[G#m/B]Water You [E/B]turned into [B]wine [G#m/B]opened the [E/B]eyes of the [B]blind
+There’s no one [C#m7]like You none like [F#sus] You  [F#]
+
+{comment: Verse 2}
+[G#m]Into the [E]darkness You [B]shine [G#m]out of the [E]ashes we [B]rise
+There’s no one [C#m7]like You none like [F#sus] You  [F#]
+
+{comment: Chorus 1a}
+[G#m]Our God is greater [E]our God is stronger
+[B]God You are higher than [F#sus]any other
+[G#m]Our God is healer [E]awesome in power
+Our [B]God our [F#sus]God
+
+{comment: Instrumental}
+[|] [G#m]           [|] [E]               [|] [B]               [|] [F#sus]        [|]  
+
+{comment: Bridge 1a}
+[G#m] And if our God is for us [E] then who could ever stop us
+[B] And if our God is with us [F#sus] then what could stand against
+[G#m] And if our God is for us [E] then who could ever stop us
+[B] And if our God is with us [F#sus] then what could stand against
+
+[|] [G#m]           [|] [E]               [|] [B/D#]        [|][F#sus]   What could stand against
+
+[|] [G#m]           [|] [E]               [|] [B]               [|] [F#sus]        [|]       
+    
+{comment: Chorus 1b}
+[G#m11]Our God is greater [E2]our God is stronger 
+[B]God You are higher than [F#/A#]any other 
+[G#m11]Our God is healer [E2]awesome in power 
+Our [B]God our [F#sus]God 
+
+{comment: Bridge 1b}
+[G#m11] And if our God is for us [E2] then who could ever stop us
+[B] And if our God is with us [F#/A#] then what could stand against
+[G#m11] And if our God is for us [E2] then who could ever stop us
+[B] And if our God is with us [F#sus] then what could stand against
+
+[|] [G#m]           [|] [E]               [|] [B/D#]          [|][F#sus]   Then what could stand against
+
+[|] [G#m]           [|] [E]               [|] [B/D#]          [|] [F#sus]         [|] 
+
+CCLI Song # 5677416
+© 2010 Atlas Mountain Songs | Rising Springs Music | Thankyou Music Ltd | Vamos Publishing | worshiptogether.com songs
+For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com
+CCLI License # 365971

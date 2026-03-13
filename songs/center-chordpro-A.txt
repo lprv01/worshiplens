@@ -1,0 +1,69 @@
+{title: Center}
+{artist: Abbie Gamboa, Brian Johnson, Gabriel Gamboa}
+{subtitle: (based on the recording by Bethel Music, Abbie Gamboa)}
+{key: A}
+{time: 4/4}
+{tempo: 66}
+{ccli_license: 365971}
+{ccli: 7247456}
+{copyright: 2024 Brian and Jenn Publishing | Bethel Music Publishing | Gamboa World, LLC | Remaining portion is unaffiliated}
+{footer: For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com}
+
+{comment: Intro}
+[|][A]             [|][A]             [|][D2]           [|][D2]           [|]
+[|][F#m7]      [|][F#m7]      [|][D2]           [|][D2]           [|]
+
+{comment: Verse 1}
+[A]  Maybe we’ve made this complicated
+[D2]More than it was ever meant to be
+[F#m7]  Hasn’t it always been about the same thing
+[D2]Lord bring us back to simple things
+
+{comment: Chorus 1}
+[D2]You be the [F#m7]center  [A]of it [E(4)]all
+My heart belongs to [D2]You my [F#m7]Savior  [A]all in [E(4)]all
+You’re the One I hold on [C#m]to for the beauty of Your [F#m7]Name
+My soul will live to [D2]say Jesus I love [E(4)] You
+
+{comment: Verse 2}
+[A]    Teach us to discern the moment
+When to [D2]serve and when to sit here at Your feet
+[F#m7]  Keep us awake to what’s important
+Just like [D2]Mary chose the better thing
+
+{comment: Chorus 2}
+Oh for [D2]You are the [F#m7]center  [A]of it [E(4)]all
+My heart belongs to [D2]You my [F#m7]Savior  [A]all in [E(4)]all
+You’re the One I hold on [C#m]to for the beauty of Your [F#m7]Name
+My soul will live to [D2]say Jesus I love [E(4)] You
+
+{comment: Tag 1a}
+Oh how I [F#m7]love You      [C#m]
+Oh how I [D2]love You Jesus I [E(4)]love You
+
+{comment: Bridge 1a}
+And my whole [D2]life for Your glory my whole [E(4)]world for You only
+Every - [F#m7]thing for the honor of Your [A/C#] Name
+And if my [D2]days tell a story let it [E(4)]be of You only
+Every - [F#m7]thing for the honor of Your [A/C#] Name
+
+{comment: Tag 1b}
+Oh how I [D2]love You      [E(4)]
+Oh how I [F#m7]love You Jesus I [A/C#]love You
+
+{comment: Bridge 1b}
+And my whole [D2]life for Your glory my whole [E(4)]world for You only
+Every - [F#m7]thing for the honor of Your [A] Name
+And if my [D2]days tell a story let it [E(4)]be of You only
+Every - [F#m7]thing for the honor
+(1.) Of Your [E/G#] Name (To Br. 1b)
+(2.) Of Your [A] Name (To Tag 1b)
+
+{comment: Tag 2}
+My soul will [A/C#]live to [D2]say Jesus I [E]love You
+My soul will [A/C#]live to [D2]say Jesus I [E]love You      [D]
+
+CCLI Song # 7247456
+© 2024 Brian and Jenn Publishing | Bethel Music Publishing | Gamboa World, LLC | Remaining portion is unaffiliated
+For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com
+CCLI License # 365971

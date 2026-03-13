@@ -1,0 +1,74 @@
+{title: Abide}
+{artist: Aaron Keyes, Aaron Williams, Jake Fauber}
+{subtitle: (based on the recording by Aaron Keyes - original key B)}
+{key: A}
+{time: 6/8}
+{tempo: 49 (147)}
+{ccli_license: 365971}
+{ccli: 7168160}
+{copyright: Aaronwilliamsmusic | Integrity Worship Music | WellWithYouMusic}
+{footer: For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com}
+
+{comment: Intro}
+[|][A]        [|][A]        [|][E]        [|][E]        [|]
+[|][F#m]   [|][F#m]   [|][D]        [|][D2]      [|]
+
+{comment: Verse 1}
+For my [A]waking breath, for my [E]daily bread
+[F#m]I depend on You, [D2]I depend on You
+For the [A]sun to rise, for my [E]sleep at night
+[F#m]I depend on You, [D2]I depend on You
+
+{comment: Chorus 1}
+[A]   You’re the way the truth and the life
+[E(4)] You’re the well that never runs dry
+[Bm7] I’m the branch and [F#m7]You are the vine
+[D]   Draw me close and [Esus]teach me [E]to a - [A]bide
+
+{comment: Turnaround 1}
+[|][A]        [|][A]        [|][D2]     [|][D2]     [|]
+
+{comment: Verse 2}
+Where the [A]Spirit leads, as I’m [E]following
+[F#m]I depend on You, [D2]I depend on You
+For the [A]victories, still in [E]front of me
+[F#m]I depend on You, [D2]I depend on You
+
+{comment: Chorus 2}
+[A]   You’re the way the truth and the life
+[E(4)] You’re the well that never runs dry
+[Bm7] I’m the branch and [F#m7]You are the vine
+[D]   Draw me close and [Esus]teach me [E]to a - [A]bide
+([A]bide)   Be my strength, my song in the night
+[E(4)] Be my all, my treasure, my prize
+[Bm7] I am Yours, for - [F#m7]ever You're mine
+[D]   Draw me close and [Esus]teach me [E]to a - [A]bide
+
+{comment: Turnaround 2}
+[|][A]        [|][A]        [|][Asus]    [|][Asus]    [|]
+
+{comment: Verse 3}
+When I [A]pass through death, as I [E]enter rest
+[F#m]I depend on You, [D2]I depend on You
+For e - [A]ternal life, to be [E]raised with Christ
+[F#m]I depend on You, [D2]I depend on You (To Ch.2)
+
+{comment: Tag 1}
+[|][A]        [|][A]    Oh [|][E(4)]    [|][E(4)]    [|][Bm7]    [|][F#m7]   [|]
+Would You [D]teach me, would You [Esus]teach me [E]to a - [A]bide
+
+{comment: Instrumental}
+[||:][A]        [|][A]        [|][Asus]    [|][Asus]    [:||]
+[||:][A]        [|][A]        [|][D2(no3)]   [|][D2(no3)]   [:||]
+
+{comment: Tag 2}
+[A]I depend on You, [D2(no3)]I depend on You [Esus]
+
+{comment: Outro}
+[||:][A]        [|][A]        [|][D2(no3)]   [|][D2(no3)]   [:||][A]        [|]
+
+
+CCLI Song # 7168160
+© Aaronwilliamsmusic | Integrity Worship Music | WellWithYouMusic
+For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com
+CCLI License # 365971

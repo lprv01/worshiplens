@@ -1,0 +1,54 @@
+{title: Give Me Jesus}
+{artist: Abbie Gamboa, Camaryn Avers, Gabriel Gamboa, Oscar Gamboa}
+{subtitle: (based on the recording by UPPERROOM)}
+{key: G}
+{time: 4/4}
+{tempo: 70}
+{ccli_license: 365971}
+{ccli: 7183129}
+{copyright: 2021 Abbie Gamboa Publishing | Avers Publishing | Gabriel Gamboa Publishing Designee | Oscar Daniel Gamboa Publishing | UR Creative}
+{footer: For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com}
+
+{comment: Verse 1}
+I don't want [G]anything but You
+You're more than [C2/E]every dream come true
+All of the [Am7]things I thought I [G/B]wanted
+Don't come [C2]close to knowing You
+
+{comment: Verse 2}
+Now that I'm [G]Yours and You are mine
+Our love is the [C2/E]secret that I find
+I'll spend for - [Am7]ever in the [G/B]pleasure
+I've found [C2]looking in Your eyes
+
+{comment: Chorus}
+Give me [G]Jesus
+Give me [D(4)]Jesus
+You can [Am7(4)]have all this [Em7]world
+You can [C2]have all this [D(4)]world
+
+{comment: Turnaround}
+[|][G2(no3)]      [|][G2(no3)]      [|]
+
+{comment: Verse 3}
+More than [G]silver more than gold
+You are the [C2/E]treasure that I hold
+Now that I've [Am7]tasted of Your [G/B]goodness
+Nothing [C2]else will satis - [Dsus]fy
+
+{comment: Bridge}
+[G/B]I don't want anyone else
+[C2]I don't need anything else
+[Em7]You are my one thing
+[D(4)]You are my one thing
+
+{comment: Tag}
+[G/B]You are my one thing
+[C2]You are my one thing
+[Em7]You are my one thing  [D(4)]
+
+
+CCLI Song # 7183129
+© 2021 Abbie Gamboa Publishing | Avers Publishing | Gabriel Gamboa Publishing Designee | Oscar Daniel Gamboa Publishing | UR Creative
+For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com
+CCLI License # 365971

@@ -1,0 +1,66 @@
+{title: Jesus Paid It All}
+{artist: Alex Nifong, Elvina M. Hall, John Thomas Grape}
+{subtitle: (as published by Capitol CMG Publishing)}
+{key: B}
+{time: 3/4}
+{tempo: 80}
+{ccli_license: 365971}
+{ccli: 4689508}
+{copyright: 2006 Pay Me Please Publishing | sixsteps Music | worshiptogether.com songs}
+{footer: For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com}
+
+{comment: Verse 1}
+And [Bmaj7/D#]I   [Bmaj7]hear the Savior say 
+Thy [F#]strength indeed is [Bmaj7]small 
+Child of [G#m7]weakness watch and [E2]pray 
+Find in [Bmaj7]Me thine [F#]all in [B]all 
+
+{comment: Chorus 1}
+’Cause [B]Jesus paid it [G#m7]all 
+[B]All to Him I [F#]owe 
+[B]Sin had left a [E2]crimson stain 
+He [B]washed it [F#]white as [Bmaj7]snow   (Last x to Interlude 2)
+
+{comment: Interlude 1}
+[Bmaj7]  (It's [Bmaj7/D#]washed a-[E2]way)
+[Bmaj7/D#](All my [C#m7]sin and [Bmaj7/D#]all my [E2]shame)   [Bmaj7/D#]
+
+{comment: Instrumental}
+[|] [Bmaj7]  [Bmaj7/D#][|] [E2]    [Bmaj7/D#][|] 
+[|] [C#m7]   [Bmaj7/D#][|] [E2]    [Bmaj7/D#][|]  (2nd x to V.3)
+
+{comment: Verse 2}
+[Bmaj7/D#]Lord   [Bmaj7]now indeed I find 
+Thy [F#]pow’r and Thine a - [Bmaj7]lone 
+Can [G#m7]change the leper’s [E2]spots 
+And [Bmaj7]melt the [F#]heart of [B]stone   (To Chorus 1)
+
+{comment: Verse 3}
+[Bmaj7/D#]And   [Bmaj7]when before the throne 
+I [F#]stand in Him com - [Bmaj7]plete 
+Jesus [G#m7]died my soul to [E2]save 
+My [Bmaj7]lips shall [F#]still re - [B]peat   (To Chorus 1)
+
+{comment: Interlude 2}
+[B]Sin had left a [E2]crimson stain 
+He [B]washed it [F#]white as [B]snow 
+He [B]washed it [F#]white as [B]snow 
+He [B]washed it [F#]white as [Bsus]snow
+
+{comment: Chorus 2a}
+Oh [B]praise the One Who [Bsus]paid my debt 
+And [B]raised this life up [Bsus]from the dead 
+
+{comment: Chorus 2b}
+[(Bmaj7/D#)]Oh   [Bmaj7]praise the One [Bmaj7/D#]Who   [E2]paid my debt 
+[Bmaj7/D#]And   [C#m7]raised this life [Bmaj7/D#]up   [E2]from the dead 
+
+{comment: Chorus 2c}
+Oh [N.C.]praise the One Who [N.C.]paid my debt 
+And [N.C.]raised this life up from the dead, Jesus   [B]
+
+
+CCLI Song # 4689508
+© 2006 Pay Me Please Publishing | sixsteps Music | worshiptogether.com songs
+For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com
+CCLI License # 365971

@@ -1,0 +1,57 @@
+{title: Made For More}
+{artist: Blake Wiggins, Jessie Early, Jonathan Smith, Josh Baldwin}
+{subtitle: (Based on the recording by Josh Baldwin)}
+{key: C}
+{tempo: 150 (1/8)}
+{time: 6/8}
+{ccli_license: 365971}
+{ccli: 7207758}
+{copyright: Glory Ghost Publishing | Capitol CMG Paragon | Jessie Parker Early Music | Be Essential Songs | Cashagamble Jet Music | Last War Songs | Maverick City Publishing | Bethel Music Publishing}
+{footer: For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com}
+
+{comment: Intro}
+[|][C]                [|][C]     [C2sus]  [|][C]                [|][C]    [.][.][.]
+
+{comment: Verse 1a}
+I [C2sus]know who I [C] am ’cause I [F/C]know who [C] You are
+The cross of sal - [Csus]va -    [C]tion was only [G] the start
+Now I am [Am]chosen   [Gsus]free and for - [Fmaj7]given
+I have a [C/E]future  [Gsus]   and it’s worth [F] the living
+
+{comment: Chorus 1a}
+(‘Cause) [C]I wasn’t made to be tending a [Am]grave
+I was [G]called by name
+Born and [C/E]raised back to [F]life again
+I was [Dm]made for [C]more
+So [C]why would I make a bed in my [Am]shame
+When a [G]fountain of grace is running my [C/E]way
+I know [F]I am Yours and I was [Dm]made for [C]more
+
+{comment: Verse 1b}
+I know who I [C] am ’cause I [F/C]know who [C] You are
+The cross of sal - [Csus]va -     [C]tion was [Am]only   [G]   the start
+Now I am [Am]chosen   [G]free and for - [F]given
+I have a [C/E]future  [G]   and it’s worth [F] the living
+
+{comment: Bridge}
+[C/E]Halle - [F]lujah You [Am]called out my name
+So I’ll [G]sing out Your praise
+[C/E]Halle - [F]lujah You [Am]buried my past
+I’m [G]not going back
+(REPEAT)
+
+{comment: Chorus 1b}
+[C]I wasn’t [N.C.]made to be tending a grave
+I was [N.C.]called by name
+Born and raised back to [N.C.]life again
+I was made for [N.C.]more    [E5]     [D5]     [C5]
+So [C]why would I make a bed in my [Am]shame
+When a [G]fountain of grace is running my [C/E]way
+I know [F]I am Yours and I was [Dm]made for [C]more
+
+
+CCLI Song # 7207758
+© Glory Ghost Publishing | Capitol CMG Paragon | Jessie Parker Early Music | Be Essential Songs | Cashagamble Jet Music | Last War Songs
+ | Maverick City Publishing | Bethel Music Publishing
+For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com
+CCLI License # 365971

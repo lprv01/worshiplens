@@ -1,0 +1,43 @@
+{title: Revelation Song}
+{artist: Jennie Lee Riddle}
+{subtitle: (as published by Integrity Music)}
+{artist: (Note: the composer has confirmed that the tonal center for this song is D and that the mode is actually Mixolydian)}
+{key: D}
+{time: 4/4}
+{tempo: 60}
+{ccli_license: 365971}
+{ccli: 4447960}
+{copyright: 2004 JLR Legacy Publishing}
+{footer: For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com}
+
+{comment: Verse 1}
+[D]  Worthy is the  [Am7] Lamb Who was slain 
+[C]  Holy, holy is [G]He 
+[D]  Sing a new song  [Am7] to Him Who sits on 
+[C]  Heaven’s mercy [G]seat 
+
+{comment: Chorus}
+[D]  Holy, holy, holy  [Am7] is the Lord God Almighty 
+[C]  Who was and is and is to [G]come 
+[D]  With all creation I sing   [Am7] praise to the King of kings 
+[C]  You are my ev’rything and [G]I will adore You    [(D)] (Last x)     
+
+{comment: Turnaround}
+[|] [D]         [|] [Am7]       [|] [C]         [|] [G]         [|]
+    
+{comment: Verse 2}
+[D]  Clothed in rainbows [Am7] of living color 
+[C]  Flashes of lightning,  [G]rolls of thunder 
+[D]  Blessing and honor, strength and [Am7] glory and power be
+[C]  To You, the only wise [G] King 
+
+{comment: Verse 3}
+[D]  Filled with wonder,  [Am7] awestruck wonder 
+[C]  At the mention of Your [G]name 
+[D]  Jesus, Your name is power,  [Am7] breath and living water 
+[C]  Such a marv’lous mys [G]- tery, yeah
+
+CCLI Song # 4447960
+© 2004 JLR Legacy Publishing
+For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com
+CCLI License # 365971

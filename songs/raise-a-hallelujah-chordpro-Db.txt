@@ -1,0 +1,57 @@
+{title: Raise A Hallelujah}
+{artist: Jake Stevens, Jonathan Helser, Melissa Helser, Molly Skaggs}
+{subtitle: (based on the recording by Jonathan David & Melissa Helser)}
+{key: Db}
+{time: 4/4}
+{tempo: 82}
+{ccli_license: 365971}
+{ccli: 7119315}
+{copyright: 2018 Quiltmaker Music | Bethel Music Publishing}
+{footer: For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com}
+
+{comment: Verse 1}
+I [Db]raise a hallelujah      in the [Dbsus]presence of my enemies
+I [Db]raise a hallelujah      [Dbsus]louder than the unbelief
+I [Db]raise a hallelujah,      my [Dbsus]weapon is a melody
+I [Db]raise a hallelujah,      [Dbsus]Heaven comes to fight for me
+
+{comment: Chorus}
+[Gb2]I’m gonna sing in the [Db]middle of the storm
+[Bbm7]Louder and louder, you’re gonna [Ab(4)]hear my praises roar
+[Gb2]Up from the ashes [Db]hope will arise
+[Bbm7]Death is defeated, the [Ab(4)]King is alive
+
+{comment: Turnaround}
+[|] [Db]          [|] [Db]          [|] 
+
+{comment: Verse 2}
+I [Db]raise a hallelujah      with [Gb2(no3)]everything inside of me
+I [Bbm7]raise a hallelujah,      [Absus]I will watch the darkness flee
+I [Db]raise a hallelujah      in the [Gb2(no3)]middle of the mystery
+I [Bbm7]raise a hallelujah;      [Absus]Fear, you lost your hold on me
+
+{comment: Bridge 1}
+[Db]Sing a little louder (Sing a little louder)
+[Absus]Sing a little louder (Sing a little louder)
+[Bbm7]Sing a little louder (Sing a little louder)
+[Gb2(no3)]Sing a little louder (Sing a little louder)
+
+{comment: Bridge 2}
+[Db]Sing a little louder in the presence of my enemies
+[Absus]Sing a little louder, louder than the unbelief
+[Bbm7]Sing a little louder, my weapon is a melody
+[Gb2(no3)]Sing a little louder, Heaven comes to fight for me
+(REPEAT)
+
+[Gb2(no3)]Sing a little louder
+
+{comment: Ending}
+I [Db]raise a hallelujah    [Db/F]
+I [Gb2(no3)]raise a hallelujah
+I [Bbm7]raise a hallelujah
+I [Absus]raise a hallelujah        [Gb2(no3)]
+
+CCLI Song # 7119315
+© 2018 Quiltmaker Music | Bethel Music Publishing
+For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com
+CCLI License # 365971

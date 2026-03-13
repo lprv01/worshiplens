@@ -1,0 +1,45 @@
+{title: Nothing But The Blood}
+{artist: Robert Lowry}
+{key: G}
+{tempo: 90}
+{time: 4/4 }
+{ccli_license: 365971}
+{ccli: 21332}
+{copyright: Words: Public Domain | Music: Public Domain}
+{footer: For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com}
+
+{comment: Verse 1}
+[G]What can wash [D]a  -  [G]way my sin
+[G]Nothing but the blood of [D7]Je  -   [G]sus
+[G]What can make [D]me   [G]whole again
+[G]Nothing but the blood of [D7]Je  -   [G]sus
+
+{comment: Chorus}
+[G]O pre - [D]cious [G]is the flow
+[D7]That makes me white as [G]snow
+[G]No oth - [D]er    [G]fount I know
+[G]Nothing but the blood of [D7]Je  -   [G]sus
+
+{comment: Verse 2}
+[G]For my par - [D]don  [G]this I see
+[G]Nothing but the blood of [D7]Je  -   [G]sus
+[G]For my cleans - [D]ing   [G]this my plea
+[G]Nothing but the blood of [D7]Je  -   [G]sus
+
+{comment: Verse 3}
+[G]Nothing can [D]for   [G]sin atone
+[G]Nothing but the blood of [D7]Je  -   [G]sus
+[G]Naught of good [D]that  [G]I have done
+[G]Nothing but the blood of [D7]Je  -   [G]sus
+
+{comment: Verse 4}
+[G]This is all [D]my  [G]hope and peace
+[G]Nothing but the blood of [D7]Je  -   [G]sus
+[G]This is all [D]my  [G]righteousness
+[G]Nothing but the blood of [D7]Je  -   [G]sus
+
+
+CCLI Song # 21332
+© Words: Public Domain | Music: Public Domain
+For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com
+CCLI License # 365971

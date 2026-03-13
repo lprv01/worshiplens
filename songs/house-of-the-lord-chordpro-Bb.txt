@@ -1,0 +1,65 @@
+{title: House Of The Lord}
+{artist: Phil Wickham, Jonathan Smith}
+{subtitle: (based on the recording by Phil Wickham)}
+{key: Bb}
+{tempo: 86}  
+{time: 4/4}  
+{ccli_license: 365971}
+{ccli: 7168995}
+{copyright: 2020 Be Essential Songs | Cashagamble Jet Music | Phil Wickham Music | Simply Global Songs}
+{footer: For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com}
+
+{comment: Intro}
+[||:] [Bb]      [Bb2]    [|] [Bb]      [Fsus]   [|] [Eb2]            [|] [Eb2]     [Fsus]   [:||] 
+
+{comment: Verse 1}
+We [Bb]worship the God who was, we [Bb]worship the God who is 
+We [Bb]worship the God who [Gm]ever - [F(4)]more [Eb2]will be 
+He [Bb]opened the prison doors, He parted the raging sea 
+My God, He [Gm]holds the [F(4)]vic -  [Eb2]tory, yeah
+
+{comment: Chorus 1a}
+[Bb] There’s joy in the house of the Lord 
+There’s joy in the house of the [F]Lord to - [Eb2]day 
+And we won’t be quiet, we shout out [Eb/F]Your praise 
+[Bb] There’s joy in the house of the Lord 
+Our God is surely [F]in  [Eb2]this place 
+And we won’t be quiet, we shout out [Eb/F]Your praise  [(Bb)]
+
+{comment: Interlude}
+[Bb]    [Bb2]Oh, oh,  [Bb]oh, we shout [Fsus]out Your praise [Eb2]     [Fsus]
+
+{comment: Verse 2}
+We [Bb]sing to the God who heals, we [Bb]sing to the God who saves 
+We [Bb]sing to the God who [Gm]always [F(4)]makes [Eb2]a way 
+'Cause He [Bb]hung up on that cross, then He [Cm7]rose up from that grave 
+My [Gm]God’s still [F(4)]rolling stones  [Eb2] away 
+
+{comment: Bridge 1a / 1b}
+('Cause) We were the [Bb]beggars, now we’re [F/Bb]royal -  [Bb]ty 
+We were the [Bb]prisoners, now we’re [F/Bb]running [Bb]free 
+[(F/A)]We are for - [Gm]given, accepted, re - [Eb]deemed by His [Bb]grace 
+Let the [F]house of the [Eb]Lord sing praise [Bb]
+
+{comment: Chorus 1b}
+[N.C.] There’s joy in the house of the Lord 
+[N.C.] There’s joy in the house of the Lord today 
+[N.C.]  And we won’t be quiet, we shout out Your praise 
+[Bb] There’s joy in the house of the Lord 
+Our God is sure - [F(4)]ly in [Eb2]this place 
+And we won’t be quiet, we [N.C.]shout out Your praise (To Chorus 1a)
+
+{comment: Ending}
+[Bb]    [Bb2]    [Bb]   We shout [Fsus]out Your praise
+[Eb]    There is joy in this house 
+There is joy in this house to - [Bb]day  [Bb2]
+[Bb]   We shout [Fsus]out Your praise
+[Eb2]   We shout [Fsus]out Your praise
+[|] [Bb]            [|] [Cm7]         [|] [Gm]    [F]    [|] [Eb]            [|] 
+
+
+
+CCLI Song # 7168995
+© 2020 Be Essential Songs | Cashagamble Jet Music | Phil Wickham Music | Simply Global Songs
+For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com
+CCLI License # 365971

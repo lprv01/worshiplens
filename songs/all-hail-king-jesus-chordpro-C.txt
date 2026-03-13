@@ -1,0 +1,90 @@
+{title: All Hail King Jesus}
+{artist: Jeremy Riddle, Peter Mattis, Ran Jackson, Steffany Gretzinger}
+{subtitle: (based on the recording by Jeremy Riddle)}
+{key: C}
+{tempo: 74}
+{time: 4/4} 
+{ccli_license: 365971}
+{ccli: 7097216}
+{copyright: 2017 Jeremy Riddle Music Designee | Richmond Park Publishing | Bethel Music Publishing}
+{footer: For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com}
+
+{comment: Verse 1}
+[C]  There was a moment when the lights went out
+[Am]  When death had claimed its victory
+[G]  The King of Love had given up His life
+[F]  The darkest day in history
+
+{comment: Verse 2}
+[C]  There on a cross they made for sinners
+[Am]  For every curse His blood atoned
+[G]  One final breath and it was finished
+[F]  But not the end we could have known
+
+{comment: Pre-Chorus 1}
+For the [Dm]earth be - [Am]gan to [G]shake      and the [C]veil  [C/E]was   [F]torn
+What [Dm]sacri - [Am]fice was [G]made      as the [C]heav - [C/E]ens   [F]roared
+
+{comment: Chorus 1A}
+[C]  All hail King [Csus]Jesus
+[C]  All hail the [Csus]Lord of [C/E]Heaven and earth
+[Am]  All hail King [F]Jesus
+(1.) [C/E]  All hail the [G]Savior of the [C]world
+(2.) [C/E]  All hail the [G]Savior of the [Am]world  (To Ch 1b)
+
+{comment: Turnaround}
+[|] [C]              [|] [Csus]          [|] [C]              [|] [Csus]          [|] 
+
+{comment: Verse 3}
+[C]  There was a moment when the sky lit up
+[Am]  A flash of light breaking through
+[G]  When all was lost, He crossed eternity
+[F]  The King of life was on the move
+
+{comment: Pre-Chorus 2}
+For in a [Dm]dark  [Am]cold   [G]tomb      where our [C]Lord  [C/E]was   [F]laid
+One mi - [Dm]racu - [Am]lous   [G]breath      and we're for - [C]ev - [C/E]er   [F]changed   (To Chorus 1A)
+
+{comment: Chorus 1B}
+[Am]  All hail King [F]Jesus
+[C]  All hail the [G]Lord of Heaven and earth
+[Am]  All hail King [F]Jesus
+[C/E]  All hail the [F]Savior of the [G]world
+
+{comment: Instrumental}
+[|][G]    [Am]    [|][F] [.] [C]  [C/E] [|][G]    [Am]    [|][F] [.] [C]  [C/E] [|] 
+
+{comment: Bridge}
+Let [G]ev'ry   [Am]knee come [F]bow before the [C]King of [C/E]Kings
+Let [G]ev'ry   [Am]tongue con - [F]fess that He is [C]Lord  [C/E]
+Lift [N.C.]up your shout let us join with all of Heaven
+Singing [G]Ho    [Am]-    [F]ly    [C]   [C/E]singing [G]Ho    [Am]-    [F]ly    [C]
+[C/E]Cry out [G]Ho    [Am]-    [F]ly    [C]   [C/E]singing [G]Ho    [Am]-    [F]ly
+
+{comment: Chorus 1a}
+[C]  All hail King [Csus]Jesus
+[C]  All hail the [Csus]Lord of Heaven and earth
+[Am]  All hail King [F]Jesus
+[C/E]  All hail the [G]Savior of the [C]world
+
+{comment: Turnaround}
+[|] [C]              [|] [Csus]          [|] [C]              [|] [Csus]          [|]
+
+{comment: Chorus 2}
+[C]  All hail King [Csus]Jesus        [C]  all hail King [Csus]Jesus
+[C]  All hail King [Csus]Jesus        [C]  all hail King [Csus]Jesus
+
+{comment: Chorus 1c}
+[F]  All hail King [G]Jesus
+[Am]  All hail the [C/E]Lord of Heaven and earth
+[F]  All hail King [G]Jesus
+[Am]  All hail the [C/E]Savior of the [F]world
+
+{comment: Outro}
+[||:] [F]              [|] [G]              [|] [Am]             [|] [C/E]            [:||]
+
+
+CCLI Song # 7097216
+© 2017 Jeremy Riddle Music Designee | Richmond Park Publishing | Bethel Music Publishing
+For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com
+CCLI License # 365971

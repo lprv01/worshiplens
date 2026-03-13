@@ -1,0 +1,58 @@
+{title: Living Hope}
+{artist: Phil Wickham, Brian Johnson}
+{subtitle: (based on the recording by Phil Wickham)}
+{key: Eb}
+{tempo: 72} 
+{time: 4/4} 
+{ccli_license: 365971}
+{ccli: 7106807}
+{copyright: 2017 Phil Wickham Music | Simply Global Songs | Sing My Songs | Bethel Music Publishing}
+{footer: For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com}
+
+{comment: Intro}
+[|] [Eb]            [|] [Ab2]          [|] [Eb]            [|] [Ab2]
+
+{comment: Verse 1}
+How great the [Eb]chasm that lay be - [Bbsus]tween us
+How high the [Ab2]mountain  [Cm7] I could not [Bbsus]climb
+In desper - [Eb]ation I turned to [Bbsus]heaven
+And spoke Your [Ab2]name in - [Bbsus]to the [Eb]night
+Then through the [Ab2]darkness Your loving - [Eb]kindness
+Tore through the [Cm7]shadows of my [Bb(4)]soul
+The work is [Eb]finished the end is [Bbsus]written
+Jesus [Ab]Christ, my [Bbsus]living    [Eb]hope      [Ab2]
+
+{comment: Verse 2}
+Who could im - [Eb]agine so great a [Bbsus]mercy?
+What heart could [Ab2]fathom  [Cm7] such boundless [Bbsus]grace?
+The God of [Eb]ages stepped down from [Bbsus]glory
+To wear my [Ab]sin and [Bbsus]bear my [Eb]shame
+The cross has [Ab2]spoken, I am for - [Eb]given
+The King of [Cm7]kings calls me His [Bb(4)]own
+Beautiful [Eb]Savior, I’m Yours for - [Bbsus]ever
+Jesus [Ab]Christ, my [Bbsus]living    [Eb]hope
+
+{comment: Chorus}
+Halle - [Ab2]lujah,   [Eb] praise the [Bb]One who set me [Cm7]free!
+Halle - [Ab2]lu -  [Eb]jah, death has [Bb]lost its grip on [Cm7]me!
+You have [Ab2]broken every [Eb]chain, there’s sal - [Bb]vation in Your [Cm7]name
+(1.) [Eb/Bb]Jesus    [Ab2]Christ, my [Bbsus]liv -  [Bb]ing   [Eb]hope (To Ch.)
+(2.) [Eb/Bb]Jesus    [Ab2]Christ, my [Bbsus]liv -  [Bb]ing   [Cm]hope    [Eb/G] (To Ending)
+
+{comment: Verse 3}
+Then came the [Eb]morning that sealed the [Bbsus]promise
+Your buried [Ab2]body   [Cm7] began to [Bbsus]breathe
+Out of the [Eb]silence, the Roaring [Bbsus]Lion
+(1.) Declared the [Ab2]grave has no [Bbsus]claim on [Eb]me (To V3)
+(2.) Declared the [Ab2]grave has no [Bbsus]claim on [Cm]me    [Eb/G]
+       Jesus, [Ab2]Yours is the [Eb/Bb]vic -  [Bb]to - [Eb]ry!  Whoa (To Ch.)
+
+{comment: Ending}
+Jesus [Ab2]Christ, my [Bbsus]liv -  [Bb]ing   [Cm]hope    [Eb/G]
+Oh [Eb/Bb]God,    [Ab2]You are my [Eb/Bb]liv -  [Bb]ing   [Eb]hope
+
+
+CCLI Song # 7106807
+© 2017 Phil Wickham Music | Simply Global Songs | Sing My Songs | Bethel Music Publishing
+For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com
+CCLI License # 365971

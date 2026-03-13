@@ -1,0 +1,73 @@
+{title: I Know A Name}
+{artist: Steven Furtick, Brandon Lake, Jacob Sooter, Hank Bentley}
+{subtitle: (based on the recording by Elevation Worship)}
+{key: A}
+{time: 6/8}
+{tempo: 58}
+{ccli_license: 365971}
+{ccli: 7247990}
+{copyright: 2025 Capitol CMG Paragon | Songs By That Dog Will Hunt | Brandon Lake Music | Just When Publishing | Music by Elevation Worship Publishing | So Essential Tunes}
+{footer: For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com}
+
+{comment: Intro}
+[|][A]            [|][A]           [|][G2]           [|][D2]           [|]
+
+{comment: Verse 1}
+I know a [A]Name that can [G2]silence roaring [D2]waves
+I know a [A]Name that can [G2]empty out a [D2]grave
+I know a [A]Name it’s the [G2]only Name that [D2]saves
+And it’s [G2]worthy of all [D2]praise
+
+{comment: Chorus}
+I call You [A]Jesus I call You I call You [G2]Healer
+Risen and reigning in [D2]power something comes out of the [G2]grave
+[D2]Every time I call You [A]Jesus I call You I call You [G2]Savior
+Worthy of glory for - [D2]ever something comes out of the [G2]grave (To Br. 1)
+[D2]Every time I call Your [A]Name
+
+{comment: Verse 2}
+I have a [A]King with do - [G2]minion over [D2]death
+He holds the [A]keys in his [G2]holy nail-scarred [D2]hands
+He is the [A]heel that has [G2]crushed the serpent’s [D2]head
+Our resur - [G2]rected Great I [D2]Am
+
+{comment: Bridge 1a}
+[D2]Every time I call Your [A]Name chains break dry [D/A]bones wake
+[Dm/A]Every time I call Your [A]Name the gates of [D/A]hell shake
+[Dm/A]Every time I call Your [A]Name chains break dry [D/A]bones wake
+[Dm/A]Every time I call Your [A]Name the gates of [D/A]hell shake
+[Dm/A]Every time I call Your [A5]Name
+
+{comment: Tag}
+[||:][A5]           [|][A5]           [|][A5]           [|][A5](Every time I call Your name)[:||]
+
+{comment: Bridge 2a}
+[A5]Where oh death is now your sting
+And [A5]where oh grave your [(Em7]victo - [D2)]ry (To Br. 2b)
+
+{comment: Bridge 2b}
+[A]Where oh death is [Em7]now your [D2]sting
+And [A]where oh grave your [Em7]victo - [D2]ry
+
+{comment: Bridge 3a}
+[A] Dead things come alive dead things come alive
+[G2] Dead things come alive in the [D2]name of Jesus
+
+{comment: Bridge 3b}
+[A] Dead things come alive dead things come alive
+[G2/B] Dead things come alive in the [D2]name of Jesus
+
+{comment: Bridge 1b}
+[D2]Every time I call Your [A]Name chains break dry [Em7]bones wake
+[D2]Every time I call Your [A]Name the gates of [Em7]hell shake
+[D2]Every time I call Your [A]Name
+
+{comment: Instrumental}
+[||:][A]           [|][A]            [|][Em7]          [|][D2]           [:||]
+
+
+CCLI Song # 7247990
+© 2025 Capitol CMG Paragon | Songs By That Dog Will Hunt | Brandon Lake Music | Just When Publishing | Music by Elevation Worship Publishing
+ | So Essential Tunes
+For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com
+CCLI License # 365971

@@ -1,0 +1,47 @@
+{title: Who You Say I Am}
+{artist: Ben Fielding, Reuben Morgan}
+{subtitle: (as published by Hillsong Music | original key - F#)}
+{key: A}
+{time: 6/8}
+{tempo: 58}
+{ccli_license: 365971}
+{ccli: 7102401}
+{copyright: 2017 Hillsong Music Publishing Australia}
+{footer: For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com}
+
+{comment: VERSE 1}
+[A5] Who am I that the highest King would [F#m]wel - [E]come    [A5]me 
+[A5] I was lost but He brought me in oh His [F#m]love    [E]for    [D]me 
+Oh His [F#m]love    [E]for    [D]me 
+
+{comment: CHORUS 1}
+Who the [A]Son sets free      oh is [E]free indeed 
+I'm a [F#m]child    [E]of    [D]God, yes I  [A] am 
+
+{comment: VERSE 2}
+[A5] Free at last He has ransomed me, His [F#m]grace    [E]runs    [A5]deep 
+[A5] While I was a slave to sin Jesus [F#m]died    [E]for    [D]me 
+Yes He [F#m]died    [E]for    [D]me 
+
+{comment: CHORUS 2}
+In my [A]Father's house      there's a [E]place for me 
+I'm a [F#m]child    [E]of    [D]God, yes I  [A] am
+
+{comment: BRIDGE}
+I am [F#m]chosen not for - [E/G#]saken 
+I [A]am who You say I [D]am 
+You are [F#m]for me not a - [E/G#]gainst me 
+I [A]am who You say I [D]am 
+
+{comment: TAG}
+(Oh) I [F#m]am who You [E/G#]say I [D]am  (1st x to Ch.2)
+Yes, I [F#m]am who You [E/G#]say I [D]am  (To Ch.2)
+
+{comment: INSTRUMENTAL}
+[||:][F#m]        [|][E/G#]       [|][A]          [|][D]           [:||] (To Br.)
+
+
+CCLI Song # 7102401
+© 2017 Hillsong Music Publishing Australia
+For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com
+CCLI License # 365971

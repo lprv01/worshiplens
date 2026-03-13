@@ -1,0 +1,55 @@
+{title: What A God}
+{artist: Bobby Walker, Brunes Charles, Chelsea Plank, Kenzie Walker, Roosevelt Stewart}
+{subtitle: (based on the recording by SEU Worship, feat. ONE HOUSE)}
+{key: A}
+{time: 4/4}
+{tempo: 79}
+{ccli_license: 365971}
+{ccli: 7236901}
+{copyright: One House Publishing | Be Essential Songs | SEU Publishing Designee-BMI}
+{footer: For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com}
+
+{comment: Verse 1}
+[F#m7]Who thought I’d find You at the [Esus]lowest place
+[F#m7]Who thought You’d feel me in the [Esus]crowd
+[F#m7]Who knew You’d make good of [Esus]my mistakes
+You’re [D]nothing like I [A]thought You were You’re [E]better
+
+{comment: Chorus}
+What a God what a [D2]God        [E(4)]
+What a God what a [F#m7]God        [A/C#]
+What a God what a [D2]God        [E(4)]
+(1.) What a God what a [F#m7]God        [E(4)]
+(2.) What a God what a [F#m7]God        [A/C#] (To Instr. / Br. 1)
+
+{comment: Verse 2}
+[F#m7]I thought You’d show up for per - [Esus]fection
+'Cause [F#m7]what kind of God looks for the [Esus]lost
+[F#m7]They say it’s over for a [Esus]sinner
+But You [D2]said no it’s [A/C#]not no it’s [E(4)]not
+You [D2]say no it’s [A/C#]not no it’s [E(4)]not
+
+{comment: Instrumental}
+[||:][D2]           [|][E(4)]         [|][F#m7]         [|][A/C#]         [:||]
+
+{comment: Bridge 1}
+If the [D2]highest place I reach is at Your [E(4)]feet then I've done it all
+If the [F#m7]best thing that I’ve seen is Your glo - [A/C#]ry then I’ve seen it all
+[D2] Your love has saved my life  [E(4)] forever satisfied
+[F#m7]  You are my [A/C#]everything
+
+{comment: Bridge 2}
+If [D2]one word is the only thing You [E(4)]speak then I’ve heard it all
+If I [F#m7]feel Your heart and never see Your [A/C#]hand I still have it all
+[D2] No treasure of this life  [E(4)] could ever satisfy
+[F#m7]  You are my [A/C#]everything
+
+{comment: Tag}
+[D2]  You are my [E(4)]everything
+[F#m7]  You are my [A/C#]everything      [(D2)] (Last x)
+
+
+CCLI Song # 7236901
+© One House Publishing | Be Essential Songs | SEU Publishing Designee-BMI
+For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com
+CCLI License # 365971

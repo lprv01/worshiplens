@@ -1,0 +1,44 @@
+{title: Make Room}
+{artist: Rebekah White, Josh Farro, Evelyn Heideriqui, Lucas Cortazio}
+{subtitle: (based on the recording by Meredith Andrews (feat. Sarah Reeves & Chris McClarney) | original key - G)  }
+{key: A}
+{tempo: 63}
+{time: 4/4}
+{ccli_license: 365971}
+{ccli: 7122057}
+{copyright: 2018 A New Song For A New Day Music | Community Music Songs | Curb Songs | Father of Lights Publishing | Mike Curb Music}
+{footer: For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com}
+
+{comment: Intro}
+[|][A]         [|][A2]         [|]
+
+{comment: Verse}
+[A]  Here is where I lay it [E(4)]down, every burden every [Bm7(4)]crown
+This is my surrender,  [D2] this is my surrender
+[A]  Here is where I lay it [E(4)]down, every lie and every [Bm7(4)]doubt
+This is my surrender [D2]
+
+{comment: Chorus}
+And I will make [A]room for you    [E]
+To do whatever you [Bm7(4)]want to, to do whatever you [D2]want to
+And I will make [A]room for you    [E]
+To do whatever you [Bm7(4)]want to, to do whatever you [D2]want to (1st x to V.1)
+
+{comment: Instrumental}
+[|][A]         [|][E]         [|][Bm7(4)]       [|] [D2]      [|]
+
+{comment: Bridge}
+[A]Shake up the ground of all my tradition
+[E]Break down the walls of all my religion
+[Bm7(4)]Your way is better, [D2]Your way is better  (Last x to Ch.)
+
+{comment: Ending}
+[A]  Here is where I lay it [E]down, you are all I'm chasing [Bm9]now
+This is my surrender [D2] 
+
+
+
+CCLI Song # 7122057
+© 2018 A New Song For A New Day Music | Community Music Songs | Curb Songs | Father of Lights Publishing | Mike Curb Music
+For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com
+CCLI License # 365971

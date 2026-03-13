@@ -1,0 +1,54 @@
+{title: The Lord Will Provide}
+{artist: Brett Younker, Chris Davenport, Jess Cates}
+{subtitle: (based on the recording by Passion with Landon Wolfe)}
+{key: B}
+{time: 6/8}
+{tempo: 136}
+{ccli_license: 365971}
+{ccli: 7227727}
+{copyright: 2024 CDavs Music | People Of The Rising | sixsteps Music | Songs For TIM | We Are TIM Music | worshiptogether.com songs | Zoom Out Songs}
+{footer: For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com}
+
+{comment: Intro / Turnaround}
+[|][B]            [|][F#(4)]        [|][C#m7]         [|][E]            [|]
+
+{comment: Verse 1}
+[B]Look at the flowers    [F#(4)]
+In all of their [C#m7]beauty      [E]
+I [B]don't have to wonder    [F#(4)]
+You know what You're [C#m7]doing      [E]
+So [B]why would I worry at [F#(4)]all
+You're faithful [C#m7]to    [B/D#]sup - [E]ply
+
+{comment: Chorus}
+[B]Everything I need [F#(4)]everything I need
+[C#m7(4)]My Father has it [E2]my Father has it
+[B]Every single time the [F#(4)]Lord will provide
+[C#m7(4)]My Father has it [E2](my Father has it)
+
+{comment: Verse 2}
+[B]Look at the sparrow    [F#(4)]
+Lacking for [C#m7]nothing      [E]
+No [B]fear of tomorrow    [F#(4)]
+And what it will [C#m7]bring      [E]
+If [B]I have You I have e - [F#(4)]nough
+'Cause Your love will [C#m7]sat - [B/D#]is - [E]fy
+
+{comment: Bridge}
+Seek first the [B]kingdom and its treasures
+Everything [C#m7(4)]else it will be added
+All that I'm [E2]needing
+[E2]I know the [C#m7(4)]Lord will pro - [B]vide
+I know my [B]God's not empty handed
+He gives us [C#m7(4)]blessings upon blessings
+I'm still be - [E2]lieving
+[E2]I know the [C#m7(4)]Lord will pro - [B]vide
+
+{comment: Tag}
+[E2]I know the [C#m7(4)]Lord will pro - [B]vide
+[A2]I know the [E2]Lord will pro - [B]vide
+
+CCLI Song # 7227727
+© 2024 CDavs Music | People Of The Rising | sixsteps Music | Songs For TIM | We Are TIM Music | worshiptogether.com songs | Zoom Out Songs
+For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com
+CCLI License # 365971

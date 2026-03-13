@@ -1,0 +1,44 @@
+{title: Great Are You Lord}
+{artist: David Leonard, Jason Ingram, Leslie Jordan}
+{subtitle: (as published by Integrity Music)}
+{key: A}
+{time: 6/8}
+{tempo: 144}
+{ccli_license: 365971}
+{ccli: 6460220}
+{copyright: 2012 Open Hands Music | So Essential Tunes | Integrity's Praise! Music | Little Way Creative}
+{footer: For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com}
+
+{comment: Intro}
+[||:][D]         [|][F#m7]      [|][Esus]      [|][Esus]      [:||]
+
+{comment: Verse}
+You give [D]life You are [F#m7]love You bring [Esus]light to the darkness 
+You give [D]hope You re - [F#m7]store ev'ry [Esus]heart that is broken 
+[D]    And [F#m7]great are You [Esus]Lord 
+
+{comment: Chorus}
+It's Your [D]breath in our [F#m7]lungs 
+So we [Esus]pour out our praise we pour out our praise 
+It's Your [D]breath in our [F#m7]lungs 
+So we [Esus]pour out our praise to You only 
+
+{comment: Instrumental 1}
+[|][D]         [|][F#m7]       [|][Esus]       [|][Esus]       [|]
+
+{comment: Instrumental 2}
+[|][A]         [|][A]         [|][Asus]       [|][Asus]       [|][D2]         [|][D2]         [|][A]         [|][A]         [|]
+
+{comment: Bridge}
+And [A]all the earth will shout Your praise 
+Our [Asus]hearts will cry these bones will sing
+[D2]Great are You [A]Lord 
+
+{comment: Ending}
+[||:][D]         [|][F#m7]      [|][Esus]      [|][Esus]      [:||]
+
+
+CCLI Song # 6460220
+© 2012 Open Hands Music | So Essential Tunes | Integrity's Praise! Music | Little Way Creative
+For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com
+CCLI License # 365971

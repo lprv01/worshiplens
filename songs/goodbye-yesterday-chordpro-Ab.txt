@@ -1,0 +1,85 @@
+{title: Goodbye Yesterday}
+{artist: Grace Binion, Joshua Holiday, Steven Furtick, Mitch Wong}
+{subtitle: (based on the recording by Elevation Rhythm)}
+{key: Ab}
+{time: 4/4}
+{tempo: 75}
+{ccli_license: 365971}
+{ccli: 7231931}
+{copyright: 2024 Bell Music Publishing | Original Wong Publishing | BEC Worship | Elevation Worship Publishing2 | Music by Elevation Worship Publishing | Three Tulips}
+{footer: For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com}
+
+{comment: Intro / Turnaround}
+[|][Ab]           [|][Ab]           [|][Ab]           [|][Absus]        [|]
+
+{comment: Verse 1a}
+[Ab] Goodbye yesterday
+I’m [Ab]living in the light of a new day
+I won’t [Ab]waste another minute in my old ways
+[Absus]Praise the Lord I’ve been born a - [Ab]gain
+
+{comment: Chorus 1a}
+A - [Ab]gain and again and again and again
+You [Db2]rescued me out of the mess I was in
+You [Ab/C]traded my sorrow for something to sing
+Now I’m [Db2]dancing on the grave that I once lived in
+
+{comment: Verse 1b}
+[Ab] Goodbye yesterday
+I’m [Db2]living in the light of a new day
+I won’t [Ab/C]waste another minute in my old ways
+[Db2]Praise the Lord I’ve been born a - [Ab]gain
+
+{comment: Verse 2}
+[Ab] Goodbye yesterday
+The [Db2]Spirit of the Lord is upon me
+I've got [Ab/C]resurrection in my veins
+[Db2]Praise the Lord I've been born
+
+{comment: Chorus 1b}
+A - [Db2(no3)]gain and a - [Ebsus]gain and a - [Fm7]gain and again
+You [Db2(no3)]rescued me [Ebsus]out of the [Fm7]mess I was in
+You [Db2(no3)]traded my [Ebsus]sorrow for [Fm7]something to sing
+Now I’m [Bbm7(4)]dancing on the grave that I [Ebsus]once lived in  [(Ab)] (To Br. 1)
+
+{comment: Bridge 1}
+[Ab]  [Bb7sus] I have decided
+[Ab]  [Bb7sus] To follow Jesus
+[Ab]  [Bb7sus] The world behind
+The [Fm7]cross be - [Ebsus]fore and [Db2(no3)]I won’t turn back
+
+{comment: Bridge 2}
+[Ab]  I won’t turn back
+[Absus]  I won’t turn back
+[Ab]   The world behind
+The [Fm7]cross be - [Ebsus]fore and [Db2(no3)]I won’t turn back
+
+{comment: Post-Chorus}
+[|][Db2(no3)]  [Ebsus]  [Fm7]  [.][|]
+
+[Db2(no3)]Praise the [Ebsus]Lord  [Fm7]I’ve been born again
+
+[|][Db2(no3)]  [Ebsus]  [Fm7]  [.][|]
+
+[Bbm7(4)]Praise the Lord [Ebsus]I’ve been born a - [Ab]gain
+
+{comment: Vamp}
+[Ab]      Now I’m dancing on the grave that I once lived in
+[Ab]      Now I’m [Absus]dancing on the grave that I once lived in
+
+{comment: Ending}
+[Ab]Dancing on the grave that I once lived in
+[Bbm7(4)]Dancing on the grave that I once lived in
+[Ab/C]Dancing on the grave that I once lived in
+[Db2]Dancing on the grave that I once lived in
+[Ab/Eb]Dancing on the grave that I once lived in
+[Bbm7(4)]Dancing on the grave that I once lived in
+[Ab/C]Dancing on the grave that I once lived in
+[Fm7]Praise the [Ebsus]Lord  [Db2]I’ve been born again
+
+
+CCLI Song # 7231931
+© 2024 Bell Music Publishing | Original Wong Publishing | BEC Worship | Elevation Worship Publishing2 | Music by Elevation Worship Publishing
+ | Three Tulips
+For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com
+CCLI License # 365971

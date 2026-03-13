@@ -1,0 +1,77 @@
+{title: Oceans (Where Feet May Fail)}
+{artist: Joel Houston, Matt Crocker, Salomon Ligthelm}
+{subtitle: (as published by Capitol CMG Publishing)}
+{key: D}
+{time: 4/4}
+{tempo: 60}
+{ccli_license: 365971}
+{ccli: 6428767}
+{copyright: 2012 Hillsong Music Publishing Australia}
+{footer: For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com}
+
+{comment: Verse 1}
+[Bm] You call me out up - [A/C#]on the [D]waters
+The great un [A]- known where feet may [G] fail
+[Bm] And there I find You [A/C#]in the [D]mystery
+In oceans [A] deep my faith will [G] stand
+
+{comment: Chorus 1}
+[G]   And I will [D]call upon Your [A] name
+[G]   And keep my [D]eyes above the [A] waves
+When oceans [G]rise my soul will [D]rest in Your em [A]- brace
+For I am [G]Yours and [A]You are [Bm] mine
+
+{comment: Instrumental 1}
+[|] [Bm]      [A/C#] [|] [D]      [D/F#] [|] 
+[|] [A]      [A/C#] [|] [G6]     [G6/A] [|] 
+
+{comment: Verse 2}
+[Bm] Your grace abounds in [A/C#]deepest [D]waters
+Your sov'reign [A] hand will be my [G] guide
+[Bm] Where feet may fail and [A/C#]fear sur - [D]rounds me
+You've never [A] failed and You won't start [G] now
+
+{comment: Interlude 1}
+(Oh, and You are mine, oh)
+[|] [Bm]      [A/C#] [|] [D]      [D/F#] [|] [A]         [|] [G6]      [G6/A][|]
+[|] [Bm]      [A/C#] [|] [D]      [D/F#] [|] [A]         [|] [G6]        [|]
+
+{comment: Instrumental 2}
+[||:] [Bm]        [|] [G]         [|] [D]         [|] [A]         [:||] 
+
+{comment: Bridge 1a}
+[Bm] Spirit lead me where my [G]trust is without borders
+Let me [D]walk upon the waters wher - [A]ever You would call me
+[Bm] Take me deeper than my [G]feet could ever wander
+And my [D]faith will be made stronger in the [A]presence of my Saviour
+
+{comment: Bridge 1b}
+[G]  Spirit lead me where my [D]trust is without borders
+Let me [A]walk upon the waters wher - [Em]ever You would call me
+[G]  Take me deeper than my [D]feet could ever wander
+And my [A]faith will be made stronger in the [Em]presence of my Saviour
+
+{comment: Bridge 1c}
+[Bm] Spirit lead me [A]where my [D]trust is without borders
+Let me [A]walk upon the waters wher - [Em]ever You would call me
+[Bm] Take me deeper [A]than my [D]feet could ever wander
+And my [A]faith will be made stronger in the [Em]presence of my Saviour
+
+{comment: Interlude 2}
+(Yeah, yeah, yeah, yeah, oh Jesus, yeah, my God)
+[||:] [Bm]       [A] [|] [D]           [|] [A]          [|] [Em]            [:||] 
+
+{comment: Chorus 2}
+[G]  I will [D]call upon Your [A] name
+[G]  Keep my [D]eyes above the [A] waves
+[G]  My soul will [D]rest in Your em [A]- brace
+I am [G]Yours and [A]You are [Bm] mine
+
+{comment: Ending}
+[|] [Bm]      [A/C#] [|] [D]           [|] [A]          [|][G6]         [|] [Bm]         [|] [D]          [|] 
+
+
+CCLI Song # 6428767
+© 2012 Hillsong Music Publishing Australia
+For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com
+CCLI License # 365971

@@ -1,0 +1,94 @@
+{title: Praise}
+{artist: Brandon Lake, Chandler Moore, Chris Brown, Cody Carnes, Pat Barrett, Steven Furtick}
+{subtitle: (based on the recording by Elevation Worship, feat. Brandon Lake, Chris Brown, & Chandler Moore)}
+{key: A}
+{tempo: 127}
+{time: 4/4}
+{ccli_license: 365971}
+{ccli: 7213077}
+{copyright: 2023 Capitol CMG Genesis | Capitol CMG Paragon | Housefires Sounds | Writer's Roof Publishing | Brandon Lake Music | Music by Elevation Worship Publishing | For Humans Publishing | Maverick City Publishing}
+{footer: For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com}
+
+{comment: Intro}
+[|][N.C.]        [|][N.C.]        [|][N.C.]        [|][N.C.]        [|]
+
+[N.C.] Let ev'rything that has breath
+[N.C.] Praise the Lord, praise the Lord
+[N.C.] Let ev'rything that has breath
+[N.C.] Praise the Lord, praise the Lord
+
+{comment: Verse 1}
+I’ll [A]praise in the valley, [D/A]praise on the [A]mountain
+I’ll [E]praise when I’m sure, [D] praise when I’m [A]doubting
+I’ll [A]praise when outnumbered, [D/A]praise when sur - [A]rounded
+'Cause [E]praise is the water [D] my enemies [A]drown in
+
+{comment: Pre-Chorus}
+As [E]long as I’m breathing, [D]I’ve got a reason to
+
+{comment: Chorus 1}
+[F#m]Praise [D]   the Lord, [A] oh, my soul [E]
+[F#m]Praise [D]   the Lord, [A] oh, my soul [E]
+
+{comment: Verse 2}
+I’ll [A]praise when I feel it and I’ll [D/A]praise when I [A]don’t
+I’ll [E]praise 'cause I know [D] You’re still in con - [A]trol
+'Cause my [A]praise is a weapon, it’s [D/A]more than a [A]sound
+My [E]praise is the shout [D] that brings Jericho [A]down
+
+{comment: Pre-Chorus}
+As [E]long as I’m breathing, [D]I’ve got a reason to
+
+{comment: Chorus 2}
+[F#m]Praise [D]   the Lord, [A] oh, my soul [E]
+[F#m]Praise [D]   the Lord, [A] oh, my soul [E]
+[F#m]I won’t be quiet, my [D]God is alive
+[A]How could I keep it in - [E]side
+[F#m]Praise [D]   the Lord, [A] oh, my soul [E]
+
+{comment: Instrumental 1}
+[||:][A]          [|][A]          [|][A]          [|][A]          [:||]
+
+{comment: Bridge 1a}
+I’ll [A]praise 'cause You’re sov'reign, [D/A]praise 'cause You reign
+[E/A]Praise 'cause You rose and de - [D/A]feated the grave
+I’ll [A]praise 'cause You’re faithful, [D/A]praise 'cause You’re true
+[E/A]Praise 'cause there’s nobody [D/A]greater than You
+
+{comment: Bridge 1b}
+I’ll [A]praise 'cause You’re sov'reign, [Bm7]praise 'cause You reign
+[F#m]Praise 'cause You rose and de - [D]feated the grave
+I’ll [A]praise 'cause You’re faithful, [Bm7]praise 'cause You’re true
+[F#m]Praise 'cause there’s nobody [D]greater than You
+
+{comment: Chorus 3}
+[F#m]Praise [D]   the Lord, [A] oh, my soul [E]
+[F#m]Praise [D]   the Lord, [A/E] oh, my soul [E]
+[F#m]Praise [D]   the Lord, [A] oh, my soul [E]
+[F#m]Praise [D]   the Lord, [A] oh, my soul [E]
+[F#m]I won’t be quiet, my [D]God is alive
+[A]How could I keep it in - [E]side
+[F#m]I won’t be quiet, my [D]God is alive
+[A]How could I keep it in - [E]side
+[F#m]I won’t be quiet, my [D]God is alive
+[A]How could I keep it in - [E]side
+[F#m]Praise [D]   the Lord, [A] oh, my soul [E]
+
+{comment: Instrumental 2}
+[||:][F#m]       [|][D]            [|][A]            [|][E]            [:||]
+
+{comment: Ending}
+[A] Let ev'rything that has breath
+[N.C.] Praise the Lord, praise the Lord
+[N.C.] Let ev'rything that has breath
+[N.C.] Praise the Lord, praise the Lord
+[N.C.] Let ev'rything that has breath
+[N.C.] Praise the Lord, praise the Lord
+[N.C.] Let ev'rything that has breath
+[N.C.] Praise the Lord, praise the Lord
+
+CCLI Song # 7213077
+© 2023 Capitol CMG Genesis | Capitol CMG Paragon | Housefires Sounds | Writer's Roof Publishing | Brandon Lake Music | Music by Elevation Worship Publishing
+ | For Humans Publishing | Maverick City Publishing
+For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com
+CCLI License # 365971

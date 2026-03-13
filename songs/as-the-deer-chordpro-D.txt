@@ -1,0 +1,39 @@
+{title: As The Deer}
+{artist: Martin Nystrom}
+{key: D}
+{time: 4/4}
+{tempo: 74}
+{ccli_license: 365971}
+{ccli: 1431}
+{copyright: 1984 Universal Music - Brentwood Benson Publishing}
+{footer: For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com}
+
+{comment: Verse 1}
+[D]As the [A/C#]deer   [A]panteth [Bm]for the [D/A]water 
+So my [G]soul longeth [A7sus]af - [A7]ter    [D2sus]Thee   [D]
+You a - [A/C#]lone   [A]are my [Bm]heart’s de - [D/A]sire 
+And I [G]long to [A]wor - [G/A]ship     [D]Thee  [D/C#]
+
+{comment: Chorus}
+[Bm]You alone [Bm/A]are my [G]strength [A/G]my     [D/F#]shield 
+To [G]You alone [Bm/F#]may my [Em]spir - [Em7]it   [F#sus]yield    [F#]   [F#/E]
+[D]You a - [A/C#]lone    [A]are my [Bm]heart’s de - [D/A]sire 
+And I [G]long to [A]wor - [G/A]ship     [D]Thee 
+
+{comment: Verse 2}
+[D]You’re my [A/C#]friend   [A]and You [Bm]are my [D/A]brother 
+Even [G]though You [A7sus]are   [A7]a    [D2sus]King    [D]
+I love [A/C#]You    [A]more than [Bm]any    [D/A]other 
+So much [G]more than [A]an -[G/A]y -  [D]thing  [D/C#]
+
+{comment: Verse 3}
+[D]I want [A/C#]You   [A]more than [Bm]gold or [D/A]silver 
+Only [G]You can [A7sus]sat - [A7]is - [D2sus]fy   [D]
+You a - [A/C#]lone   [A]are the [Bm]real joy - [D/A]giver 
+And the [G]apple [A]of   [G/A]my    [D]eye  [D/C#]
+
+
+CCLI Song # 1431
+© 1984 Universal Music - Brentwood Benson Publishing
+For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com
+CCLI License # 365971

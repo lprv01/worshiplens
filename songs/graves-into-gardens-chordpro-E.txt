@@ -1,0 +1,53 @@
+{title: Graves Into Gardens}
+{artist: Brandon Lake, Chris Brown, Steven Furtick, Tiffany Hammer}
+{subtitle: (based on the recording by Elevation Worship | original key: B)}
+{key: E}
+{time: 6/8}
+{tempo: 46}
+{ccli_license: 365971}
+{ccli: 7138219}
+{copyright: 2019 Brandon Lake Music | Maverick City Publishing Worldwide | Music by Elevation Worship Publishing | Bethel Music Publishing}
+{footer: For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com}
+
+{comment: Verse 1}
+[A]I searched the [E]world      but [A]it couldn't [E]fill me
+Man's empty [C#m7]praise and treasures that [B(4)]fade are never e - [A2]nough
+Then You came a - [E]long      and [A]put me back to - [E]gether
+And every de - [C#m7]sire is now satis - [B(4)]fied here in Your [A2]love
+
+{comment: Chorus}
+Oh there's [E]nothing better than You
+There's [C#m7]nothing better than You
+Lord there's [A2]nothing nothing is better than [E]You
+
+{comment: Turnaround}
+[|] [E]           [|] [E]    [A]    [|] (To Br. 2)
+[|] [E]           [|] [E]    [A]    [|] 
+
+{comment: Verse 2}
+[A]I'm not a - [E]fraid      to [A]show You my [E]weakness
+My failures and [C#m7]flaws Lord You've seen them [B(4)]all and You still call me [A2]friend
+'Cause the God of the [E]mountain is the [F#m7]God of the [E]valley
+There's not a [C#m7]place Your mercy and [B(4)]grace won't find me a - [A2]gain (To Ch.)
+
+{comment: Bridge 1}
+[E] You turn mourning to dancing  [A]
+[E] You give beauty for ashes  [A]
+[E] You turn shame into glory
+You're the [C#m7]only    [A2]one who [E]can
+
+{comment: Bridge 2}
+[E] You turn graves into gardens  [A]
+[E] You turn bones into armies  [A]
+[E] You turn seas into highways
+You're the [C#m7]only    [A2]one who [E]can
+
+{comment: Tag}
+You're the [C#m7]only    [A2]one who [E]can (To Ch.)
+
+(Last x) [|] [E]    [A]    [|] [E]    [A]    [|] [E]           [|]
+
+CCLI Song # 7138219
+© 2019 Brandon Lake Music | Maverick City Publishing Worldwide | Music by Elevation Worship Publishing | Bethel Music Publishing
+For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com
+CCLI License # 365971

@@ -1,0 +1,56 @@
+{title: Blessed Be Your Name}
+{artist: Beth Redman, Matt Redman}
+{subtitle: (as published by Worship Together)}
+{key: B}
+{time: 4/4}
+{tempo: 116}
+{ccli_license: 365971}
+{ccli: 3798438}
+{copyright: 2002 Thankyou Music Ltd}
+{footer: For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com}
+
+{comment: Verse 1}
+[B]    Blessed [F#]be Your name
+In the [G#m7]land that is [E]plentiful
+Where Your [B]streams of a - [F#]bundance flow
+Bless - [E]ed be Your name
+
+{comment: Verse 2}
+[B]    Blessed [F#]be Your name
+When I'm [G#m7]found in the [E]desert place
+Though I [B]walk through the [F#]wilderness
+Bless - [E]ed be Your name
+
+{comment: Pre-Chorus}
+[B]  Every blessing [F#]You pour out I'll [G#m7] turn back to [E]praise
+[B]  When the darkness [F#]closes in Lord [G#m7] still I will [E]say
+
+{comment: Chorus}
+Blessed be the [B]name of the [F#]Lord
+Blessed be Your [G#m7]name     [E]
+Blessed be the [B]name of the [F#]Lord
+Blessed be Your [G#m7]glo - [F#]rious [E]name    [(B)] (Last time)
+
+{comment: Verse 3}
+[B]    Blessed [F#]be Your name
+When the [G#m7]sun's shining [E]down on me
+When the [B]world's all as [F#]it should be
+Bless - [E]ed be Your name
+
+{comment: Verse 4}
+[B]    Blessed [F#]be Your name
+On the [G#m7]road marked with [E]suffering
+Though there's [B]pain in the [F#]offering
+Bless - [E]ed be Your name
+
+{comment: Bridge}
+You [B]give and take a - [F#]way
+You [G#m7]give and take a - [E]way
+My [B]heart will choose to [F#]say
+Lord [G#m7]blessed be Your [E]name
+
+
+CCLI Song # 3798438
+© 2002 Thankyou Music Ltd
+For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com
+CCLI License # 365971

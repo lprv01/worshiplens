@@ -1,0 +1,34 @@
+{title: Open The Eyes Of My Heart}
+{artist: Paul Baloche}
+{subtitle: (as published by Integrity Music)}
+{key: E}
+{time: 4/4}
+{tempo: 112}
+{ccli_license: 365971}
+{ccli: 2298355}
+{copyright: 1997 Integrity's Hosanna! Music | Leadworship Songs}
+{footer: For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com}
+
+{comment: Chorus}
+[E5]Open the eyes of my heart Lord
+[B/D#]Open the eyes of my heart
+I want to [A2/C#]see You [A2]
+I want to [Esus]see   [E]You    [(Esus)]  (To Chorus)
+
+{comment: Verse}
+To see You [B]high and lifted [C#m]up
+[A2]Shining in the light of Your [Bsus]glory
+[B]Pour out Your power and [C#m]love
+As we sing [F#m11]holy holy [Bsus]holy
+
+{comment: Bridge}
+[E5]Holy holy holy
+[B/D#]Holy holy holy
+[A2/C#]Holy holy [A2]holy
+I want to [Esus]see   [E]You    [(Esus)]  (To Bridge)
+
+
+CCLI Song # 2298355
+© 1997 Integrity's Hosanna! Music | Leadworship Songs
+For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com
+CCLI License # 365971

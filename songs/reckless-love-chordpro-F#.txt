@@ -1,0 +1,50 @@
+{title: Reckless Love}
+{artist: Cory Asbury, Caleb Culver, Ran Jackson}
+{subtitle: (based on the recording by Cory Asbury)}
+{key: F#}
+{tempo: 56}
+{time: 6/8 }
+{ccli_license: 365971}
+{ccli: 7089641}
+{copyright: 2017 Cory Asbury Publishing | Richmond Park Publishing | Watershed Worship Publishing | Bethel Music Publishing}
+{footer: For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com}
+
+{comment: Intro}
+[|]   [N.C.]         [|][N.C.]         [|]
+[||:] [D#m7]          [|] [C#(4)]            [|] [B2]            [|] [F#]           [:||]  
+
+{comment: VERSE 1}
+[D#m7]  Before I spoke a [C#(4)]word, You were singing [B2]over me
+[D#m7]  You have been [C#(4)]so, so good  [B2] to me
+[D#m7]  Before I took a [C#(4)]breath, You breathed Your  [B2] life in me
+[D#m7]  You have been [C#(4)]so, so kind  [B2] to me
+
+{comment: CHORUS}
+(And) O, the [D#m7]overwhelming, [C#(4)]never - ending, [B2]reckless love of [F#]God 
+O, it [D#m7]chases me down, [C#(4)]fights 'til I'm found, [B2]leaves the ninety - [F#]nine 
+I couldn't [D#m7]earn it, I don't de - [C#(4)]serve it, still You [B2]give Yourself a - [F#]way 
+O, the [D#m7]overwhelming, [C#(4)]never - ending, [B2]reckless love of [F#]God, yeah
+
+{comment: Turnaround}
+[||:] [D#m7]          [|] [C#(4)]            [|] [B2]            [|] [F#]           [:||] 
+
+{comment: VERSE 2}
+[D#m7]  When I was Your [C#(4)]foe, still Your [B2]love fought for me 
+[D#m7]  You have been [C#(4)]so, so good  [B2] to me
+[D#m7]  When I felt no [C#(4)]worth, You paid it [B2]all for me  
+[D#m7]  You have been [C#(4)]so, so kind  [B2]  to me    
+
+{comment: BRIDGE}
+[D#m7]  There's no shadow You won't [C#(4)]light up 
+Mountain You won't [B2]climb up, coming after [F#]me 
+[D#m7]  There's no wall You won't [C#(4)]kick down 
+Lie You won't [B2]tear down, coming after [F#]me
+
+{comment: Outro}
+[||:] [D#m7]          [|] [C#(4)]            [|] [B2]            [|] [F#]           [:||] 
+
+
+CCLI Song # 7089641
+© 2017 Cory Asbury Publishing | Richmond Park Publishing | Watershed Worship Publishing | Bethel Music Publishing
+For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com
+CCLI License # 365971

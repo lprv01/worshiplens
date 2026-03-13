@@ -1,0 +1,61 @@
+{title: Worthy}
+{artist: Steven Furtick, Chris Brown, Mack Brock}
+{subtitle: (based on the recording by Elevation Worship)}
+{key: Eb}
+{time: 4/4}
+{tempo: 65}
+{ccli_license: 365971}
+{ccli: 7111931}
+{copyright: Music by Elevation Worship Publishing}
+{footer: For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com}
+
+{comment: Intro}
+[|] [Cm]    [Eb]    [|] [Ab]    [Bb]    [|] [Cm]    [Eb]    [|] [Ab]    [Bb]    [|] 
+
+{comment: Verse 1}
+[Eb]    It was my [Bbsus]cross You bore  [Bb]
+So I could [Eb/G]live in the [Ab]freedom You [Eb/Bb]died   [Bb]for
+[Eb]    And now my [Bbsus]life is Yours  [Bb]
+And I will [Eb/G]sing of Your [Ab]goodness for - [Eb/Bb]ever - [Bb]more
+
+{comment: Chorus 1a}
+[(Bb)]Worthy is Your [Ab]name Je   [(Cm)]-   [Bb]sus
+You deserve the [Eb/G]praise worthy is Your [Cm]name
+[(Bb)]Worthy is Your [Ab]name Je   [(Cm)]-   [Bb]sus
+You deserve the [Eb/G]praise
+(1.) Worthy is Your [Cm]name (To Turn.)
+(2.) Worthy is Your [Cm]name    [Bb] (To Ch. 1a / Instr. 1)
+(3.) Worthy is Your [Cm]name    [Bb]    [Ab] (Last x)
+
+{comment: Turnaround}
+[|] [Cm]    [Eb]    [|] [Ab]    [Bb]    [|] [Cm]    [Eb]    [|] [Ab]    [Bb]    [|] 
+
+{comment: Verse 2}
+[Eb]    And now my [Bbsus]shame is gone  [Bb]
+I stand a - [Eb/G]mazed in Your [Ab]love unde - [Eb/Bb]nia - [Bb]ble
+[Eb]    Your grace goes [Bbsus]on and on  [Bb]
+And I will [Eb/G]sing of Your [Ab]goodness for - [Eb/Bb]ever - [Bb]more
+
+{comment: Instrumental 1}
+[|] [Ab]          [|] [Fm]          [|] [Cm]          [|] [Bb]    [Eb/G]    [|] 
+
+{comment: Bridge}
+Be ex - [Ab]alted now in the heavens
+As Your [Fm]glory fills this place
+You a - [Cm]lone deserve our praise
+You're the [Bb]name above all [Eb/G]names
+
+{comment: Instrumental 2}
+[||:] [Fm]          [|] [Cm]          [|] [Eb]          [|] [Bb]    [Eb/G]    [:||] 
+
+{comment: Chorus 1b}
+[(Eb/G)]Worthy is Your [Ab]name Je   [Cm]-   [Bb]sus
+You deserve the [Eb/G]praise worthy is Your [Cm]name
+[Bb]Worthy is Your [Ab]name Je   [Cm]-   [Bb]sus
+You deserve the [Eb/G]praise worthy is Your [Cm]name
+
+
+CCLI Song # 7111931
+© Music by Elevation Worship Publishing
+For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com
+CCLI License # 365971

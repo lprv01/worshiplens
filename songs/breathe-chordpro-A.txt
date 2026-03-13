@@ -1,0 +1,38 @@
+{title: Breathe}
+{artist: Marie Barnett}
+{key: A}
+{time: 4/4}
+{tempo: 58}
+{ccli_license: 365971}
+{ccli: 1874117}
+{copyright: 1995 Mercy / Vineyard Publishing}
+{footer: For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com}
+
+{comment: Verse}
+[A2]  This is the [D2/A]air I breathe
+[A2]  This is the [D2/A]air I breathe
+[A]  Your [E/G#]holy    [F#m]presence  [E]
+[D2]Living  [F#m] in [E]me
+[A2]  This is my [D2/A]daily bread
+[A2]  This is my [D2/A]daily bread
+[A]  Your [E/G#]very    [F#m]Word   [E]
+[D2]Spoken  [F#m] to [E]me
+
+{comment: Chorus}
+And [A]I    [E/G#]    [F#m]    [E] 
+I'm desp'rate for [D2] You  [F#m]    [E]
+And [A]I    [E/G#]    [F#m]    [E] 
+I'm lost without [D2] You  [F#m]    [E]
+
+{comment: Instrumental}
+[|] [D2]    [A2]    [|] [E]       [|] [D2]    [A2]    [|] [E]       [|] 
+
+{comment: Ending}
+[A2]  This is the [D2/A]air I breathe
+[A2]  This is the [D2/A]air I   [A]breathe
+
+
+CCLI Song # 1874117
+© 1995 Mercy / Vineyard Publishing
+For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com
+CCLI License # 365971

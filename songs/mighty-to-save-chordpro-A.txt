@@ -1,0 +1,48 @@
+{title: Mighty To Save}
+{artist: Ben Fielding, Reuben Morgan}
+{subtitle: (as published by Hillsong Music Publishing)}
+{key: A}
+{time: 4/4}
+{tempo: 74}
+{ccli_license: 365971}
+{ccli: 4591782}
+{copyright: 2006 Hillsong Music Publishing Australia}
+{footer: For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com}
+
+{comment: Verse 1}
+[D]  Ev’ryone needs com - [A]passion, love that's never [F#m]failing 
+Let [E]mercy fall on me 
+[D]  Ev’ryone needs for - [A]giveness, the kindness of a [F#m]Saviour 
+The [E]hope of nations  
+[|] [D]     [E]     [|] [D]     [E]     [|]
+
+{comment: Chorus}
+[A]Saviour, He can move the [E]mountains 
+My God is [D]mighty to [A]save, He is [F#m]mighty to [E]save 
+For - [A]ever, Author of sal - [E]vation 
+He rose and [D]conquered the [A]grave, Jesus [F#m]conquered the [E]grave 
+
+{comment: Instrumental 1}
+[|] [D]         [|] [A]         [|] [F#m]       [|] [E]         [|] 
+    
+{comment: Verse 2}
+[D]  So take me as You [A]find me, all my fears and [F#m]failures 
+[E]Fill my life again 
+[D]  I give my life to [A]follow, ev’rything I be - [F#m]lieve in 
+Now [E]I surrender  
+[|] [D]     [E]     [|] [D]     [E]     [|]
+
+{comment: Instrumental 2}
+[|] [D]     [A]     [|] [E]    [F#m]   [|] [D]     [A]     [|] [E]    [F#m]   [|] 
+
+{comment: Bridge}
+[D] Shine your light and [A] let the whole world [E] see
+We're [F#m]singing  [D] for the glory [A] of the risen [E] King,    [F#m]Jesus 
+[D] Shine your light and [A] let the whole world [E] see
+We're [F#m]singing  [D] for the glory [A] of the risen [E] King 
+
+
+CCLI Song # 4591782
+© 2006 Hillsong Music Publishing Australia
+For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com
+CCLI License # 365971

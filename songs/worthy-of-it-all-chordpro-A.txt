@@ -1,0 +1,49 @@
+{title: Worthy Of It All}
+{artist: David Brymer, Ryan Hall}
+{subtitle: (based on the recording by David Brymer)}
+{key: A}
+{time: 4/4}
+{tempo: 69}
+{ccli_license: 365971}
+{ccli: 6280644}
+{copyright: 2012 Common Hymnal Publishing | Innerland | Underground Treasure | Wayfinder Music}
+{footer: For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com}
+
+{comment: Intro}
+[|][D2]           [|][E/D]          [|][D2]           [|][E/D]          [|]
+
+{comment: Verse}
+[D2]All the saints and [E/D]angels
+They [D2]bow before Your [E/D]throne
+[D2]All the elders [E/D]cast their crowns
+Before the [D2]Lamb of [E/D]God and [A]sing
+
+{comment: Chorus}
+You are worthy of it all [A]  
+You are worthy of it all [E]  
+For from You are all [D2]things and to You are all [E]things
+You deserve the [A]glory
+
+{comment: Interlude 1}
+Singing[|][D2]oh           [|][E/D]          [|][D2]oh           [|][E/D]          [|]
+[|][D2]Oh           [|][E/D]          [|][D2]    [E/D]    [|][A]            [|]
+
+{comment: Instrumental}
+[|][A]            [|][C#m7]       [|][F#m7]         [|][D2]           [|]
+[|][A]            [|][E]              [|][Bm7(4)]       [|][D2]           [|] 
+
+{comment: Bridge}
+[A]Day and night night and day let [C#m7]incense arise
+[F#m7]Day and night night and day let [D2]incense arise
+[A/E]Day and night night and day let [E]incense arise
+[Bm7(4)]Day and night night and day let [D2]incense a - [E/D]rise
+
+{comment: Interlude 2}
+[|][A]  Oh        [|][A]  oh        [|][E]  oh        [|][E]  oh        [|]
+[|][D2]  Oh      [|][E]  oh         [|][A]  oh        [|][A]  oh        [|]
+
+
+CCLI Song # 6280644
+© 2012 Common Hymnal Publishing | Innerland | Underground Treasure | Wayfinder Music
+For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com
+CCLI License # 365971

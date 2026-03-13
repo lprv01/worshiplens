@@ -1,0 +1,56 @@
+{title: Holy Forever}
+{artist: Brian Johnson, Chris Tomlin, Jason Ingram, Jenn Johnson, Phil Wickham}
+{subtitle: (based on the recording by Chris Tomlin | original key: Db)}
+{key: Bb}
+{time: 4/4}
+{tempo: 72}
+{ccli_license: 365971}
+{ccli: 7201044}
+{copyright: 2022 Brian and Jenn Publishing | Capitol CMG Paragon | S. D. G. Publishing | Be Essential Songs | My Magnolia Music | Phil Wickham Music | Simply Global Songs | Bethel Music Publishing}
+{footer: For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com}
+
+{comment: Intro}
+[|][Eb]  [.]  [.]  [Gm][|][Fsus]         [|][Bb/D]         [|][Gm]    [Fsus]    [|]
+
+{comment: Verse 1}
+A [Bb]thousand generations [Eb2]falling down in [Bb]worship
+To [Gm7]sing the song of [Fsus]ages to the [Eb2]Lamb
+And [Bb]all who've gone before us and [Eb2]all who will be - [Bb]lieve
+Will [Gm7]sing the song of [F(4)]ages to the [Eb2]Lamb
+
+{comment: Pre-Chorus}
+(Jesus) Your [Eb2]name is the highest [Gm7]
+Your [F]name is the greatest
+Your [Gm7]name stands above them [Eb2]all
+All [Eb2]thrones and dominions [Gm7]
+All [F]powers and positions
+Your [Gm7]name stands above them [Cm7]all
+
+{comment: Chorus 1}
+And the angels [Eb2]cry Ho [Gm7]-  [F]ly
+All creation [Bb/D]cries Ho - [Gm7]ly
+You are lifted [Cm7]high Ho - [F]ly
+Holy for - [Bb]ever    [Bbsus]    [Bb]
+
+{comment: Verse 2}
+[Bb]If you've been forgiven and [Eb2]if you've been re - [Bb]deemed
+[Gm7]Sing the song for - [Fsus]ever to the [Eb2]Lamb
+[Bb]If you walk in freedom and [Eb2]if you bear His [Bb]name
+[Gm7]Sing the song for - [F(4)]ever to the [Eb2]Lamb
+We'll [Gm7]sing the song for - [Fsus]ever and a - [Eb2]men
+
+{comment: Chorus 2}
+Hear Your peo - [Bb/D]ple  [Eb2]sing Ho [Gm7]-  [F]ly
+To the King of [Bb/D]Kings Ho - [Gm7]ly
+You will always [Cm7]be Ho - [F]ly
+Holy for - [Bb]ever    [Bbsus]    [Bb]
+
+{comment: Tag}
+You will always [Cm7]be Ho - [F]ly
+Holy for - [Bb]ever    [Bbsus]    [Bb]
+
+CCLI Song # 7201044
+© 2022 Brian and Jenn Publishing | Capitol CMG Paragon | S. D. G. Publishing | Be Essential Songs | My Magnolia Music | Phil Wickham Music
+ | Simply Global Songs | Bethel Music Publishing
+For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com
+CCLI License # 365971

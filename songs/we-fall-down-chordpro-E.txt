@@ -1,0 +1,26 @@
+{title: We Fall Down}
+{artist: Chris Tomlin}
+{key: E}
+{time: 4/4}
+{ccli_license: 365971}
+{ccli: 2437367}
+{copyright: 1998 Rising Springs Music | Vamos Publishing | worshiptogether.com songs}
+{footer: For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com}
+
+{comment: Verse}
+[E]We fall down we [B]lay our [C#m7]crowns
+At the [A]feet of [F#m]Jesus
+The [E]greatness of [B]mercy and [C#m7]love
+At the [A]feet of [B]Jesus
+
+{comment: Chorus}
+And [E/G#]we cry [Amaj7]holy   [E/G#]holy   [F#m]holy
+And [E/G#]we cry [Amaj7]holy   [E/G#]holy   [F#m]holy
+And [C#m7]we   [B]cry   [Amaj7]holy   [E/G#]holy   [F#m]holy
+[E/B]Is   [B7]the   [E]Lamb   [A/E]   [E]   [(D2)] (To Verse)
+
+
+CCLI Song # 2437367
+© 1998 Rising Springs Music | Vamos Publishing | worshiptogether.com songs
+For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com
+CCLI License # 365971

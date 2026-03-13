@@ -1,0 +1,60 @@
+{title: Hosanna}
+{artist: Brooke Ligertwood}
+{subtitle: (as published by Hillsong Music Publishing)}
+{key: E}
+{time: 4/4}
+{tempo: 75}
+{ccli_license: 365971}
+{ccli: 4785835}
+{copyright: 2006 Hillsong Music Publishing Australia}
+{footer: For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com}
+
+{comment: Verse 1}
+[E] I see the King of glory
+[C#m]Coming on the clouds with fire
+The whole earth [F#m7]shakes
+The whole earth [B]shakes   yeah [C#m]
+
+{comment: Verse 2}
+[E] I see His love and mercy
+[C#m]Washing over all our sin
+The people [F#m7]sing
+The people [B]sing
+
+{comment: Chorus}
+Ho - [E/G#]sanna  [A]  ho - [B]sanna  [C#m]
+Ho - [A]sanna in the [C#m]highest  [B]
+Ho - [E/G#]sanna  [A]  ho - [B]sanna  [C#m] 
+(1st Ending) Ho - [A]sanna in the [B]high - [C#m]est
+(2nd Ending) Ho - [A]sanna in the [B]high - [E]est (To Chorus)
+
+{comment: Verse 3}
+[E] I see a generation
+[C#m]Rising up to take their place
+With selfless [F#m7]faith
+With selfless [B]faith
+
+{comment: Verse 4}
+[E] I see a near revival
+[C#m]Stirring as we pray and seek
+We're on our [F#m7]knees
+We're on our [B]knees
+
+{comment: Instrumental}
+[|] [C#m]       [|] [E]         [|] [F#m7]       [|] [G#m7]       [|]
+
+{comment: Bridge}
+[A]Heal my heart and make it [B]clean
+[E]Open up my eyes to the [C#m]things unseen
+[A]Show me how to love like [B]You have loved me  [C#m]
+[A]Break my heart for what breaks [B]Yours
+[E]Everything I am for Your [C#m]Kingdom's cause
+[A]As I walk from earth in - [B]to eternity  [A]
+
+{comment: Ending}
+Ho - [A]sanna in the [B]high - [E]est
+
+CCLI Song # 4785835
+© 2006 Hillsong Music Publishing Australia
+For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com
+CCLI License # 365971

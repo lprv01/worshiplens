@@ -1,0 +1,40 @@
+{title: Nothing Else}
+{artist: Cody Carnes, Hank Bentley, Jessie Early}
+{subtitle: (as published by Capitol CMG Publishing / Worship Together | original key: C)}
+{key: A}
+{time: 4/4}
+{tempo: 68}
+{ccli_license: 365971}
+{ccli: 7123436}
+{copyright: 2019 Capitol CMG Paragon | Songs By That Dog Will Hunt | Writer's Roof Publishing}
+{footer: For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com}
+
+{comment: Intro}
+[|] [Bm7(4)]      [|] [D]             [|] [A]    [Asus]    [|] [A]           [|] 
+[|] [Bm7(4)]      [|] [Dmaj7]     [|] [A]    [Asus]    [|] [A]           [|] 
+
+{comment: Chorus}
+I'm caught up in Your [Bm7(4)]presence      [D2]    I just want to [A]sit here at Your feet
+I'm caught up in this [Bm7(4)]holy moment  [D2]    I never want to [A]leave    [Asus]    [A]
+Oh I'm not here for [Bm7(4)]blessings      [D2]    Jesus You don't [A]owe me anything
+More than any - [Bm7(4)]thing that You can [D2]do    I just want [A]You    [(Asus]    [A)]  (To Bridge)
+
+{comment: Verse 1}
+I'm [D2]sorry when I've just gone through the motions
+I'm [A/C#]sorry when I just sang another song
+Take me [D2]back to where we started I open up my heart to [A]You    [Asus]    [A]
+
+{comment: Verse 2}
+I'm [D2]sorry when I've come with my agenda
+I'm [A/C#]sorry when I forgot that You're enough
+Take me [D2]back to where we started I open up my heart to [A]You    [Asus]    [A]
+
+{comment: Bridge}
+I just [(A2/C#)]want   [Bm7(4)]You    nothing else   [D2]
+Nothing else ([F#m7]Jesus) nothing else will [E(4)]do
+
+
+CCLI Song # 7123436
+© 2019 Capitol CMG Paragon | Songs By That Dog Will Hunt | Writer's Roof Publishing
+For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com
+CCLI License # 365971

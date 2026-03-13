@@ -1,0 +1,60 @@
+{title: Gratitude}
+{artist: Brandon Lake, Dante Bowe, Benjamin Hastings}
+{subtitle: (based on the recording by Brandon Lake | original key: B)}
+{key: A}
+{time: 6/8}
+{tempo: 52}
+{ccli_license: 365971}
+{ccli: 7158417}
+{copyright: 2019 Bethel Worship Publishing | Brandon Lake Music | Maverick City Publishing | Maverick City Publishing Worldwide | SHOUT! Music Publishing Australia | Bethel Music Publishing}
+{footer: For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com}
+
+{comment: Verse 1}
+All my [A]words fall short,     I got [F#m7]nothing new
+How could [E(4)]I express      all my [D2(no3)] gratitude?
+
+{comment: Verse 2}
+I could [A]sing these songs      as I [F#m7]often do
+But ev'ry [E(4)]song must end      and You [D2(no3)] never do
+
+{comment: Chorus 1a}
+So I [A]throw up my hands and praise You again and a - [E(4)]gain
+‘Cause all that I have is a [D2]hallelujah,      [F#m7]halle -  [E(4)]lujah
+And I [A]know it’s not much, but I’ve nothing else fit for a [E(4)]king
+Except for a heart singing, [D2]"Hallelujah,     [F#m7]halle -  [E(4)]lu -  [A]jah"
+
+{comment: Verse 3}
+I’ve got [A]one response,      I’ve got [F#m7]just one move
+With my [E(4)]arms stretched wide      I will [D2(no3)] worship You
+
+{comment: Instrumental 1}
+[||:] [A]           [|] [A]           [|] [A]           [|] [A]           [:||] 
+
+{comment: Bridge 1a}
+[A]Come on, my soul, oh, don’t you get shy on me
+[A]Lift up your song, ‘cause you’ve got a [E(4)]lion inside of those lungs
+Get up and praise the [A]Lord
+
+{comment: Bridge 1b}
+[A]Come on, my soul, oh, don’t you get shy on me
+[E(4)]Lift up your song, ‘cause you’ve got a [E(4)]lion in - [D2]side of those lungs
+(1.) Get up and praise the [A]Lord         [E(4)] (To Bridge 1b)
+(2.) Get up and praise the [F#m7]Lord         [E(4)] (To Instr.2)
+
+{comment: Instrumental 2}
+[||:] [D2]          [|] [D2]          [|] [F#m7]        [|] [E(4)]        [:||] 
+[|] [D2(no3)]     [|] [D2(no3)]     [|] [D2(no3)]     [|] [D2(no3)]     [|] 
+
+{comment: Chorus 1b}
+So I [A]throw up my hands and praise You again and a - [Em]gain
+‘Cause all that I have is a [D2]hallelujah,      [Dm6]hallelujah
+And I [A]know it’s not much, but I’ve nothing else fit for a [Em]king
+Except for a heart singing, [D2]"Hallelujah,      [Dm6]hallelu - [A]jah"
+
+
+
+CCLI Song # 7158417
+© 2019 Bethel Worship Publishing | Brandon Lake Music | Maverick City Publishing | Maverick City Publishing Worldwide | SHOUT! Music Publishing Australia
+ | Bethel Music Publishing
+For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com
+CCLI License # 365971

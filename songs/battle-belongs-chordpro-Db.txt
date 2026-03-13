@@ -1,0 +1,53 @@
+{title: Battle Belongs}
+{artist: Phil Wickham, Brian Johnson}
+{subtitle: (based on the recording by Phil Wickham)}
+{key: Db}
+{tempo: 81}
+{time: 4/4}
+{ccli_license: 365971}
+{ccli: 7148126}
+{copyright: Phil Wickham Music | Simply Global Songs | Bethel Music Publishing}
+{footer: For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com}
+
+{comment: Intro /Turnaround}
+[||:][Db]           [|][Db]  [.]  [Dbsus]  [Db][:||] 
+
+{comment: Verse 1}
+[Db]  When all I see is the battle You see my [Gb2]vict'ry
+[Bbm7]  When all I see is the mountain You [Absus]see a moun  [Gb2]- tain moved
+[Db]  And as I walk through the shadow Your love sur - [Gb2]rounds me
+[Bbm7]    There's nothing to fear now for [Absus]I am safe   [Db] with You
+
+{comment: Chorus}
+So [(N.C.)]when I [Gb2]fight I'll [Db]fight on my [Ab]knees with my [Bbm7]hands lifted high
+[Gb2]  O  [Db]God the battle be  -  [Ab]longs to [Bbm7]You 
+And ev'ry [Gb2]fear I [Db]lay at Your [Ab]feet I'll [Bbm7]sing through the night
+[Gb2]  O  [Db]God
+(1.) The battle be  -  [Ab]longs to [Db]You  (To Turn. / Br.)
+(2.) The battle be  -  [Ab]longs to [Bbm7]You  (To Tag)
+
+{comment: Verse 2}
+[Db]    And if You are for me who can be a - [Gb2]gainst me?
+[Bbm7]    For Jesus there's nothing im - [Absus]possible   [Gb2] for You
+[Db]  When all I see are the ashes You see the [Gb2]beauty
+[Bbm7]  When all I see is a cross God You [Absus]see the emp  [Db]- ty tomb
+
+{comment: Bridge}
+[Gb]  (An) Almighty [Db]Fortress You go be - [Absus]fore us
+Nothing can [Bbm7]stand against the [Absus]power of our [Gb]God
+([Gb]God) You shine in the [Db]shadows You win ev'ry [Absus]battle
+Nothing can [Bbm7]stand against the [Absus]power
+(1.) Of our [Gb]God (To Br.)
+(2.) Of our [Gb2]God    [Ab] (To Ch.)
+
+{comment: Tag}
+[Gb2]  O  [Db]God the battle be  -  [Ab]longs to [Db]You
+
+{comment: Outro}
+[|][Db]           [|][Db]  [.]  [Dbsus]  [Db][|][Db]           [|]
+
+
+CCLI Song # 7148126
+© Phil Wickham Music | Simply Global Songs | Bethel Music Publishing
+For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com
+CCLI License # 365971

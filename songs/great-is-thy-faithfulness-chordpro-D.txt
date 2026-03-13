@@ -1,0 +1,39 @@
+{title: Great Is Thy Faithfulness}
+{artist: Thomas Obediah Chisholm, William Marion Runyan}
+{key: D}
+{time: 3/4}
+{tempo: 75}
+{ccli_license: 365971}
+{ccli: 18723}
+{copyright: Words: Public Domain | Music: Public Domain}
+{footer: For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com}
+
+{comment: Verse 1}
+[D]Great is [D+]Thy  [Gmaj7]faithfulness  [A7]O God my [G/D]Fa - [D]ther 
+[G]There is no [D/F#]shadow  [D]of  [E/B]turn - [B7]ing  [E7]with [A]Thee 
+[A7]Thou changest [D]not Thy [A7/D]com - [D]pas - [Em]sions [D/F#]they  [Gmaj7]fail not 
+[G#°7]As Thou hast [D/A]been Thou forev - [A7]er wilt [D]be 
+
+{comment: Chorus}
+[A]Great is Thy [G/D]faithful - [D]ness [B7]great is Thy [Am/E]faithful - [Em]ness 
+[A7]Morning by [D]morning [Dm6]new  [A/E]mercies  [E7]I  [A]see 
+[A7]All I have [D]needed  [A7/D]Thy  [D]hand [Em]hath [D/F#]pro - [Gmaj7]vided 
+[G#°7]Great is Thy [D/A]faithfulness Lord [A7]unto [D]me 
+
+{comment: Verse 2}
+[D]Summer [D+]and  [Gmaj7]winter and [A7]springtime and [G/D]har - [D]vest 
+[G]Sun moon and [D/F#]stars in [D]their [E/B]cours - [B7]es  [E7]a - [A]bove 
+[A7]Join with all [D]nature  [A7/D]in  [D]man - [Em]i - [D/F#]fold  [Gmaj7]witness 
+[G#°7]To Thy great [D/A]faithfulness mer - [A7]cy and [D]love 
+
+{comment: Verse 3}
+[D]Pardon [D+]for  [Gmaj7]sin and a [A7]peace that en - [G/D]dur - [D]eth 
+[G]Thy own dear [D/F#]presence  [D]to  [E/B]cheer  [B7]and  [E7]to  [A]guide 
+[A7]Strength for to - [D]day and [A7/D]bright  [D]hope  [Em]for  [D/F#]to - [Gmaj7]morrow 
+[G#°7]Blessings all [D/A]mine with ten thou - [A7]sand be - [D]side 
+
+
+CCLI Song # 18723
+© Words: Public Domain | Music: Public Domain
+For use solely with the SongSelect® Terms of Use. All rights reserved. www.ccli.com
+CCLI License # 365971
