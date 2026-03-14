@@ -7,147 +7,234 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-const scoreColors: Record<string, string> = {
-  green: "#4CAF7C", amber: "#C4963C", orange: "#D4703C", red: "#C44C4C",
-};
-const scoreBg: Record<string, string> = {
-  green: "bg-[#1A2E22]", amber: "bg-[#2E2210]", orange: "bg-[#2E1A10]", red: "bg-[#2E1010]",
-};
+function scoreColor(score: number) {
+  if (score >= 8.0) return { bar: '#639922', text: '#3B6D11', bg: '#EAF3DE' }
+  if (score >= 6.5) return { bar: '#BA7517', text: '#854F0B', bg: '#FAEEDA' }
+  if (score >= 5.0) return { bar: '#D85A30', text: '#993C1D', bg: '#FAECE7' }
+  return { bar: '#E24B4A', text: '#A32D2D', bg: '#FCEBEB' }
+}
+
+function scoreLabel(score: number) {
+  if (score >= 8.0) return 'Recommended'
+  if (score >= 6.5) return 'Use with care'
+  if (score >= 5.0) return 'Use cautiously'
+  return 'Not recommended'
+}
 
 export default async function SongPage({ params }: { params: { id: string } }) {
   const { data: song } = await supabase.from("songs").select("*").eq("id", params.id).single();
   if (!song) return notFound();
+
   const { data: review } = await supabase.from("reviews").select("*").eq("song_id", params.id).single();
   const { data: lenses } = await supabase.from("lens_scores").select("*").eq("song_id", params.id);
   const { data: defense } = await supabase.from("defense_brief").select("*").eq("song_id", params.id).single();
-  const color = review?.overall_score_color ?? "green";
+
+  const overall = review?.overall_score ?? 0;
+  const overallColor = scoreColor(overall);
+
+  const lensOrder = [
+    { key: 'scriptural_fidelity', label: 'Scriptural fidelity' },
+    { key: 'theological_clarity', label: 'Theological clarity' },
+    { key: 'singability', label: 'Singability' },
+    { key: 'poetic_quality', label: 'Poetic quality' },
+    { key: 'defense_brief', label: 'Defense brief' },
+  ];
+
+  const lensMap: Record<string, any> = {};
+  (lenses ?? []).forEach((l: any) => { lensMap[l.lens_name] = l; });
 
   return (
-    <main className="min-h-screen bg-[#0F0E0A] text-[#F5F0E8]">
-      <nav className="flex items-center justify-between px-8 py-6 border-b border-[#2A2820]">
-        <Link href="/" className="flex items-center gap-2">
-          <span className="text-2xl">🔍</span>
-          <span className="font-serif text-xl tracking-tight">WorshipLens</span>
+    <div style={{ fontFamily: "'DM Sans', sans-serif", background: '#ffffff', color: '#1a1a1a', minHeight: '100vh' }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap');
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        @media (max-width: 680px) {
+          .song-hero { flex-direction: column !important; align-items: flex-start !important; }
+          .two-col { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
+
+      <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.25rem 2.5rem', borderBottom: '0.5px solid rgba(0,0,0,0.10)' }}>
+        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
+          <svg width="26" height="26" viewBox="0 0 28 28" fill="none">
+            <circle cx="14" cy="14" r="13" stroke="rgba(0,0,0,0.3)" strokeWidth="0.75"/>
+            <path d="M8 18 C8 12 11 9 14 9 C17 9 20 12 20 18" stroke="#1a1a1a" strokeWidth="1" fill="none" strokeLinecap="round"/>
+            <path d="M10 18 C10 13.5 12 11 14 11 C16 11 18 13.5 18 18" stroke="#555550" strokeWidth="0.75" fill="none" strokeLinecap="round"/>
+            <circle cx="14" cy="18" r="1.5" fill="#1a1a1a"/>
+          </svg>
+          <span style={{ fontFamily: "'Lora', serif", fontSize: 17, fontWeight: 500, letterSpacing: '-0.01em', color: '#1a1a1a' }}>WorshipLens</span>
         </Link>
-        <Link href="/songs" className="text-sm text-[#8A8070] hover:text-[#F5F0E8] transition-colors">← All Songs</Link>
+        <Link href="/songs" style={{ fontSize: 13, color: '#555550', textDecoration: 'none' }}>← All songs</Link>
       </nav>
-      <div className="px-8 py-12 max-w-4xl mx-auto">
-        <div className="flex items-start justify-between mb-8 gap-6">
-          <div className="flex-1">
-            <h1 className="font-serif text-4xl mb-2">{song.title}</h1>
-            <p className="text-[#8A8070] text-lg mb-1">{song.artist}</p>
-            <div className="flex flex-wrap gap-4 text-xs text-[#5A5448]">
-              {song.ccli_number && <span>CCLI #{song.ccli_number}</span>}
-              {song.original_key && <span>Key of {song.original_key} → {song.recommended_key}</span>}
-              {song.tempo_bpm && <span>{song.tempo_bpm} BPM</span>}
-              {song.time_signature && <span>{song.time_signature}</span>}
+
+      <div style={{ borderBottom: '0.5px solid rgba(0,0,0,0.10)', padding: '3rem 2.5rem 2.5rem', maxWidth: 960, margin: '0 auto' }}>
+        <div className="song-hero" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '2rem' }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: '1rem' }}>
+              <div style={{ width: 22, height: 1, background: 'rgba(0,0,0,0.20)', marginTop: 7, flexShrink: 0 }} />
+              <span style={{ fontSize: 11, letterSpacing: '0.09em', textTransform: 'uppercase' as const, color: '#999990', fontWeight: 400 }}>Song review</span>
+            </div>
+            <h1 style={{ fontFamily: "'Lora', serif", fontSize: 38, fontWeight: 400, lineHeight: 1.15, letterSpacing: '-0.02em', marginBottom: '0.75rem' }}>{song.title}</h1>
+            <p style={{ fontSize: 15, color: '#555550', marginBottom: '1rem', fontWeight: 300 }}>{song.artist}</p>
+            <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 8 }}>
+              {song.ccli_number && <span style={{ fontSize: 11, color: '#999990', background: '#f7f6f3', border: '0.5px solid rgba(0,0,0,0.10)', padding: '3px 10px', borderRadius: 8 }}>CCLI #{song.ccli_number}</span>}
+              {song.original_key && <span style={{ fontSize: 11, color: '#999990', background: '#f7f6f3', border: '0.5px solid rgba(0,0,0,0.10)', padding: '3px 10px', borderRadius: 8 }}>Key of {song.original_key}{song.recommended_key && song.recommended_key !== song.original_key ? ` → ${song.recommended_key}` : ''}</span>}
+              {song.tempo_bpm && <span style={{ fontSize: 11, color: '#999990', background: '#f7f6f3', border: '0.5px solid rgba(0,0,0,0.10)', padding: '3px 10px', borderRadius: 8 }}>{song.tempo_bpm} BPM</span>}
+              {song.time_signature && <span style={{ fontSize: 11, color: '#999990', background: '#f7f6f3', border: '0.5px solid rgba(0,0,0,0.10)', padding: '3px 10px', borderRadius: 8 }}>{song.time_signature}</span>}
             </div>
           </div>
-          {review && (
-            <div className={"flex-shrink-0 w-20 h-20 rounded-lg flex items-center justify-center " + scoreBg[color]}>
-              <div className="text-center">
-                <div className="text-3xl font-bold" style={{ color: scoreColors[color] }}>{review.overall_score}</div>
-                <div className="text-xs" style={{ color: scoreColors[color] }}>/10</div>
-              </div>
+          <div style={{ textAlign: 'center' as const, flexShrink: 0 }}>
+            <div style={{ width: 88, height: 88, borderRadius: 16, background: overallColor.bg, display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}>
+              <span style={{ fontFamily: "'Lora', serif", fontSize: 32, fontWeight: 500, color: overallColor.text, lineHeight: 1 }}>{overall.toFixed(1)}</span>
+              <span style={{ fontSize: 10, color: overallColor.text, opacity: 0.7, marginTop: 2 }}>/10</span>
             </div>
-          )}
+            <span style={{ fontSize: 11, fontWeight: 500, color: overallColor.text, background: overallColor.bg, padding: '3px 10px', borderRadius: 8 }}>{scoreLabel(overall)}</span>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ maxWidth: 960, margin: '0 auto', padding: '2.5rem' }}>
+
+        <div style={{ marginBottom: '3rem' }}>
+          <p style={{ fontSize: 11, letterSpacing: '0.09em', textTransform: 'uppercase' as const, color: '#999990', marginBottom: '1.25rem' }}>Five lenses</p>
+          <div style={{ border: '0.5px solid rgba(0,0,0,0.10)', borderRadius: 12, overflow: 'hidden' }}>
+            {lensOrder.map((l, i) => {
+              const lens = lensMap[l.key];
+              const score = lens?.score ?? 0;
+              const c = scoreColor(score);
+              return (
+                <div key={l.key} style={{ background: '#fff', borderBottom: i < lensOrder.length - 1 ? '0.5px solid rgba(0,0,0,0.08)' : 'none', padding: '1.125rem 1.25rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: lens?.summary ? '0.75rem' : 0 }}>
+                    <span style={{ fontSize: 11, color: '#999990', width: 18, flexShrink: 0 }}>0{i + 1}</span>
+                    <span style={{ fontSize: 13, fontWeight: 500, flex: 1 }}>{l.label}</span>
+                    <div style={{ width: 120, height: 4, background: 'rgba(0,0,0,0.08)', borderRadius: 2, overflow: 'hidden', flexShrink: 0 }}>
+                      <div style={{ height: '100%', borderRadius: 2, width: `${(score / 10) * 100}%`, background: c.bar }} />
+                    </div>
+                    <span style={{ fontSize: 13, fontWeight: 500, color: c.text, width: 28, textAlign: 'right' as const, flexShrink: 0 }}>{score.toFixed(1)}</span>
+                  </div>
+                  {lens?.deduction_note && <p style={{ fontSize: 12, color: '#999990', fontStyle: 'italic', marginLeft: 34, marginBottom: '0.375rem' }}>− {lens.deduction_note}</p>}
+                  {lens?.summary && <p style={{ fontSize: 13, color: '#555550', lineHeight: 1.65, fontWeight: 300, marginLeft: 34 }}>{lens.summary}</p>}
+                </div>
+              );
+            })}
+          </div>
         </div>
 
-        {song.themes?.length > 0 && (
-          <div className="mb-8">
-            <p className="text-xs text-[#8A8070] uppercase tracking-widest mb-3">Themes</p>
-            <div className="flex flex-wrap gap-2">
-              {song.themes.map((t: string) => (
-                <span key={t} className="text-xs px-3 py-1 rounded-full bg-[#1A1814] border border-[#2A2820] text-[#A09080]">{t}</span>
+        {review?.full_review && (
+          <div style={{ marginBottom: '3rem' }}>
+            <p style={{ fontSize: 11, letterSpacing: '0.09em', textTransform: 'uppercase' as const, color: '#999990', marginBottom: '1.25rem' }}>Full review</p>
+            <div style={{ fontSize: 15, color: '#333', lineHeight: 1.8, fontWeight: 300 }}>
+              {review.full_review.split('\n\n').map((para: string, i: number) => (
+                <p key={i} style={{ marginBottom: '1.25rem' }}>{para}</p>
               ))}
             </div>
           </div>
         )}
 
-        {song.scripture_connections?.length > 0 && (
-          <div className="mb-8">
-            <p className="text-xs text-[#8A8070] uppercase tracking-widest mb-3">Scripture Connections</p>
-            <div className="flex flex-wrap gap-2">
-              {song.scripture_connections.map((s: string) => (
-                <span key={s} className="text-xs px-3 py-1 rounded-full bg-[#1A1C14] border border-[#2A2C20] text-[#7A9070]">{s}</span>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {lenses && lenses.length > 0 && (
-          <div className="mb-8">
-            <p className="text-xs text-[#8A8070] uppercase tracking-widest mb-4">Five Lens Review</p>
-            <div className="grid gap-px bg-[#2A2820]">
-              {lenses.map((lens: any) => (
-                <div key={lens.id} className="bg-[#0F0E0A] p-5 flex items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <p className="text-sm font-medium mb-1">{lens.lens_name}</p>
-                    <p className="text-sm text-[#8A8070] mb-2">{lens.summary}</p>
-                    {lens.deduction_line && lens.deduction_line !== "No deductions" && (
-                      <p className="text-xs text-[#C44C4C] italic">{lens.deduction_line}</p>
-                    )}
-                  </div>
-                  <div className={"flex-shrink-0 w-12 h-12 rounded flex items-center justify-center " + (scoreBg[lens.score_color] || scoreBg.green)}>
-                    <span className="text-lg font-bold" style={{ color: scoreColors[lens.score_color] || scoreColors.green }}>{lens.score}</span>
-                  </div>
+        <div className="two-col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '3rem' }}>
+          <div>
+            {song.themes?.length > 0 && (
+              <div style={{ marginBottom: '1.5rem' }}>
+                <p style={{ fontSize: 11, letterSpacing: '0.09em', textTransform: 'uppercase' as const, color: '#999990', marginBottom: '0.875rem' }}>Themes</p>
+                <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 6 }}>
+                  {song.themes.map((t: string) => (
+                    <span key={t} style={{ fontSize: 12, color: '#555550', background: '#f7f6f3', border: '0.5px solid rgba(0,0,0,0.10)', padding: '4px 10px', borderRadius: 8 }}>{t}</span>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </div>
+            )}
+            {song.scripture_connections?.length > 0 && (
+              <div>
+                <p style={{ fontSize: 11, letterSpacing: '0.09em', textTransform: 'uppercase' as const, color: '#999990', marginBottom: '0.875rem' }}>Scripture connections</p>
+                <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 4 }}>
+                  {song.scripture_connections.map((s: string) => (
+                    <span key={s} style={{ fontSize: 13, color: '#555550', fontWeight: 300 }}>{s}</span>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
-        )}
-
-        {review?.full_review_text && (
-          <div className="mb-8">
-            <p className="text-xs text-[#8A8070] uppercase tracking-widest mb-4">Full Review</p>
-            <div className="bg-[#131210] border border-[#2A2820] rounded p-6 text-[#A09080] leading-relaxed text-sm space-y-4">
-              {review.full_review_text.split("\n\n").map((para: string, i: number) => (
-                <p key={i}>{para}</p>
-              ))}
-            </div>
+          <div>
+            {review?.sermon_fit && (
+              <div style={{ marginBottom: '1.5rem' }}>
+                <p style={{ fontSize: 11, letterSpacing: '0.09em', textTransform: 'uppercase' as const, color: '#999990', marginBottom: '0.875rem' }}>Sermon fit</p>
+                <p style={{ fontSize: 13, color: '#555550', lineHeight: 1.65, fontWeight: 300 }}>{review.sermon_fit}</p>
+              </div>
+            )}
+            {review?.service_placement && (
+              <div style={{ marginBottom: '1.5rem' }}>
+                <p style={{ fontSize: 11, letterSpacing: '0.09em', textTransform: 'uppercase' as const, color: '#999990', marginBottom: '0.875rem' }}>Service placement</p>
+                <p style={{ fontSize: 13, color: '#555550', lineHeight: 1.65, fontWeight: 300 }}>{review.service_placement}</p>
+              </div>
+            )}
+            {song.audience_profile && (
+              <div>
+                <p style={{ fontSize: 11, letterSpacing: '0.09em', textTransform: 'uppercase' as const, color: '#999990', marginBottom: '0.875rem' }}>Audience fit</p>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, border: '0.5px solid rgba(0,0,0,0.10)', borderRadius: 8, overflow: 'hidden', background: 'rgba(0,0,0,0.06)' }}>
+                  {[
+                    { k: 'Maturity', v: song.audience_profile.spiritual_maturity },
+                    { k: 'Age group', v: song.audience_profile.age_group },
+                    { k: 'Service type', v: song.audience_profile.service_type },
+                    { k: 'Visitor-friendly', v: song.audience_profile.visitor_friendliness },
+                  ].filter(d => d.v).map(d => (
+                    <div key={d.k} style={{ background: '#fff', padding: '0.625rem 0.875rem' }}>
+                      <p style={{ fontSize: 10, color: '#999990', textTransform: 'uppercase' as const, letterSpacing: '0.06em', marginBottom: 2 }}>{d.k}</p>
+                      <p style={{ fontSize: 12, color: '#333' }}>{d.v}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
-        )}
+        </div>
 
         {defense && (
-          <div className="mb-8">
-            <p className="text-xs text-[#8A8070] uppercase tracking-widest mb-4">Worship Leader Defense Brief</p>
-            <div className="space-y-3">
+          <div style={{ marginBottom: '3rem' }}>
+            <p style={{ fontSize: 11, letterSpacing: '0.09em', textTransform: 'uppercase' as const, color: '#999990', marginBottom: '1.25rem' }}>Worship leader defense brief</p>
+            <div style={{ border: '0.5px solid rgba(0,0,0,0.10)', borderRadius: 12, overflow: 'hidden' }}>
               {defense.objections?.map((obj: any, i: number) => (
-                <div key={i} className="bg-[#131210] border border-[#2A2820] rounded p-5">
-                  <p className="text-sm font-medium mb-2">"{obj.objection}"</p>
-                  <p className="text-sm text-[#7A9070] mb-2">{obj.scripture_response}</p>
-                  <p className="text-xs text-[#5A5448] italic">{obj.suggested_framing}</p>
+                <div key={i} style={{ padding: '1.25rem', borderBottom: '0.5px solid rgba(0,0,0,0.08)', background: '#fff' }}>
+                  <p style={{ fontSize: 12, fontWeight: 500, color: '#1a1a1a', marginBottom: '0.5rem' }}>"{obj.objection}"</p>
+                  <p style={{ fontSize: 13, color: '#555550', lineHeight: 1.65, fontWeight: 300 }}>{obj.response}</p>
                 </div>
               ))}
               {defense.honest_concession && (
-                <div className="bg-[#1A1814] border border-[#C4963C]/20 rounded p-5">
-                  <p className="text-xs text-[#C4963C] uppercase tracking-widest mb-2">Honest Concession</p>
-                  <p className="text-sm text-[#A09080]">{defense.honest_concession}</p>
+                <div style={{ padding: '1.25rem', background: '#f7f6f3', borderBottom: '0.5px solid rgba(0,0,0,0.08)' }}>
+                  <p style={{ fontSize: 11, textTransform: 'uppercase' as const, letterSpacing: '0.07em', color: '#999990', marginBottom: '0.5rem' }}>Honest concession</p>
+                  <p style={{ fontSize: 13, color: '#555550', lineHeight: 1.65, fontStyle: 'italic', fontWeight: 300 }}>{defense.honest_concession}</p>
+                </div>
+              )}
+              {defense.suggested_framing && (
+                <div style={{ padding: '1.25rem', background: '#fff' }}>
+                  <p style={{ fontSize: 11, textTransform: 'uppercase' as const, letterSpacing: '0.07em', color: '#999990', marginBottom: '0.5rem' }}>Suggested framing</p>
+                  <p style={{ fontSize: 13, color: '#555550', lineHeight: 1.65, fontWeight: 300 }}>{defense.suggested_framing}</p>
                 </div>
               )}
             </div>
           </div>
         )}
 
-        {song.audience_profile && (
-          <div className="mb-8">
-            <p className="text-xs text-[#8A8070] uppercase tracking-widest mb-4">Audience Fit</p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-[#2A2820]">
-              {[
-                { label: "Maturity", value: song.audience_profile.spiritual_maturity },
-                { label: "Age Group", value: song.audience_profile.age_group },
-                { label: "Service Type", value: song.audience_profile.service_type },
-                { label: "Visitor-Friendly", value: song.audience_profile.visitor_friendliness },
-              ].filter(d => d.value).map(d => (
-                <div key={d.label} className="bg-[#0F0E0A] p-4">
-                  <div className="text-xs text-[#5A5448] mb-1">{d.label}</div>
-                  <div className="text-sm">{d.value}</div>
+        {(review?.similar_if_like || review?.similar_if_concerned) && (
+          <div>
+            <p style={{ fontSize: 11, letterSpacing: '0.09em', textTransform: 'uppercase' as const, color: '#999990', marginBottom: '1.25rem' }}>Similar songs</p>
+            <div className="two-col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              {review.similar_if_like && (
+                <div style={{ background: '#f7f6f3', border: '0.5px solid rgba(0,0,0,0.08)', borderRadius: 10, padding: '1rem' }}>
+                  <p style={{ fontSize: 11, color: '#3B6D11', fontWeight: 500, marginBottom: '0.5rem' }}>If you like this song</p>
+                  <p style={{ fontSize: 13, color: '#555550', fontWeight: 300, lineHeight: 1.6 }}>{review.similar_if_like}</p>
                 </div>
-              ))}
+              )}
+              {review.similar_if_concerned && (
+                <div style={{ background: '#f7f6f3', border: '0.5px solid rgba(0,0,0,0.08)', borderRadius: 10, padding: '1rem' }}>
+                  <p style={{ fontSize: 11, color: '#854F0B', fontWeight: 500, marginBottom: '0.5rem' }}>If this concerns you</p>
+                  <p style={{ fontSize: 13, color: '#555550', fontWeight: 300, lineHeight: 1.6 }}>{review.similar_if_concerned}</p>
+                </div>
+              )}
             </div>
           </div>
         )}
+
       </div>
-    </main>
+    </div>
   );
 }
