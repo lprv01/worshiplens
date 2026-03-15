@@ -27,7 +27,7 @@ load_dotenv(Path(__file__).parent / '.env.local')
 ANTHROPIC_API_KEY   = os.environ.get('ANTHROPIC_API_KEY')
 SUPABASE_URL        = os.environ.get('NEXT_PUBLIC_SUPABASE_URL')
 SUPABASE_KEY        = os.environ.get('SUPABASE_SERVICE_ROLE_KEY')
-SONGS_DIR           = Path(__file__).parent / 'songs'
+SONGS_DIR           = Path(os.environ.get('SONGS_DIR', str(Path(__file__).parent / 'songs')))
 PROGRESS_FILE       = Path(__file__).parent / '.batch_progress.json'
 
 if not all([ANTHROPIC_API_KEY, SUPABASE_URL, SUPABASE_KEY]):
@@ -493,6 +493,17 @@ def save_progress(progress):
 
 # ─── Main ─────────────────────────────────────────────────────────────────────
 
+def get_existing_ccli_numbers():
+    """Fetch all CCLI numbers already in Supabase to skip duplicates."""
+    from supabase import create_client
+    supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+    result = supabase.table('songs').select('ccli_number').execute()
+    existing = set()
+    for row in result.data:
+        if row.get('ccli_number'):
+            existing.add(str(row['ccli_number']).strip())
+    return existing
+
 def main():
     # Get all txt files, deduplicate by base name (skip files with (1) etc)
     all_files = sorted(SONGS_DIR.glob('*.txt'))
@@ -504,6 +515,11 @@ def main():
         if base not in seen_bases:
             seen_bases.add(base)
             files.append(f)
+
+    # Fetch existing CCLI numbers from Supabase
+    print("Checking existing songs in Supabase...")
+    existing_ccli = get_existing_ccli_numbers()
+    print(f"Found {len(existing_ccli)} songs already in database")
 
     print(f"Found {len(files)} unique song files")
     print(f"Songs directory: {SONGS_DIR}")
@@ -535,6 +551,14 @@ def main():
             if not parsed['title']:
                 print(f"  WARNING: No title found, skipping")
                 progress[filename] = 'failed'
+                save_progress(progress)
+                continue
+
+            # Skip if already in Supabase by CCLI number
+            ccli = str(parsed.get('ccli_number', '')).strip()
+            if ccli and ccli in existing_ccli:
+                print(f"  SKIP (already in database, CCLI #{ccli}): {parsed['title']}")
+                progress[filename] = 'done'
                 save_progress(progress)
                 continue
 

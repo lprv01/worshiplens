@@ -9,14 +9,11 @@ const supabase = createClient(
 const scoreColors: Record<string, string> = {
   green: "#4CAF7C", amber: "#C4963C", orange: "#D4703C", red: "#C44C4C",
 };
-const scoreBg: Record<string, string> = {
-  green: "bg-[#1A2E22]", amber: "bg-[#2E2210]", orange: "bg-[#2E1A10]", red: "bg-[#2E1010]",
-};
 
 export default async function SongsPage() {
   const { data: songs } = await supabase
     .from("songs")
-    .select("id, title, artist, ccli_number, original_key, tempo_bpm, themes, reviews(overall_score, overall_score_color)")
+    .select("id, slug, title, artist, ccli_number, key_original, tempo_bpm, themes, overall_score, score_color, recommendation")
     .order("title");
 
   return (
@@ -38,30 +35,39 @@ export default async function SongsPage() {
         ) : (
           <div className="grid gap-px bg-[#2A2820]">
             {songs.map((song: any) => {
-              const review = Array.isArray(song.reviews) ? song.reviews[0] : song.reviews;
-              const color = review?.overall_score_color ?? "green";
+              const color = song.score_color ?? "green";
+              const scoreVal = song.overall_score ?? 0;
+              // Use slug for URL, fall back to id if slug missing
+              const href = "/songs/" + (song.slug || song.id);
               return (
-                <Link key={song.id} href={"/songs/" + song.id}
+                <Link key={song.id} href={href}
                   className="bg-[#0F0E0A] hover:bg-[#151310] transition-colors p-6 flex items-center justify-between group">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3 mb-1">
                       <h2 className="font-medium group-hover:text-[#C4963C] transition-colors truncate">{song.title}</h2>
                       {song.ccli_number && <span className="text-xs text-[#4A4438] flex-shrink-0">#{song.ccli_number}</span>}
                     </div>
-                    <div className="flex items-center gap-4 text-xs text-[#5A5448]">
+                    <div className="flex items-center gap-3 text-xs text-[#6A6050]">
                       <span>{song.artist}</span>
-                      {song.original_key && <span>Key of {song.original_key}</span>}
+                      {song.key_original && <span>Key of {song.key_original}</span>}
                       {song.tempo_bpm && <span>{song.tempo_bpm} BPM</span>}
                     </div>
-                  </div>
-                  {review?.overall_score && (
-                    <div className={"flex-shrink-0 ml-6 w-14 h-14 rounded flex items-center justify-center " + scoreBg[color]}>
-                      <div className="text-center">
-                        <div className="text-lg font-bold" style={{ color: scoreColors[color] }}>{review.overall_score}</div>
-                        <div className="text-xs" style={{ color: scoreColors[color] }}>/10</div>
+                    {song.themes?.length > 0 && (
+                      <div className="flex gap-2 mt-2 flex-wrap">
+                        {song.themes.slice(0, 3).map((t: string) => (
+                          <span key={t} className="text-xs px-2 py-0.5 rounded border border-[#2A2820] text-[#6A6050]">{t}</span>
+                        ))}
                       </div>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-3 ml-6 flex-shrink-0">
+                    <div className="text-right">
+                      <div className="text-2xl font-serif font-medium" style={{ color: scoreColors[color] ?? scoreColors.green }}>
+                        {scoreVal.toFixed(1)}
+                      </div>
+                      <div className="text-xs text-[#6A6050]">/10</div>
                     </div>
-                  )}
+                  </div>
                 </Link>
               );
             })}
