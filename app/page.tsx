@@ -1,13 +1,17 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
+
+const NAVY = '#0D1B2A'
+const BLUE = '#00b5ff'
 
 const lenses = [
-  { id: 'sf', num: '01', name: 'Scriptural fidelity', tag: 'Biblical accuracy & alignment', desc: 'Evaluates whether lyrics align with Scripture. Flags Word of Faith language, vague universalism, or elevation of personal experience over biblical truth.', meta: [{ k: 'Watchpoints', v: 'Word of Faith, universalism' }, { k: 'Score range', v: '0-10' }] },
-  { id: 'tc', num: '02', name: 'Theological clarity', tag: 'The Radio Test', desc: 'Applies the Radio Test — could a secular station play this without knowing it is worship? Strong songs are unmistakably Christ-centred.', meta: [{ k: 'Watchpoints', v: 'Vague spirituality' }, { k: 'Score range', v: '0-10' }] },
+  { id: 'sf', num: '01', name: 'Scriptural fidelity', tag: 'Biblical accuracy and alignment', desc: 'Evaluates whether lyrics align with Scripture. Flags Word of Faith language, vague universalism, or elevation of personal experience over biblical truth.', meta: [{ k: 'Watchpoints', v: 'Word of Faith, universalism' }, { k: 'Score range', v: '0-10' }] },
+  { id: 'tc', num: '02', name: 'Theological clarity', tag: 'The Radio Test', desc: 'Applies the Radio Test: could a secular station play this without knowing it is worship? Strong songs are unmistakably Christ-centred.', meta: [{ k: 'Watchpoints', v: 'Vague spirituality' }, { k: 'Score range', v: '0-10' }] },
   { id: 'sg', num: '03', name: 'Singability', tag: 'Range, key, congregational fit', desc: 'Ideal congregational range is A3-D5. Notes original key, recommends a congregation-friendly key, and evaluates melody accessibility for untrained singers.', meta: [{ k: 'Ideal range', v: 'A3-D5' }, { k: 'Score range', v: '0-10' }] },
   { id: 'pq', num: '04', name: 'Poetic quality', tag: 'Imagery, grammar, lyric depth', desc: 'Evaluates grammar, repetition ratio, cliche density, and imagery quality. Songs that carry weight in their words, not just their melody, score highest.', meta: [{ k: 'Watchpoints', v: 'Cliches, filler repetition' }, { k: 'Score range', v: '0-10' }] },
-  { id: 'db', num: '05', name: 'Defense brief', tag: 'Objections & Scripture responses', desc: '2-3 likely congregant objections with Scripture-based responses, an honest concession, and suggested framing. Equips leaders to defend song choices pastorally.', meta: [{ k: 'Includes', v: 'Objections, concession, framing' }, { k: 'Score range', v: '0-10' }] },
+  { id: 'db', num: '05', name: 'Defense brief', tag: 'Objections and Scripture responses', desc: '2-3 likely congregant objections with Scripture-based responses, an honest concession, and suggested framing. Equips leaders to defend song choices pastorally.', meta: [{ k: 'Includes', v: 'Objections, concession, framing' }, { k: 'Score range', v: '0-10' }] },
 ]
 
 const cardLenses = [
@@ -18,183 +22,277 @@ const cardLenses = [
   { label: 'Defense brief', score: '9.0', pct: '90%', color: 'green' },
 ]
 
+// Logo 01 — white + blue wordmark for dark/navy backgrounds
+function LogoWhite({ height = 24 }: { height?: number }) {
+  const w = height * (672.16 / 174.63)
+  return (
+    <svg width={w} height={height} viewBox="0 0 672.16 174.63" xmlns="http://www.w3.org/2000/svg" style={{ display: 'block' }}>
+      <g>
+        <path fill="#fff" d="M154.42,72.27c9.08,0,16.46,7.38,16.46,16.46s-7.38,16.46-16.46,16.46-16.46-7.38-16.46-16.46,7.38-16.46,16.46-16.46M154.42,61.17c-15.22,0-27.56,12.34-27.56,27.56s12.34,27.56,27.56,27.56,27.56-12.34,27.56-27.56-12.34-27.56-27.56-27.56h0Z"/>
+        <circle fill="#fff" cx="160.71" cy="80.39" r="8.22"/>
+        <circle fill="#fff" cx="165.05" cy="91.63" r="1.95"/>
+      </g>
+      <path fill="#fff" d="M78.49,61.5l-14.02,53.49h-13.59L30.11,42.47h14.24l14.13,55.88,15-55.88h10.11l15,55.88,14.02-55.88h14.24l-20.66,72.52h-13.59l-14.13-53.49Z"/>
+      <path fill="#fff" d="M192.96,62.47h11.42v7.72c3.91-5,10.22-8.92,17.07-8.92v11.31c-.98-.22-2.17-.33-3.59-.33-4.78,0-11.2,3.26-13.48,6.96v35.77h-11.42v-52.51Z"/>
+      <path fill="#fff" d="M231.34,99.87c3.7,3.81,10.98,7.39,17.83,7.39s10.33-2.5,10.33-6.42c0-4.57-5.54-6.2-11.96-7.61-9.02-1.96-19.79-4.35-19.79-16.09,0-8.59,7.39-15.98,20.66-15.98,8.92,0,15.66,3.15,20.44,7.39l-4.78,8.04c-3.15-3.59-9.02-6.31-15.55-6.31-5.98,0-9.78,2.17-9.78,5.87,0,4.02,5.22,5.44,11.42,6.85,9.13,1.96,20.33,4.57,20.33,16.96,0,9.24-7.72,16.31-21.85,16.31-8.91,0-17.07-2.83-22.5-8.15l5.22-8.26Z"/>
+      <path fill="#fff" d="M317.54,81.93c0-8.15-4.24-10.65-10.66-10.65-5.76,0-10.76,3.48-13.48,7.07v36.64h-11.42V42.47h11.42v27.18c3.48-4.13,10.33-8.48,18.59-8.48,11.31,0,16.96,5.87,16.96,16.63v37.18h-11.42v-33.05Z"/>
+      <path fill="#fff" d="M342.33,46.71c0-3.91,3.26-7.07,7.07-7.07s7.07,3.15,7.07,7.07-3.15,7.07-7.07,7.07-7.07-3.15-7.07-7.07ZM343.74,62.47h11.42v52.51h-11.42v-52.51Z"/>
+      <path fill="#fff" d="M369.94,134.99V62.47h11.42v7.17c3.91-5.22,10-8.48,16.85-8.48,13.59,0,23.27,10.22,23.27,27.51s-9.68,27.61-23.27,27.61c-6.63,0-12.61-2.94-16.85-8.59v27.29h-11.42ZM394.84,71.28c-5.33,0-10.98,3.15-13.48,7.07v20.77c2.5,3.81,8.15,7.07,13.48,7.07,9.02,0,14.79-7.28,14.79-17.5s-5.76-17.4-14.79-17.4Z"/>
+      <path fill="#00b5ff" d="M434.62,42.47h6.2v66.86h35.12v5.65h-41.31V42.47Z"/>
+      <path fill="#00b5ff" d="M508.66,61.17c15.98,0,24.79,12.72,24.79,27.83v1.52h-43.92c.54,11.42,8.15,20.87,20.55,20.87,6.63,0,12.72-2.5,17.18-7.28l2.94,3.7c-5.22,5.44-11.85,8.48-20.55,8.48-15.33,0-26.31-11.42-26.31-27.61,0-15.22,10.76-27.51,25.33-27.51ZM489.53,86.07h38.16c-.11-8.92-5.98-20-19.13-20-12.39,0-18.59,10.87-19.03,20Z"/>
+      <path fill="#00b5ff" d="M583.45,79.43c0-10.11-5.11-13.16-12.72-13.16-6.74,0-13.7,4.24-17.07,9.02v39.68h-5.65v-52.51h5.65v7.94c3.8-4.57,11.31-9.24,18.92-9.24,10.65,0,16.53,5.22,16.53,17.07v36.75h-5.65v-35.55Z"/>
+      <path fill="#00b5ff" d="M605.52,103.79c3.37,4.24,9.57,7.72,16.96,7.72,8.81,0,14.02-4.35,14.02-10.44,0-6.74-7.17-8.7-14.68-10.65-8.81-2.17-18.48-4.46-18.48-14.68,0-8.05,6.85-14.57,18.7-14.57,9.02,0,15,3.48,18.81,7.72l-3.15,4.02c-3.04-4.13-8.7-6.96-15.66-6.96-8.15,0-13.16,4.02-13.16,9.46,0,5.98,6.74,7.61,14.02,9.46,9.02,2.28,19.13,4.78,19.13,15.98,0,8.48-6.52,15.44-19.68,15.44-8.48,0-15-2.5-20.22-8.26l3.37-4.24Z"/>
+    </svg>
+  )
+}
+
 export default function HomePage() {
-  const [openSection, setOpenSection] = useState<string | null>(null)
-  const [hoveredFw, setHoveredFw] = useState<string | null>(null)
-  const [activeFw, setActiveFw] = useState<string | null>(null)
-
-  function toggleSection(id: string) {
-    setOpenSection(prev => prev === id ? null : id)
-  }
-
-  function handleFwEnter(id: string) {
-    setHoveredFw(id)
-    setActiveFw(id)
-  }
-
-  function handleFwLeave() {
-    setHoveredFw(null)
-    setTimeout(() => { setActiveFw(null) }, 400)
-  }
-
-  function toggleFw(id: string) {
-    setActiveFw(prev => prev === id ? null : id)
-  }
-
-  const openFw = hoveredFw ?? activeFw
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [openLens, setOpenLens] = useState<string | null>(null)
 
   return (
-    <div style={{ fontFamily: "'DM Sans', sans-serif", background: '#ffffff', color: '#1a1a1a' }}>
+    <div style={{ fontFamily: "'Sora', sans-serif", background: '#ffffff', color: '#0D1B2A' }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        .fw-trigger:hover { background: #f7f6f3; }
-        .acc-trigger:hover { background: #f7f6f3; }
+        @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&display=swap');
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        .ham-line {
+          display: block; width: 22px; height: 1.5px;
+          background: #ffffff; border-radius: 2px; position: absolute;
+          transition: transform 0.3s cubic-bezier(0.4,0,0.2,1), opacity 0.2s ease;
+        }
+        .ham-line-1 { transform: translateY(-5px); }
+        .ham-line-3 { transform: translateY(5px); }
+        .ham-open .ham-line-1 { transform: translateY(0) rotate(45deg); }
+        .ham-open .ham-line-2 { opacity: 0; transform: scaleX(0); }
+        .ham-open .ham-line-3 { transform: translateY(0) rotate(-45deg); }
+        .mobile-menu {
+          max-height: 0; overflow: hidden;
+          transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1);
+          background: ${NAVY};
+          border-top: 0.5px solid rgba(255,255,255,0.08);
+        }
+        .mobile-menu.open { max-height: 280px; }
+        .lens-detail {
+          max-height: 0; overflow: hidden; opacity: 0;
+          transition: max-height 0.35s ease, opacity 0.25s ease;
+        }
+        .lens-detail.open { max-height: 200px; opacity: 1; }
+        .lens-row-btn:hover { background: #F7FAFD; }
+        .recently-scroll::-webkit-scrollbar { display: none; }
         @media (max-width: 680px) {
           .hero-grid { grid-template-columns: 1fr !important; }
-          .card-wrap { justify-content: flex-start !important; }
-          .hero-card { width: 100% !important; }
-          .headline { font-size: 36px !important; }
-          .fw-tag { display: none; }
-          .fw-detail { flex-direction: column !important; }
+          .hero-card-wrap { display: none !important; }
+          .desktop-nav-links { display: none !important; }
+          .hamburger-btn { display: flex !important; }
+          .lens-tag { display: none; }
+        }
+        @media (min-width: 681px) {
+          .hamburger-btn { display: none !important; }
+          .mobile-menu { display: none !important; }
         }
       `}</style>
 
-      <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.25rem 2.5rem', borderBottom: '0.5px solid rgba(0,0,0,0.10)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <svg width="26" height="26" viewBox="0 0 28 28" fill="none">
-            <circle cx="14" cy="14" r="13" stroke="rgba(0,0,0,0.3)" strokeWidth="0.75"/>
-            <path d="M8 18 C8 12 11 9 14 9 C17 9 20 12 20 18" stroke="#1a1a1a" strokeWidth="1" fill="none" strokeLinecap="round"/>
-            <path d="M10 18 C10 13.5 12 11 14 11 C16 11 18 13.5 18 18" stroke="#555550" strokeWidth="0.75" fill="none" strokeLinecap="round"/>
-            <circle cx="14" cy="18" r="1.5" fill="#1a1a1a"/>
-          </svg>
-          <span style={{ fontFamily: "'Lora', serif", fontSize: 17, fontWeight: 500, letterSpacing: '-0.01em' }}>WorshipLens</span>
+      {/* NAV */}
+      <nav style={{ background: NAVY, position: 'sticky', top: 0, zIndex: 50 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', height: 56, maxWidth: 1100, margin: '0 auto' }}>
+          <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+            <LogoWhite height={22} />
+          </Link>
+          <div className="desktop-nav-links" style={{ display: 'flex', gap: 28, alignItems: 'center' }}>
+            <Link href="/songs" style={{ fontSize: 13, fontWeight: 400, color: 'rgba(255,255,255,0.55)', textDecoration: 'none' }}>Songs</Link>
+            <Link href="/about" style={{ fontSize: 13, fontWeight: 400, color: 'rgba(255,255,255,0.55)', textDecoration: 'none' }}>About</Link>
+            <Link href="/scoring-philosophy" style={{ fontSize: 13, fontWeight: 400, color: 'rgba(255,255,255,0.55)', textDecoration: 'none' }}>Scoring Philosophy</Link>
+          </div>
+          <button
+            className={`hamburger-btn${menuOpen ? ' ham-open' : ''}`}
+            onClick={() => setMenuOpen(v => !v)}
+            aria-label="Menu"
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, background: 'none', border: 'none', cursor: 'pointer', position: 'relative', flexShrink: 0 }}
+          >
+            <span className="ham-line ham-line-1" />
+            <span className="ham-line ham-line-2" />
+            <span className="ham-line ham-line-3" />
+          </button>
         </div>
-        <div style={{ display: 'flex', gap: '1.75rem', alignItems: 'center' }}>
-          <a href="/songs" style={{ fontSize: 13, color: '#555550', textDecoration: 'none' }}>Browse songs</a>
-          <a href="/about" style={{ fontSize: 13, color: '#555550', textDecoration: 'none' }}>About</a>
-          <a href="/signin" style={{ fontSize: 12, fontWeight: 500, border: '0.5px solid rgba(0,0,0,0.30)', padding: '6px 14px', borderRadius: 8, textDecoration: 'none', color: '#1a1a1a' }}>Sign in</a>
+        <div className={`mobile-menu${menuOpen ? ' open' : ''}`}>
+          <div style={{ padding: '8px 0 16px' }}>
+            {[{ href: '/songs', label: 'Songs' }, { href: '/about', label: 'About' }, { href: '/scoring-philosophy', label: 'Scoring Philosophy' }].map(item => (
+              <Link key={item.href} href={item.href} onClick={() => setMenuOpen(false)}
+                style={{ display: 'block', padding: '13px 24px', fontSize: 16, fontWeight: 400, color: 'rgba(255,255,255,0.7)', textDecoration: 'none' }}>
+                {item.label}
+              </Link>
+            ))}
+            <div style={{ height: '0.5px', background: 'rgba(255,255,255,0.08)', margin: '8px 24px' }} />
+            <span style={{ display: 'block', padding: '10px 24px', fontSize: 12, fontWeight: 400, color: BLUE }}>CCLI #365971</span>
+          </div>
         </div>
       </nav>
 
-      <div className="hero-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', padding: '4.5rem 2.5rem 4rem', maxWidth: 960, margin: '0 auto', alignItems: 'center', gap: '2rem' }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: '1.5rem' }}>
-            <div style={{ width: 22, height: 1, background: 'rgba(0,0,0,0.20)', marginTop: 7, flexShrink: 0 }} />
-            <span style={{ fontSize: 11, letterSpacing: '0.09em', textTransform: 'uppercase' as const, color: '#999990', fontWeight: 400, lineHeight: 1.6 }}>
-              Biblical analysis for the<br />songs of the Church
-            </span>
-          </div>
-          <h1 className="headline" style={{ fontFamily: "'Lora', serif", fontSize: 46, fontWeight: 400, lineHeight: 1.1, letterSpacing: '-0.03em', marginBottom: '1.25rem' }}>
-            Know what<br />you <em>sing.</em>
-          </h1>
-          <p style={{ fontSize: 15, fontWeight: 400, lineHeight: 1.6, maxWidth: 340, marginBottom: '2.25rem' }}>
-            Equipping the Church with Biblical clarity for the songs we sing. Because what we sing shapes what we believe.
-          </p>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <a href="/songs" style={{ fontSize: 13, fontWeight: 500, color: '#fff', background: '#1a1a1a', padding: '10px 20px', borderRadius: 8, textDecoration: 'none' }}>Browse the library</a>
-            <a href="/about" style={{ fontSize: 13, color: '#555550', textDecoration: 'none' }}>How it works</a>
-          </div>
-        </div>
-        <div className="card-wrap" style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <div className="hero-card" style={{ background: '#f7f6f3', border: '0.5px solid rgba(0,0,0,0.10)', borderRadius: 12, padding: '1.25rem', width: 280 }}>
-            <p style={{ fontFamily: "'Lora', serif", fontSize: 15, fontWeight: 500, marginBottom: 2 }}>Holy Forever</p>
-            <p style={{ fontSize: 12, color: '#999990', marginBottom: '1rem' }}>Chris Tomlin · CCLI #7202827</p>
-            {cardLenses.map(l => (
-              <div key={l.label} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                <span style={{ fontSize: 11, color: '#555550', width: 110, flexShrink: 0 }}>{l.label}</span>
-                <div style={{ flex: 1, height: 4, background: 'rgba(0,0,0,0.10)', borderRadius: 2, overflow: 'hidden' }}>
-                  <div style={{ height: '100%', borderRadius: 2, width: l.pct, background: l.color === 'green' ? '#639922' : '#BA7517' }} />
+      {/* HERO */}
+      <section style={{ background: NAVY, padding: '52px 24px 48px' }}>
+        <div className="hero-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', maxWidth: 1000, margin: '0 auto', gap: '2.5rem', alignItems: 'center' }}>
+          <div>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 10, fontWeight: 500, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: BLUE, marginBottom: 16 }}>
+              <span style={{ width: 5, height: 5, background: BLUE, borderRadius: '50%', display: 'inline-block' }} />
+              Biblical clarity for song selection
+            </div>
+            <h1 style={{ fontSize: 'clamp(32px, 5vw, 48px)', fontWeight: 600, color: '#ffffff', lineHeight: 1.1, letterSpacing: '-0.04em', marginBottom: 16 }}>
+              Know what<br />you <span style={{ color: BLUE, fontWeight: 300 }}>sing.</span>
+            </h1>
+            <p style={{ fontSize: 14, fontWeight: 300, color: 'rgba(255,255,255,0.5)', lineHeight: 1.7, maxWidth: 380, marginBottom: 24 }}>
+              Theological review of congregational worship songs for Baptist worship leaders. Five lenses. Honest scores. Pastoral framing.
+            </p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' as const }}>
+              <Link href="/songs" style={{ fontSize: 13, fontWeight: 500, color: NAVY, background: BLUE, padding: '11px 22px', borderRadius: 8, textDecoration: 'none' }}>
+                Browse Songs
+              </Link>
+              <Link href="/scoring-philosophy" style={{ fontSize: 13, fontWeight: 400, color: 'rgba(255,255,255,0.45)', textDecoration: 'none' }}>
+                How scoring works →
+              </Link>
+            </div>
+            <div style={{ display: 'flex', gap: 28, marginTop: 32, paddingTop: 24, borderTop: '0.5px solid rgba(255,255,255,0.1)' }}>
+              {[['107', 'Songs reviewed'], ['5', 'Theological lenses'], ['CCLI', '#365971']].map(([num, label]) => (
+                <div key={label}>
+                  <div style={{ fontSize: 22, fontWeight: 600, color: '#ffffff', letterSpacing: '-0.03em' }}>{num}</div>
+                  <div style={{ fontSize: 10, fontWeight: 300, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.03em', marginTop: 2 }}>{label}</div>
                 </div>
-                <span style={{ fontSize: 11, fontWeight: 500, width: 22, textAlign: 'right' as const, color: l.color === 'green' ? '#3B6D11' : '#854F0B' }}>{l.score}</span>
+              ))}
+            </div>
+          </div>
+
+          <div className="hero-card-wrap" style={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <div style={{ background: '#F4F7FB', border: '0.5px solid #E2E8F0', borderRadius: 12, padding: '16px', width: 280 }}>
+              <p style={{ fontSize: 13, fontWeight: 500, color: '#0D1B2A', letterSpacing: '-0.01em', marginBottom: 2 }}>Holy Forever</p>
+              <p style={{ fontSize: 11, fontWeight: 300, color: '#7A8A9A', marginBottom: 12 }}>Chris Tomlin · CCLI #7202827</p>
+              {cardLenses.map(l => (
+                <div key={l.label} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 7 }}>
+                  <span style={{ fontSize: 10, color: '#7A8A9A', width: 100, flexShrink: 0 }}>{l.label}</span>
+                  <div style={{ flex: 1, height: 3, background: '#E2E8F0', borderRadius: 2, overflow: 'hidden' }}>
+                    <div style={{ height: '100%', borderRadius: 2, width: l.pct, background: l.color === 'green' ? '#4A8B2A' : '#C47B0E' }} />
+                  </div>
+                  <span style={{ fontSize: 11, fontWeight: 600, width: 24, textAlign: 'right' as const, color: l.color === 'green' ? '#2A6010' : '#7A5010' }}>{l.score}</span>
+                </div>
+              ))}
+              <div style={{ height: '0.5px', background: '#E2E8F0', margin: '12px 0' }} />
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div>
+                  <p style={{ fontSize: 10, color: '#9AA4AF', marginBottom: 4 }}>Overall score</p>
+                  <span style={{ fontSize: 11, fontWeight: 500, background: '#DCEFCF', color: '#2A6010', padding: '3px 10px', borderRadius: 20 }}>Use freely</span>
+                </div>
+                <span style={{ fontSize: 26, fontWeight: 600, color: '#2A6010', letterSpacing: '-0.03em' }}>8.3</span>
               </div>
-            ))}
-            <div style={{ height: 1, background: 'rgba(0,0,0,0.10)', margin: '0.875rem 0' }} />
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div>
-                <p style={{ fontSize: 11, color: '#999990', marginBottom: 2 }}>Overall</p>
-                <span style={{ fontSize: 10, fontWeight: 500, background: '#EAF3DE', color: '#3B6D11', padding: '3px 8px', borderRadius: 8 }}>Recommended</span>
-              </div>
-              <span style={{ fontFamily: "'Lora', serif", fontSize: 22, fontWeight: 500, color: '#3B6D11' }}>8.3</span>
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '0.75rem 2.5rem', borderTop: '0.5px solid rgba(0,0,0,0.10)', background: '#f7f6f3' }}>
-        <span style={{ fontSize: 13, color: '#999990' }}>⌕</span>
-        <input placeholder="Search by song, artist, or theme..." style={{ flex: 1, border: 'none', background: 'transparent', fontFamily: "'DM Sans', sans-serif", fontSize: 13, outline: 'none', color: '#1a1a1a' }} />
-        {['Praise & Worship', 'Advent', 'Communion'].map(tag => (
-          <span key={tag} style={{ fontSize: 11, color: '#999990', background: '#fff', border: '0.5px solid rgba(0,0,0,0.10)', padding: '3px 8px', borderRadius: 8 }}>{tag}</span>
-        ))}
-      </div>
-
-      <div style={{ borderTop: '0.5px solid rgba(0,0,0,0.10)', padding: '4rem 2.5rem', textAlign: 'center' as const }}>
-        <div style={{ maxWidth: 580, margin: '0 auto' }}>
-          <p style={{ fontSize: 19, fontWeight: 300, lineHeight: 1.65, letterSpacing: '-0.01em' }}>
-            If you want to know what a church believes, listen to what it sings. What the Church sings today will shape what the Church believes tomorrow.
-          </p>
-          <div style={{ width: 28, height: 1, background: 'rgba(0,0,0,0.20)', margin: '1.75rem auto 0' }} />
-        </div>
-      </div>
-
-      <div style={{ borderTop: '0.5px solid rgba(0,0,0,0.10)' }}>
-        {[
-          { id: 'does', title: 'What WorshipLens Does', subtitle: 'Learn how WorshipLens evaluates songs', body: ['WorshipLens evaluates the theology and lyrical quality of worship songs through a biblical lens. Each song is reviewed for scriptural fidelity, theological clarity, singability, and poetic strength, with a written defense explaining the evaluation. The goal is simple: to help worship leaders and churches choose songs that faithfully reflect the truth of Scripture.'] },
-          { id: 'exists', title: 'Why WorshipLens Exists', subtitle: 'Read the introduction', body: ['Worship leaders have long wrestled with the tension created by the ever-changing styles and expectations of worship within the church. Over time, however, many have come to recognize that when our focus shifts away from style and back toward truth, worship begins to take its rightful place.', 'Too often congregations find themselves divided by preferences and stylistic debates. When worship becomes framed primarily through the lens of style, those preferences can quietly distract us from the deeper purpose of worship itself. Questions about musical style are nothing new to the church, and repetition itself is deeply biblical.', 'For those concerned about theological error in modern worship music, it is worth remembering that every worship song has been written by imperfect people. Yet Scripture calls us to sing a new song to the Lord. Many of the songs we sing carry the testimony of redeemed lives.', 'And at the center of it all is a simple reminder: worship is not ultimately about us. It is about Him. Sing to the audience of One.'] },
-        ].map(({ id, title, subtitle, body }) => (
-          <div key={id} style={{ borderBottom: '0.5px solid rgba(0,0,0,0.10)' }}>
-            <button className="acc-trigger" onClick={() => toggleSection(id)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', padding: '1.375rem 2.5rem', cursor: 'pointer', width: '100%', background: 'none', border: 'none', fontFamily: "'DM Sans', sans-serif", transition: 'background 0.15s' }}>
-              <div style={{ display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: 2 }}>
-                <span style={{ fontSize: 14, fontWeight: 500, color: '#1a1a1a' }}>{title}</span>
-                <span style={{ fontSize: 12, color: '#999990', fontWeight: 300 }}>{subtitle}</span>
-              </div>
-              <svg style={{ width: 16, height: 16, color: '#999990', transition: 'transform 0.25s', transform: openSection === id ? 'rotate(180deg)' : 'rotate(0deg)' }} viewBox="0 0 16 16" fill="none">
-                <path d="M3.5 6L8 10.5L12.5 6" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </button>
-            <div style={{ maxHeight: openSection === id ? 600 : 0, overflow: 'hidden', opacity: openSection === id ? 1 : 0, transition: 'max-height 0.4s ease, opacity 0.3s ease' }}>
-              <div style={{ padding: '0.25rem 2.5rem 2rem', maxWidth: 600, margin: '0 auto' }}>
-                {body.map((p, i) => <p key={i} style={{ fontSize: 14, color: '#555550', lineHeight: 1.75, fontWeight: 300, textAlign: 'center' as const, marginBottom: i < body.length - 1 ? '1rem' : 0 }}>{p}</p>)}
-              </div>
-            </div>
+      {/* RECENTLY REVIEWED */}
+      <section style={{ background: '#ffffff', padding: '32px 24px', borderBottom: '0.5px solid #F0F4F8' }}>
+        <div style={{ maxWidth: 1000, margin: '0 auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+            <span style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: '#9AA4AF' }}>Recently reviewed</span>
+            <Link href="/songs" style={{ fontSize: 12, color: BLUE, textDecoration: 'none' }}>See all →</Link>
           </div>
-        ))}
-      </div>
-
-      <div style={{ borderTop: '0.5px solid rgba(0,0,0,0.10)', padding: '2.5rem' }}>
-        <div style={{ maxWidth: 960, margin: '0 auto 1.25rem', display: 'flex', justifyContent: 'space-between' }}>
-          <span style={{ fontSize: 11, letterSpacing: '0.09em', textTransform: 'uppercase' as const, color: '#999990' }}>The evaluation framework</span>
-          <span style={{ fontSize: 12, color: '#999990', fontWeight: 300 }}>Select a lens to learn more</span>
-        </div>
-        <div style={{ maxWidth: 960, margin: '0 auto', border: '0.5px solid rgba(0,0,0,0.10)', borderRadius: 12, overflow: 'hidden' }}>
-          {lenses.map((lens, i) => (
-            <div key={lens.id} style={{ background: '#fff', borderBottom: i < lenses.length - 1 ? '0.5px solid rgba(0,0,0,0.10)' : 'none' }}>
-              <button className="fw-trigger" onMouseEnter={() => handleFwEnter(lens.id)} onMouseLeave={handleFwLeave} onClick={() => toggleFw(lens.id)} style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem 1.25rem', width: '100%', background: 'none', border: 'none', textAlign: 'left' as const, fontFamily: "'DM Sans', sans-serif", cursor: 'pointer', transition: 'background 0.15s' }}>
-                <span style={{ fontSize: 11, color: '#999990', width: 18, flexShrink: 0 }}>{lens.num}</span>
-                <span style={{ fontSize: 13, fontWeight: 500, flex: 1 }}>{lens.name}</span>
-                <span className="fw-tag" style={{ fontSize: 11, color: '#999990', fontWeight: 300 }}>{lens.tag}</span>
-                <svg style={{ width: 14, height: 14, color: '#999990', transition: 'transform 0.2s', transform: openFw === lens.id ? 'rotate(180deg)' : 'rotate(0deg)' }} viewBox="0 0 16 16" fill="none">
-                  <path d="M3.5 6L8 10.5L12.5 6" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </button>
-              <div style={{ maxHeight: openFw === lens.id ? 200 : 0, overflow: 'hidden', opacity: openFw === lens.id ? 1 : 0, transition: 'max-height 0.35s ease, opacity 0.25s ease' }}>
-                <div className="fw-detail" style={{ padding: '0 1.25rem 1rem 2.75rem', display: 'flex', justifyContent: 'space-between', gap: '2rem' }}>
-                  <p style={{ fontSize: 13, color: '#555550', lineHeight: 1.7, fontWeight: 300, maxWidth: 480 }}>{lens.desc}</p>
-                  <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 5, flexShrink: 0 }}>
-                    {lens.meta.map(m => (
-                      <div key={m.k} style={{ display: 'flex', gap: 8 }}>
-                        <span style={{ fontSize: 11, color: '#999990', width: 72, flexShrink: 0 }}>{m.k}</span>
-                        <span style={{ fontSize: 11, color: '#555550' }}>{m.v}</span>
+          <div className="recently-scroll" style={{ display: 'flex', gap: 12, overflowX: 'auto' as const, paddingBottom: 4, scrollbarWidth: 'none' as const }}>
+            {[
+              { title: 'Cornerstone', artist: 'Hillsong Worship', score: '8.4', color: 'green', bars: [90, 85, 80, 88, 75] },
+              { title: 'Reckless Love', artist: 'Cory Asbury', score: '6.7', color: 'amber', bars: [62, 58, 80, 76, 65] },
+              { title: 'Good Good Father', artist: 'Chris Tomlin', score: '5.2', color: 'orange', bars: [50, 48, 70, 65, 42] },
+              { title: 'How Great Is Our God', artist: 'Chris Tomlin', score: '8.1', color: 'green', bars: [88, 82, 75, 80, 84] },
+            ].map(song => {
+              const scoreColor = song.color === 'green' ? '#2A6010' : song.color === 'amber' ? '#7A5010' : '#8B3010'
+              const scoreBg = song.color === 'green' ? '#DCEFCF' : song.color === 'amber' ? '#FEF0CC' : '#FDE0CC'
+              const barColor = song.color === 'green' ? '#4A8B2A' : song.color === 'amber' ? '#C47B0E' : '#C45020'
+              return (
+                <div key={song.title} style={{ background: '#F4F7FB', border: '0.5px solid #E2E8F0', borderRadius: 12, padding: '14px', flexShrink: 0, width: 200 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                    <span style={{ fontSize: 14, fontWeight: 600, background: scoreBg, color: scoreColor, padding: '2px 8px', borderRadius: 6 }}>{song.score}</span>
+                    <span style={{ width: 7, height: 7, borderRadius: '50%', background: barColor, display: 'inline-block' }} />
+                  </div>
+                  <div style={{ fontSize: 13, fontWeight: 500, color: '#0D1B2A', marginBottom: 2 }}>{song.title}</div>
+                  <div style={{ fontSize: 11, fontWeight: 300, color: '#7A8A9A', marginBottom: 10 }}>{song.artist}</div>
+                  <div style={{ display: 'flex', gap: 3, paddingTop: 10, borderTop: '0.5px solid #E2E8F0' }}>
+                    {song.bars.map((w, i) => (
+                      <div key={i} style={{ flex: 1, height: 3, background: '#E2E8F0', borderRadius: 2, overflow: 'hidden' }}>
+                        <div style={{ height: '100%', width: `${w}%`, background: barColor, borderRadius: 2 }} />
                       </div>
                     ))}
                   </div>
                 </div>
-              </div>
-            </div>
-          ))}
+              )
+            })}
+          </div>
         </div>
-      </div>
+      </section>
+
+      {/* PULL QUOTE */}
+      <section style={{ background: '#F7F9FC', padding: '52px 24px', borderBottom: '0.5px solid #E8EDF2' }}>
+        <div style={{ maxWidth: 640, margin: '0 auto', textAlign: 'center' as const }}>
+          <p style={{ fontSize: 'clamp(17px, 2.5vw, 22px)', fontWeight: 300, lineHeight: 1.65, letterSpacing: '-0.01em', color: '#0D1B2A' }}>
+            If you want to know what a church believes, listen to what it sings. What the Church sings today will shape what the Church believes tomorrow.
+          </p>
+          <div style={{ width: 28, height: 2, background: BLUE, borderRadius: 1, margin: '24px auto 0' }} />
+        </div>
+      </section>
+
+      {/* FIVE LENSES */}
+      <section style={{ padding: '48px 24px', borderBottom: '0.5px solid #E8EDF2' }}>
+        <div style={{ maxWidth: 1000, margin: '0 auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+            <span style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: '#9AA4AF' }}>The evaluation framework</span>
+            <span style={{ fontSize: 12, fontWeight: 300, color: '#9AA4AF' }}>Select a lens to learn more</span>
+          </div>
+          <div style={{ border: '0.5px solid #E2E8F0', borderRadius: 12, overflow: 'hidden' }}>
+            {lenses.map((lens, i) => (
+              <div key={lens.id} style={{ background: '#ffffff', borderBottom: i < lenses.length - 1 ? '0.5px solid #F0F4F8' : 'none' }}>
+                <button
+                  className="lens-row-btn"
+                  onClick={() => setOpenLens(prev => prev === lens.id ? null : lens.id)}
+                  style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '16px 20px', width: '100%', background: 'none', border: 'none', textAlign: 'left' as const, fontFamily: "'Sora', sans-serif", cursor: 'pointer', transition: 'background 0.15s' }}
+                >
+                  <span style={{ fontSize: 11, color: '#9AA4AF', width: 20, flexShrink: 0 }}>{lens.num}</span>
+                  <span style={{ fontSize: 14, fontWeight: 500, flex: 1, color: '#0D1B2A' }}>{lens.name}</span>
+                  <span className="lens-tag" style={{ fontSize: 11, color: '#9AA4AF', fontWeight: 300 }}>{lens.tag}</span>
+                  <svg style={{ width: 14, height: 14, color: '#9AA4AF', transition: 'transform 0.2s', transform: openLens === lens.id ? 'rotate(180deg)' : 'none', flexShrink: 0 }} viewBox="0 0 16 16" fill="none">
+                    <path d="M3.5 6L8 10.5L12.5 6" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </button>
+                <div className={`lens-detail${openLens === lens.id ? ' open' : ''}`}>
+                  <div style={{ padding: '0 20px 16px 54px', display: 'flex', justifyContent: 'space-between', gap: '2rem', flexWrap: 'wrap' as const }}>
+                    <p style={{ fontSize: 13, color: '#4A5568', lineHeight: 1.7, fontWeight: 300, maxWidth: 480 }}>{lens.desc}</p>
+                    <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 5, flexShrink: 0 }}>
+                      {lens.meta.map(m => (
+                        <div key={m.k} style={{ display: 'flex', gap: 8 }}>
+                          <span style={{ fontSize: 11, color: '#9AA4AF', width: 80, flexShrink: 0 }}>{m.k}</span>
+                          <span style={{ fontSize: 11, color: '#4A5568' }}>{m.v}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div style={{ marginTop: 16, textAlign: 'center' as const }}>
+            <Link href="/scoring-philosophy" style={{ fontSize: 13, fontWeight: 400, color: BLUE, textDecoration: 'none' }}>
+              Read the full scoring philosophy →
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer style={{ background: NAVY, padding: '32px 24px' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' as const, gap: 16 }}>
+          <LogoWhite height={18} />
+          <div style={{ display: 'flex', gap: 20 }}>
+            <Link href="/songs" style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>Songs</Link>
+            <Link href="/about" style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>About</Link>
+            <Link href="/scoring-philosophy" style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>Scoring Philosophy</Link>
+          </div>
+          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>CCLI #365971</span>
+        </div>
+      </footer>
     </div>
   )
 }
