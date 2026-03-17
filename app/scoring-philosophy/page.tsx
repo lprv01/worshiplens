@@ -154,7 +154,7 @@ export default function ScoringPhilosophyPage() {
               </Link>
             ))}
             <div style={{ height: '0.5px', background: 'rgba(255,255,255,0.08)', margin: '8px 24px' }} />
-            <span style={{ display: 'block', padding: '10px 24px', fontSize: 12, color: BLUE }}>CCLI #365971</span>
+            <span style={{ display: 'block', padding: '10px 24px', fontSize: 12, color: BLUE }}></span>
           </div>
         </div>
       </nav>
@@ -357,7 +357,7 @@ export default function ScoringPhilosophyPage() {
             {[
               'WorshipLens does not tell worship leaders what to sing. It equips them to make informed decisions. A song scoring 6.8 may be exactly right for a specific congregation in a specific season.',
               'WorshipLens does not evaluate musical performance, production quality, or stylistic preference. A song is not penalized for being contemporary, for having a simple chord structure, or for being associated with a particular worship movement.',
-              'Reviews reflect a BGCT and Texas Baptists theological perspective. A song scoring lower here may score differently through another tradition\'s lens, and that is appropriate. The perspective is stated, not hidden.',
+              'Reviews reflect a a biblically grounded theological perspective. A song scoring lower here may score differently through another tradition\'s lens, and that is appropriate. The perspective is stated, not hidden.',
               'WorshipLens does not condemn songwriters. The analysis never includes the songwriter\'s name in any evaluative context. Songs are examined for what they communicate to a congregation, not for the character or intent of the person who wrote them.',
             ].map((point, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '14px 16px', background: '#F7F9FC', border: '0.5px solid #E2E8F0', borderRadius: 10 }}>
@@ -393,7 +393,7 @@ export default function ScoringPhilosophyPage() {
             <Link href="/about" style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>About</Link>
             <Link href="/scoring-philosophy" style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>Scoring Philosophy</Link>
           </div>
-          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>CCLI #365971</span>
+          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}></span>
         </div>
       </footer>
     </div>

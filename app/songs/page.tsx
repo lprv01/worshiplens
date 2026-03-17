@@ -184,7 +184,7 @@ export default function SongsPage() {
               </Link>
             ))}
             <div style={{ height: '0.5px', background: 'rgba(255,255,255,0.08)', margin: '8px 24px' }} />
-            <span style={{ display: 'block', padding: '10px 24px', fontSize: 12, color: BLUE }}>CCLI #365971</span>
+            <span style={{ display: 'block', padding: '10px 24px', fontSize: 12, color: BLUE }}></span>
           </div>
         </div>
       </nav>
@@ -289,7 +289,7 @@ export default function SongsPage() {
             <Link href="/about" style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>About</Link>
             <Link href="/scoring-philosophy" style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>Scoring Philosophy</Link>
           </div>
-          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>CCLI #365971</span>
+          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}></span>
         </div>
       </footer>
     </div>

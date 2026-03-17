@@ -123,7 +123,7 @@ export default function HomePage() {
               </Link>
             ))}
             <div style={{ height: '0.5px', background: 'rgba(255,255,255,0.08)', margin: '8px 24px' }} />
-            <span style={{ display: 'block', padding: '10px 24px', fontSize: 12, fontWeight: 400, color: BLUE }}>CCLI #365971</span>
+            <span style={{ display: 'block', padding: '10px 24px', fontSize: 12, fontWeight: 400, color: BLUE }}></span>
           </div>
         </div>
       </nav>
@@ -140,7 +140,7 @@ export default function HomePage() {
               Know what<br />you <span style={{ color: BLUE, fontWeight: 300 }}>sing.</span>
             </h1>
             <p style={{ fontSize: 14, fontWeight: 300, color: 'rgba(255,255,255,0.5)', lineHeight: 1.7, maxWidth: 380, marginBottom: 24 }}>
-              Theological review of congregational worship songs for Baptist worship leaders. Five lenses. Honest scores. Pastoral framing.
+              Theological review of congregational worship songs. Five lenses. Honest scores. Pastoral framing.
             </p>
             <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' as const }}>
               <Link href="/songs" style={{ fontSize: 13, fontWeight: 500, color: NAVY, background: BLUE, padding: '11px 22px', borderRadius: 8, textDecoration: 'none' }}>
@@ -290,7 +290,7 @@ export default function HomePage() {
             <Link href="/about" style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>About</Link>
             <Link href="/scoring-philosophy" style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>Scoring Philosophy</Link>
           </div>
-          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>CCLI #365971</span>
+          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}></span>
         </div>
       </footer>
     </div>
