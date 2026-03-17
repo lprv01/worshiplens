@@ -151,7 +151,7 @@ export default function HomePage() {
               </Link>
             </div>
             <div style={{ display: 'flex', gap: 28, marginTop: 32, paddingTop: 24, borderTop: '0.5px solid rgba(255,255,255,0.1)' }}>
-              {[['107', 'Songs reviewed'], ['5', 'Theological lenses'], ['CCLI', '#365971']].map(([num, label]) => (
+              {[['107', 'Songs reviewed'], ['5', 'Theological lenses']].map(([num, label]) => (
                 <div key={label}>
                   <div style={{ fontSize: 22, fontWeight: 600, color: '#ffffff', letterSpacing: '-0.03em' }}>{num}</div>
                   <div style={{ fontSize: 10, fontWeight: 300, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.03em', marginTop: 2 }}>{label}</div>
