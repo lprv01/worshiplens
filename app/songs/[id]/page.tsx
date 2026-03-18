@@ -1,5 +1,3 @@
-export const dynamic = "force-dynamic"
-
 import { createClient } from "@supabase/supabase-js";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -474,7 +472,7 @@ export default async function SongDetailPage({ params }: { params: Promise<{ id:
             <Link href="/about" style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>About</Link>
             <Link href="/scoring-philosophy" style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>Scoring Philosophy</Link>
           </div>
-          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}></span>
+          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>CCLI #365971</span>
         </div>
       </footer>
     </div>
