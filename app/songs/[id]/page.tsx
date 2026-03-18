@@ -141,7 +141,7 @@ export default async function SongDetailPage({ params }: { params: Promise<{ id:
                 {song.hymn_lineage_badge && <span style={{ fontSize: 11, color: '#2A6010', background: '#DCEFCF', border: '0.5px solid #97C459', padding: '3px 10px', borderRadius: 20 }}>Hymn lineage: {song.hymn_lineage_badge}</span>}
               </div>
             </div>
-            <div style={{ textAlign: 'center' as const, flexShrink: 0 }}>
+            <div style={{ textAlign: 'center' as const, flexShrink: 0, width: 120 }}>
               <div style={{ width: 80, height: 80, borderRadius: 14, background: oc.bg, display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center', marginBottom: 8, border: `0.5px solid ${oc.border}` }}>
                 <span style={{ fontSize: 28, fontWeight: 600, color: oc.text, lineHeight: 1, letterSpacing: '-0.03em' }}>{overall.toFixed(1)}</span>
                 <span style={{ fontSize: 10, color: oc.text, opacity: 0.6, marginTop: 2 }}>/10</span>
