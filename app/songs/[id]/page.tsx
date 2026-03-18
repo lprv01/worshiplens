@@ -132,7 +132,7 @@ export default async function SongDetailPage({ params }: { params: Promise<{ id:
                 Song review
               </div>
               <h1 style={{ fontSize: 'clamp(24px, 4vw, 36px)', fontWeight: 600, color: '#ffffff', lineHeight: 1.1, letterSpacing: '-0.03em', marginBottom: 8 }}>{song.title}</h1>
-              <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', marginBottom: 14, fontWeight: 300 }}>{song.artist}</p>
+              <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', marginBottom: 14, fontWeight: 300 }}>{song.artist}</p>{song.overall_verdict && <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', marginBottom: 14, fontWeight: 300, lineHeight: 1.6, maxWidth: 560 }}>{song.overall_verdict}</p>}
               <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 6 }}>
                 {song.ccli_number && <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', background: 'rgba(255,255,255,0.08)', border: '0.5px solid rgba(255,255,255,0.15)', padding: '3px 10px', borderRadius: 20 }}>CCLI #{song.ccli_number}</span>}
                 {song.key_original && <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', background: 'rgba(255,255,255,0.08)', border: '0.5px solid rgba(255,255,255,0.15)', padding: '3px 10px', borderRadius: 20 }}>Key of {song.key_original}</span>}
