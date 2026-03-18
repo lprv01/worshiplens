@@ -1,5 +1,3 @@
-export const dynamic = "force-dynamic"
-
 import { createClient } from "@supabase/supabase-js";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -132,7 +130,7 @@ export default async function SongDetailPage({ params }: { params: Promise<{ id:
                 Song review
               </div>
               <h1 style={{ fontSize: 'clamp(24px, 4vw, 36px)', fontWeight: 600, color: '#ffffff', lineHeight: 1.1, letterSpacing: '-0.03em', marginBottom: 8 }}>{song.title}</h1>
-              <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', marginBottom: 14, fontWeight: 300 }}>{song.artist}</p>{song.overall_verdict && <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', marginBottom: 14, fontWeight: 300, lineHeight: 1.6, maxWidth: 560 }}>{song.overall_verdict}</p>}
+              <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', marginBottom: 14, fontWeight: 300 }}>{song.artist}</p>
               <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 6 }}>
                 {song.ccli_number && <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', background: 'rgba(255,255,255,0.08)', border: '0.5px solid rgba(255,255,255,0.15)', padding: '3px 10px', borderRadius: 20 }}>CCLI #{song.ccli_number}</span>}
                 {song.key_original && <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', background: 'rgba(255,255,255,0.08)', border: '0.5px solid rgba(255,255,255,0.15)', padding: '3px 10px', borderRadius: 20 }}>Key of {song.key_original}</span>}
@@ -141,13 +139,13 @@ export default async function SongDetailPage({ params }: { params: Promise<{ id:
                 {song.hymn_lineage_badge && <span style={{ fontSize: 11, color: '#2A6010', background: '#DCEFCF', border: '0.5px solid #97C459', padding: '3px 10px', borderRadius: 20 }}>Hymn lineage: {song.hymn_lineage_badge}</span>}
               </div>
             </div>
-            <div style={{ textAlign: 'center' as const, flexShrink: 0, width: 120 }}>
+            <div style={{ textAlign: 'center' as const, flexShrink: 0 }}>
               <div style={{ width: 80, height: 80, borderRadius: 14, background: oc.bg, display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center', marginBottom: 8, border: `0.5px solid ${oc.border}` }}>
                 <span style={{ fontSize: 28, fontWeight: 600, color: oc.text, lineHeight: 1, letterSpacing: '-0.03em' }}>{overall.toFixed(1)}</span>
                 <span style={{ fontSize: 10, color: oc.text, opacity: 0.6, marginTop: 2 }}>/10</span>
               </div>
               <span style={{ fontSize: 11, fontWeight: 500, color: oc.text, background: oc.recBg, padding: '4px 12px', borderRadius: 20 }}>{scoreLabel(overall)}</span>
-              
+              {song.overall_verdict && <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 8, maxWidth: 180, lineHeight: 1.5 }}>{song.overall_verdict}</p>}
             </div>
           </div>
         </div>
@@ -474,7 +472,7 @@ export default async function SongDetailPage({ params }: { params: Promise<{ id:
             <Link href="/about" style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>About</Link>
             <Link href="/scoring-philosophy" style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>Scoring Philosophy</Link>
           </div>
-          
+          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}>CCLI #365971</span>
         </div>
       </footer>
     </div>
