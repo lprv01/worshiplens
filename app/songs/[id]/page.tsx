@@ -147,7 +147,7 @@ export default async function SongDetailPage({ params }: { params: Promise<{ id:
                 <span style={{ fontSize: 10, color: oc.text, opacity: 0.6, marginTop: 2 }}>/10</span>
               </div>
               <span style={{ fontSize: 11, fontWeight: 500, color: oc.text, background: oc.recBg, padding: '4px 12px', borderRadius: 20 }}>{scoreLabel(overall)}</span>
-              {song.overall_verdict && <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 8, maxWidth: 180, lineHeight: 1.5 }}>{song.overall_verdict}</p>}
+              {song.overall_verdict && <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 8, maxWidth: 180, lineHeight: 1.5, textAlign: 'center' as const, wordBreak: 'break-word' as const }}>{song.overall_verdict}</p>}
             </div>
           </div>
         </div>
