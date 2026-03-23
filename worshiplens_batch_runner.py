@@ -233,9 +233,10 @@ OTHER:
 - grammar_notes and lyric_modifications must be [] if no genuine issues exist, no filler
 - hymn_lineage must be null if no genuine historic hymn connection exists
 - publisher_note must be null if no theological distinctives relevant to Baptist/BGCT concerns
-- story_behind_song.items must be [] if no verified sourced information is available
+- story_behind_song: populate available: true and items with 2-4 entries whenever you have reasonable knowledge of the song's origin, writing context, or cultural moment -- this applies to the vast majority of well-known CCLI songs. Only set available: false for obscure songs you have no background on. Each item must have a "text" field (1-3 sentences of narrative) and a "source" field (e.g. "Artist interview, Worship Together, 2018" or "Album liner notes" -- omit source if unknown, do not fabricate a source URL). Items should cover: how/why the song was written, the album or ministry context it emerged from, any notable personal or theological catalyst, and its reception or legacy in the worship community.
 - set_intelligence fields: populate structure but mark available_at_500_songs: true, leave lists empty
 - voice_distribution: use pre-calculated values exactly as provided
+- Never use em dashes in any output field. Use a regular hyphen (-) or rewrite the sentence to avoid the construction entirely. This applies to every text field in the JSON without exception: summaries, deduction lines, analysis paragraphs, story items, objections, watchpoints, and all other string fields.
 
 Generate a complete WorshipLens review as a single valid JSON object. No text outside the JSON. No markdown fences.
 
@@ -332,9 +333,13 @@ Generate a complete WorshipLens review as a single valid JSON object. No text ou
   }},
   "hymn_lineage": null,
   "story_behind_song": {{
-    "available": false,
+    "available": true,
     "publisher_note": null,
-    "items": []
+    "items": [
+      {{"text": "Narrative sentence about the song's origin or writing context.", "source": "Source name if known, otherwise omit this field"}},
+      {{"text": "Second item covering album context, theological catalyst, or cultural moment.", "source": ""}},
+      {{"text": "Optional third item on reception, legacy, or ministry impact.", "source": ""}}
+    ]
   }},
   "technical": {{
     "themes": [],
@@ -375,6 +380,18 @@ def score_color(score):
     if score >= 6.5: return 'amber'
     if score >= 5.0: return 'orange'
     return 'red'
+
+# ─── Em dash sanitizer ───────────────────────────────────────────────────────
+
+def strip_em_dashes(obj):
+    """Recursively replace em dashes with a regular hyphen in all string values."""
+    if isinstance(obj, str):
+        return obj.replace('\u2014', '-').replace('\u2013', '-')
+    elif isinstance(obj, dict):
+        return {k: strip_em_dashes(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [strip_em_dashes(i) for i in obj]
+    return obj
 
 # ─── Claude API call ──────────────────────────────────────────────────────────
 
@@ -569,6 +586,7 @@ def main():
             # Generate review via Claude
             print(f"  Calling Claude API...")
             review = generate_review(parsed)
+            review = strip_em_dashes(review)
             overall = review.get('overall_score', 0)
             print(f"  Overall score: {overall} ({score_color(overall)})")
 
