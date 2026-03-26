@@ -53,10 +53,21 @@ function LogoWhite({ height = 22 }: { height?: number }) {
   )
 }
 
+type RecentSong = {
+  id: string
+  slug: string
+  title: string
+  artist: string
+  overall_score: number
+  score_color: string
+  lenses: any
+}
+
 export default function HomePage() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [openLens, setOpenLens] = useState<string | null>(null)
   const [songCount, setSongCount] = useState<number | null>(null)
+  const [recentSongs, setRecentSongs] = useState<RecentSong[]>([])
 
   useEffect(() => {
     supabase
@@ -64,6 +75,23 @@ export default function HomePage() {
       .select('id', { count: 'exact', head: true })
       .then(({ count }) => {
         if (count !== null) setSongCount(count)
+      })
+
+    supabase
+      .from('songs')
+      .select('id, slug, title, artist, overall_score, score_color, lenses')
+      .order('created_at', { ascending: false })
+      .limit(12)
+      .then(({ data }) => {
+        if (!data) return
+        const green = data.filter((s: RecentSong) => s.score_color === 'green')
+        const amber = data.filter((s: RecentSong) => s.score_color === 'amber')
+        const orange = data.filter((s: RecentSong) => s.score_color === 'orange')
+        const red = data.filter((s: RecentSong) => s.score_color === 'red')
+        const mixed: RecentSong[] = []
+        const pick = (arr: RecentSong[]) => { if (arr.length) mixed.push(arr.shift()!) }
+        pick(green); pick(amber); pick(green); pick(orange.length ? orange : amber); pick(green); pick(red.length ? red : amber)
+        setRecentSongs(mixed.length >= 4 ? mixed.slice(0, 6) : data.slice(0, 6))
       })
   }, [])
 
@@ -111,9 +139,9 @@ export default function HomePage() {
 
       {/* NAV */}
       <nav style={{ background: NAVY, position: 'sticky', top: 0, zIndex: 50 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', height: 68, maxWidth: 1100, margin: '0 auto' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', height: 56, maxWidth: 1100, margin: '0 auto' }}>
           <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
-            <LogoWhite height={44} />
+            <LogoWhite height={22} />
           </Link>
           <div className="desktop-nav-links" style={{ display: 'flex', gap: 28, alignItems: 'center' }}>
             <Link href="/songs" style={{ fontSize: 13, fontWeight: 400, color: 'rgba(255,255,255,0.55)', textDecoration: 'none' }}>Songs</Link>
@@ -214,31 +242,40 @@ export default function HomePage() {
             <Link href="/songs" style={{ fontSize: 12, color: BLUE, textDecoration: 'none' }}>See all →</Link>
           </div>
           <div className="recently-scroll" style={{ display: 'flex', gap: 12, overflowX: 'auto' as const, paddingBottom: 4, scrollbarWidth: 'none' as const }}>
-            {[
-              { title: 'Cornerstone', artist: 'Hillsong Worship', score: '8.4', color: 'green', bars: [90, 85, 80, 88, 75] },
-              { title: 'Reckless Love', artist: 'Cory Asbury', score: '6.7', color: 'amber', bars: [62, 58, 80, 76, 65] },
-              { title: 'Good Good Father', artist: 'Chris Tomlin', score: '5.2', color: 'orange', bars: [50, 48, 70, 65, 42] },
-              { title: 'How Great Is Our God', artist: 'Chris Tomlin', score: '8.1', color: 'green', bars: [88, 82, 75, 80, 84] },
-            ].map(song => {
-              const scoreColor = song.color === 'green' ? '#2A6010' : song.color === 'amber' ? '#7A5010' : '#8B3010'
-              const scoreBg = song.color === 'green' ? '#DCEFCF' : song.color === 'amber' ? '#FEF0CC' : '#FDE0CC'
-              const barColor = song.color === 'green' ? '#4A8B2A' : song.color === 'amber' ? '#C47B0E' : '#C45020'
+            {recentSongs.map(song => {
+              const sc = song.score_color || 'green'
+              const scoreColor = sc === 'green' ? '#2A6010' : sc === 'amber' ? '#7A5010' : sc === 'orange' ? '#8B3010' : '#8B1010'
+              const scoreBg = sc === 'green' ? '#DCEFCF' : sc === 'amber' ? '#FEF0CC' : sc === 'orange' ? '#FDE0CC' : '#FDDADA'
+              const barColor = sc === 'green' ? '#4A8B2A' : sc === 'amber' ? '#C47B0E' : sc === 'orange' ? '#C45020' : '#C42020'
+              const lenses = song.lenses ?? {}
+              const bars = [
+                lenses.scriptural_fidelity?.score ?? 0,
+                lenses.theological_clarity?.score ?? 0,
+                lenses.congregational_singability?.score ?? 0,
+                lenses.poetic_lyrical_quality?.score ?? 0,
+                lenses.defense_brief?.score ?? 0,
+              ]
+              const href = '/songs/' + (song.slug || song.id)
               return (
-                <div key={song.title} style={{ background: '#F4F7FB', border: '0.5px solid #E2E8F0', borderRadius: 12, padding: '14px', flexShrink: 0, width: 200 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-                    <span style={{ fontSize: 14, fontWeight: 600, background: scoreBg, color: scoreColor, padding: '2px 8px', borderRadius: 6 }}>{song.score}</span>
-                    <span style={{ width: 7, height: 7, borderRadius: '50%', background: barColor, display: 'inline-block' }} />
+                <Link key={song.id} href={href} style={{ textDecoration: 'none', flexShrink: 0 }}>
+                  <div style={{ background: '#F4F7FB', border: '0.5px solid #E2E8F0', borderRadius: 12, padding: '14px', width: 200, cursor: 'pointer', transition: 'border-color 0.15s' }}
+                    onMouseEnter={e => (e.currentTarget.style.borderColor = '#C8D4DE')}
+                    onMouseLeave={e => (e.currentTarget.style.borderColor = '#E2E8F0')}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                      <span style={{ fontSize: 14, fontWeight: 600, background: scoreBg, color: scoreColor, padding: '2px 8px', borderRadius: 6 }}>{(song.overall_score ?? 0).toFixed(1)}</span>
+                      <span style={{ width: 7, height: 7, borderRadius: '50%', background: barColor, display: 'inline-block' }} />
+                    </div>
+                    <div style={{ fontSize: 13, fontWeight: 500, color: '#0D1B2A', marginBottom: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{song.title}</div>
+                    <div style={{ fontSize: 11, fontWeight: 300, color: '#7A8A9A', marginBottom: 10, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{song.artist}</div>
+                    <div style={{ display: 'flex', gap: 3, paddingTop: 10, borderTop: '0.5px solid #E2E8F0' }}>
+                      {bars.map((w, i) => (
+                        <div key={i} style={{ flex: 1, height: 3, background: '#E2E8F0', borderRadius: 2, overflow: 'hidden' }}>
+                          <div style={{ height: '100%', width: `${(w / 10) * 100}%`, background: barColor, borderRadius: 2 }} />
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  <div style={{ fontSize: 13, fontWeight: 500, color: '#0D1B2A', marginBottom: 2 }}>{song.title}</div>
-                  <div style={{ fontSize: 11, fontWeight: 300, color: '#7A8A9A', marginBottom: 10 }}>{song.artist}</div>
-                  <div style={{ display: 'flex', gap: 3, paddingTop: 10, borderTop: '0.5px solid #E2E8F0' }}>
-                    {song.bars.map((w, i) => (
-                      <div key={i} style={{ flex: 1, height: 3, background: '#E2E8F0', borderRadius: 2, overflow: 'hidden' }}>
-                        <div style={{ height: '100%', width: `${w}%`, background: barColor, borderRadius: 2 }} />
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                </Link>
               )
             })}
           </div>
@@ -304,7 +341,7 @@ export default function HomePage() {
       {/* FOOTER */}
       <footer style={{ background: NAVY, padding: '32px 24px' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' as const, gap: 16 }}>
-          <LogoWhite height={28} />
+          <LogoWhite height={18} />
           <div style={{ display: 'flex', gap: 20 }}>
             <Link href="/songs" style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>Songs</Link>
             <Link href="/about" style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>About</Link>
