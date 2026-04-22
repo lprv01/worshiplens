@@ -84,14 +84,15 @@ export default function HomePage() {
       .limit(12)
       .then(({ data }) => {
         if (!data) return
-        const green = data.filter((s: RecentSong) => s.score_color === 'green')
-        const amber = data.filter((s: RecentSong) => s.score_color === 'amber')
-        const orange = data.filter((s: RecentSong) => s.score_color === 'orange')
-        const red = data.filter((s: RecentSong) => s.score_color === 'red')
+        const clean = data.filter((s: RecentSong) => s.title && s.title.toLowerCase() !== 'default title' && s.title.trim() !== '')
+        const green = clean.filter((s: RecentSong) => s.score_color === 'green')
+        const amber = clean.filter((s: RecentSong) => s.score_color === 'amber')
+        const orange = clean.filter((s: RecentSong) => s.score_color === 'orange')
+        const red = clean.filter((s: RecentSong) => s.score_color === 'red')
         const mixed: RecentSong[] = []
         const pick = (arr: RecentSong[]) => { if (arr.length) mixed.push(arr.shift()!) }
         pick(green); pick(amber); pick(green); pick(orange.length ? orange : amber); pick(green); pick(red.length ? red : amber)
-        setRecentSongs(mixed.length >= 4 ? mixed.slice(0, 6) : data.slice(0, 6))
+        setRecentSongs(mixed.length >= 4 ? mixed.slice(0, 6) : clean.slice(0, 6))
       })
   }, [])
 
