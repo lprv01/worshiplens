@@ -47,6 +47,31 @@ function scoreLabel(score: number) {
   return 'Avoid'
 }
 
+
+async function RelatedSongsSection({ songId, supabase }: { songId: string; supabase: any }) {
+  const { data: related } = await supabase.rpc('get_related_songs', { p_song_id: songId, p_limit: 5 })
+  if (!related || related.length === 0) return null
+  return (
+    <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px 48px' }}>
+      <p style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: '#9AA4AF', marginBottom: 12 }}>Related songs</p>
+      <div style={{ border: '0.5px solid #E2E8F0', borderRadius: 12, overflow: 'hidden' }}>
+        {related.map((s: any, i: number) => (
+          <a key={s.id} href={"/songs/" + s.slug} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px', borderBottom: i < related.length - 1 ? '0.5px solid #F0F4F8' : 'none', background: '#fff', textDecoration: 'none', gap: 12 }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{ fontSize: 14, fontWeight: 500, color: '#0D1B2A', marginBottom: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{s.title}</p>
+              <p style={{ fontSize: 12, color: '#9AA4AF', fontWeight: 300 }}>{s.artist}</p>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+              <span style={{ fontSize: 13, fontWeight: 600, color: '#2A6010', background: '#DCEFCF', padding: '3px 10px', borderRadius: 8 }}>{Number(s.overall_score).toFixed(1)}</span>
+              <span style={{ fontSize: 11, padding: '3px 10px', borderRadius: 20, background: s.recommendation === "Recommended" ? "#DCEFCF" : "#FEF0CC", color: s.recommendation === "Recommended" ? "#2A6010" : "#7A5010", fontWeight: 500 }}>{s.recommendation === "Recommended" ? "Yes" : "With Notes"}</span>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export default async function SongDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
 
@@ -469,7 +494,11 @@ export default async function SongDetailPage({ params }: { params: Promise<{ id:
 
       </div>
 
-      {/* FOOTER */}
+      
+      {/* RELATED SONGS */}
+      <RelatedSongsSection songId={song.id} supabase={supabase} />
+
+{/* FOOTER */}
       <footer style={{ background: NAVY, padding: '32px 24px' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' as const, gap: 16 }}>
           <LogoWhite height={28} />
