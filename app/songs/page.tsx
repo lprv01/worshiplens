@@ -81,7 +81,7 @@ export default function SongsPage() {
     async function load() {
       const { data } = await supabase
         .from('songs')
-        .select('id, slug, title, artist, ccli_number, overall_score, score_color, recommendation, created_at').range(0, 9999)
+        .select('id, slug, title, artist, ccli_number, overall_score, score_color, recommendation, created_at', { count: 'exact' })
       if (data) setSongs(data)
       setLoading(false)
     }
