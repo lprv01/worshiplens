@@ -1,0 +1,1 @@
+cd ~/Desktop/worshiplens && pbpaste > songs/batch_berean_001.txt && python3 worshiplens_wt_import.py songs/batch_berean_001.txt
