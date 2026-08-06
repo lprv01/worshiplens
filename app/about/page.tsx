@@ -1,6 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { createClient } from '@supabase/supabase-js'
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -33,6 +39,14 @@ function LogoWhite({ height = 22 }: { height?: number }) {
 
 export default function AboutPage() {
   const [menuOpen, setMenuOpen] = useState(false)
+  const [songCount, setSongCount] = useState<number | null>(null)
+
+  useEffect(() => {
+    supabase
+      .from('songs')
+      .select('id', { count: 'exact', head: true })
+      .then(({ count }) => { if (count !== null) setSongCount(count) })
+  }, [])
 
   return (
     <div style={{ fontFamily: "'Sora', sans-serif", background: '#ffffff', color: '#0D1B2A' }}>
@@ -67,9 +81,9 @@ export default function AboutPage() {
 
       {/* NAV */}
       <nav style={{ background: NAVY, position: 'sticky', top: 0, zIndex: 50 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', height: 56, maxWidth: 1100, margin: '0 auto' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', height: 68, maxWidth: 1100, margin: '0 auto' }}>
           <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
-            <LogoWhite height={22} />
+            <LogoWhite height={44} />
           </Link>
           <div className="desktop-nav-links" style={{ display: 'flex', gap: 28, alignItems: 'center' }}>
             <Link href="/songs" style={{ fontSize: 13, fontWeight: 400, color: 'rgba(255,255,255,0.55)', textDecoration: 'none' }}>Songs</Link>
@@ -206,7 +220,7 @@ export default function AboutPage() {
             Ready to review your <span style={{ color: BLUE, fontWeight: 300 }}>song list?</span>
           </h2>
           <p style={{ fontSize: 14, fontWeight: 300, color: 'rgba(255,255,255,0.5)', lineHeight: 1.7, maxWidth: 420, margin: '0 auto 28px' }}>
-            107 songs reviewed and ready. Search by title, filter by score, or browse the full library.
+            {songCount !== null ? songCount : '...'} songs reviewed and ready. Search by title, filter by score, or browse the full library.
           </p>
           <Link href="/songs" style={{ display: 'inline-block', fontSize: 13, fontWeight: 500, color: NAVY, background: BLUE, padding: '12px 28px', borderRadius: 8, textDecoration: 'none' }}>
             Browse the Library
@@ -217,7 +231,7 @@ export default function AboutPage() {
       {/* FOOTER */}
       <footer style={{ background: NAVY, padding: '32px 24px', borderTop: '0.5px solid rgba(255,255,255,0.08)' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' as const, gap: 16 }}>
-          <LogoWhite height={18} />
+          <LogoWhite height={44} />
           <div style={{ display: 'flex', gap: 20 }}>
             <Link href="/songs" style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>Songs</Link>
             <Link href="/about" style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>About</Link>

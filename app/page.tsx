@@ -41,22 +41,12 @@ function LogoWhite({ height = 22 }: { height?: number }) {
   )
 }
 type RecentSong = {
-  id: string
-  slug: string
-  title: string
-  artist: string
-  overall_score: number
-  score_color: string
-  lenses: any
+  id: string; slug: string; title: string; artist: string
+  overall_score: number; score_color: string; lenses: any
 }
 type HeroSong = {
-  id: string
-  slug: string
-  title: string
-  artist: string
-  overall_score: number
-  score_color: string
-  lenses: any
+  id: string; slug: string; title: string; artist: string
+  overall_score: number; score_color: string; lenses: any; created_at: string
 }
 export default function HomePage() {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -68,73 +58,48 @@ export default function HomePage() {
   const [heroVisible, setHeroVisible] = useState(true)
   const heroTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   useEffect(() => {
-    supabase
-      .from('songs')
-      .select('id', { count: 'exact', head: true })
-      .then(({ count }) => {
-        if (count !== null) setSongCount(count)
-      })
-    supabase
-      .from('songs')
-      .select('id, slug, title, artist, overall_score, score_color, lenses')
-      .order('created_at', { ascending: false })
-      .limit(12)
-      .then(({ data }) => {
-        if (!data) return
-        const clean = data.filter((s: RecentSong) => s.title && s.title.toLowerCase() !== 'default title' && s.title.trim() !== '')
-        const green = clean.filter((s: RecentSong) => s.score_color === 'green')
-        const amber = clean.filter((s: RecentSong) => s.score_color === 'amber')
-        const orange = clean.filter((s: RecentSong) => s.score_color === 'orange')
-        const red = clean.filter((s: RecentSong) => s.score_color === 'red')
-        const mixed: RecentSong[] = []
-        const pick = (arr: RecentSong[]) => { if (arr.length) mixed.push(arr.shift()!) }
-        pick(green); pick(amber); pick(green); pick(orange.length ? orange : amber); pick(green); pick(red.length ? red : amber)
-        setRecentSongs(mixed.length >= 4 ? mixed.slice(0, 6) : clean.slice(0, 6))
-      })
-    supabase
-      .from('songs')
-      .select('id, slug, title, artist, overall_score, score_color, lenses')
-      .not('overall_score', 'is', null)
-      .not('lenses', 'is', null)
-      .order('overall_score', { ascending: false })
-      .limit(20)
-      .then(({ data }) => {
-        if (!data) return
-        const valid = data.filter((s: HeroSong) =>
-          s.title && s.title.toLowerCase() !== 'default title' &&
-          s.lenses?.scriptural_fidelity?.score &&
-          s.lenses?.theological_clarity?.score &&
-          s.lenses?.congregational_singability?.score &&
-          s.lenses?.poetic_lyrical_quality?.score &&
-          s.lenses?.defense_brief?.score
-        )
-        setHeroSongs(valid.slice(0, 10))
-      })
+    supabase.from('songs').select('id', { count: 'exact', head: true }).then(({ count }) => { if (count !== null) setSongCount(count) })
+    supabase.from('songs').select('id, slug, title, artist, overall_score, score_color, lenses').order('created_at', { ascending: false }).limit(12).then(({ data }) => {
+      if (!data) return
+      const clean = data.filter((s: RecentSong) => s.title && s.title.toLowerCase() !== 'default title' && s.title.trim() !== '')
+      const green = clean.filter((s: RecentSong) => s.score_color === 'green')
+      const amber = clean.filter((s: RecentSong) => s.score_color === 'amber')
+      const orange = clean.filter((s: RecentSong) => s.score_color === 'orange')
+      const red = clean.filter((s: RecentSong) => s.score_color === 'red')
+      const mixed: RecentSong[] = []
+      const pick = (arr: RecentSong[]) => { if (arr.length) mixed.push(arr.shift()!) }
+      pick(green); pick(amber); pick(green); pick(orange.length ? orange : amber); pick(green); pick(red.length ? red : amber)
+      setRecentSongs(mixed.length >= 4 ? mixed.slice(0, 6) : clean.slice(0, 6))
+    })
+    // Hero: newest reviews, deduped by base title (strip parentheticals)
+    supabase.from('songs').select('id, slug, title, artist, overall_score, score_color, lenses, created_at').not('overall_score', 'is', null).not('lenses', 'is', null).order('created_at', { ascending: false }).limit(40).then(({ data }) => {
+      if (!data) return
+      const baseTitle = (t: string) => t.toLowerCase().replace(/\s*\(.*?\)\s*/g, '').trim()
+      const seen = new Set<string>()
+      const valid: HeroSong[] = []
+      for (const s of data) {
+        if (!s.title || s.title.toLowerCase() === 'default title') continue
+        if (!s.lenses?.scriptural_fidelity?.score || !s.lenses?.theological_clarity?.score || !s.lenses?.congregational_singability?.score || !s.lenses?.poetic_lyrical_quality?.score || !s.lenses?.defense_brief?.score) continue
+        const base = baseTitle(s.title)
+        if (seen.has(base)) continue
+        seen.add(base)
+        valid.push(s)
+        if (valid.length >= 10) break
+      }
+      setHeroSongs(valid)
+    })
   }, [])
   useEffect(() => {
     if (heroSongs.length < 2) return
     heroTimerRef.current = setTimeout(() => {
       setHeroVisible(false)
-      setTimeout(() => {
-        setHeroIndex(i => (i + 1) % heroSongs.length)
-        setHeroVisible(true)
-      }, 400)
+      setTimeout(() => { setHeroIndex(i => (i + 1) % heroSongs.length); setHeroVisible(true) }, 400)
     }, 4000)
     return () => { if (heroTimerRef.current) clearTimeout(heroTimerRef.current) }
   }, [heroIndex, heroSongs])
   useEffect(() => {
     const els = document.querySelectorAll('.reveal-on-scroll')
-    const io = new IntersectionObserver(
-      entries => {
-        entries.forEach(e => {
-          if (e.isIntersecting) {
-            e.target.classList.add('in')
-            io.unobserve(e.target)
-          }
-        })
-      },
-      { threshold: 0.12, rootMargin: '0px 0px -8% 0px' }
-    )
+    const io = new IntersectionObserver(entries => { entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target) } }) }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' })
     els.forEach(el => io.observe(el))
     return () => io.disconnect()
   }, [recentSongs])
@@ -147,11 +112,7 @@ export default function HomePage() {
     { label: 'Defense brief', score: currentHero.lenses?.defense_brief?.score ?? 0 },
   ] : []
   const scoreLabel = (s: number) => s >= 8 ? 'Use freely' : s >= 6.5 ? 'Recommended with notes' : s >= 5 ? 'Use with caution' : 'Not recommended'
-  const scoreColors = (sc: string) => ({
-    text: sc === 'green' ? '#2A6010' : sc === 'amber' ? '#7A5010' : sc === 'orange' ? '#8B3010' : '#8B1010',
-    bg: sc === 'green' ? '#DCEFCF' : sc === 'amber' ? '#FEF0CC' : sc === 'orange' ? '#FDE0CC' : '#FDDADA',
-    bar: sc === 'green' ? 'linear-gradient(90deg,#5AA02F,#4A8B2A)' : sc === 'amber' ? 'linear-gradient(90deg,#D68C1A,#C47B0E)' : 'linear-gradient(90deg,#C45020,#A03010)',
-  })
+  const scoreColors = (sc: string) => ({ text: sc === 'green' ? '#2A6010' : sc === 'amber' ? '#7A5010' : sc === 'orange' ? '#8B3010' : '#8B1010', bg: sc === 'green' ? '#DCEFCF' : sc === 'amber' ? '#FEF0CC' : sc === 'orange' ? '#FDE0CC' : '#FDDADA', bar: sc === 'green' ? 'linear-gradient(90deg,#5AA02F,#4A8B2A)' : sc === 'amber' ? 'linear-gradient(90deg,#D68C1A,#C47B0E)' : 'linear-gradient(90deg,#C45020,#A03010)' })
   return (
     <div style={{ fontFamily: "'Sora', sans-serif", background: '#ffffff', color: '#0D1B2A' }}>
       <style>{`
@@ -212,9 +173,7 @@ export default function HomePage() {
       `}</style>
       <nav style={{ background: NAVY, position: 'sticky', top: 0, zIndex: 50 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', height: 68, maxWidth: 1100, margin: '0 auto' }}>
-          <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
-            <LogoWhite height={44} />
-          </Link>
+          <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}><LogoWhite height={44} /></Link>
           <div className="desktop-nav-links" style={{ display: 'flex', gap: 28, alignItems: 'center' }}>
             <Link className="nav-link" href="/songs" style={{ fontSize: 13, fontWeight: 400, color: 'rgba(255,255,255,0.55)', textDecoration: 'none' }}>Songs</Link>
             <Link className="nav-link" href="/about" style={{ fontSize: 13, fontWeight: 400, color: 'rgba(255,255,255,0.55)', textDecoration: 'none' }}>About</Link>
@@ -222,9 +181,7 @@ export default function HomePage() {
             <Link className="cta-primary" href="/songs" style={{ fontSize: 12.5, fontWeight: 500, color: NAVY, background: BLUE, padding: '8px 16px', borderRadius: 8, textDecoration: 'none' }}>Browse Songs</Link>
           </div>
           <button className={`hamburger-btn${menuOpen ? ' ham-open' : ''}`} onClick={() => setMenuOpen(v => !v)} aria-label="Menu" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, background: 'none', border: 'none', cursor: 'pointer', position: 'relative', flexShrink: 0 }}>
-            <span className="ham-line ham-line-1" />
-            <span className="ham-line ham-line-2" />
-            <span className="ham-line ham-line-3" />
+            <span className="ham-line ham-line-1" /><span className="ham-line ham-line-2" /><span className="ham-line ham-line-3" />
           </button>
         </div>
         <div className={`mobile-menu${menuOpen ? ' open' : ''}`}>
@@ -247,12 +204,7 @@ export default function HomePage() {
             </div>
             <h1 className="fade-up" style={{ animationDelay: '0.08s', fontSize: 'clamp(38px, 5.6vw, 60px)', fontWeight: 600, color: '#ffffff', lineHeight: 1.04, letterSpacing: '-0.045em', marginBottom: 20 }}>
               Know what<br />you{' '}
-              <span style={{ position: 'relative', display: 'inline-block', fontWeight: 300, backgroundImage: `linear-gradient(100deg, ${BLUE}, ${BLUE_SOFT})`, WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}>
-                sing.
-                <svg aria-hidden viewBox="0 0 120 12" preserveAspectRatio="none" style={{ position: 'absolute', left: 0, bottom: '-0.14em', width: '100%', height: '0.32em' }}>
-                  <path d="M2 8 Q 40 2, 78 6 T 118 5" fill="none" stroke={BLUE} strokeWidth="2.5" strokeLinecap="round" opacity="0.85" />
-                </svg>
-              </span>
+              <span style={{ fontWeight: 600, backgroundImage: `linear-gradient(100deg, ${BLUE}, ${BLUE_SOFT})`, WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}>sing.</span>
             </h1>
             <p className="fade-up" style={{ animationDelay: '0.14s', fontSize: 15, fontWeight: 300, color: 'rgba(255,255,255,0.58)', lineHeight: 1.7, maxWidth: 400, marginBottom: 30 }}>
               Theological review of congregational worship songs for worship leaders. Five lenses. Honest scores. Pastoral framing.
