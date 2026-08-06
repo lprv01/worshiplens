@@ -1,21 +1,16 @@
 'use client'
-
 export const dynamic = 'force-dynamic'
-
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@supabase/supabase-js'
 import Link from 'next/link'
-
 const NAVY = '#0D1B2A'
 const NAVY_DEEP = '#081320'
 const BLUE = '#00b5ff'
 const BLUE_SOFT = '#7FE3FF'
-
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
-
 const lenses = [
   { id: 'sf', num: '01', name: 'Scriptural fidelity', tag: 'Biblical accuracy and alignment', desc: 'Evaluates whether lyrics align with Scripture. Flags Word of Faith language, vague universalism, or elevation of personal experience over biblical truth.', meta: [{ k: 'Watchpoints', v: 'Word of Faith, universalism' }, { k: 'Score range', v: '0-10' }] },
   { id: 'tc', num: '02', name: 'Theological clarity', tag: 'The Radio Test', desc: 'Applies the Radio Test: could a secular station play this without knowing it is worship? Strong songs are unmistakably Christ-centred.', meta: [{ k: 'Watchpoints', v: 'Vague spirituality' }, { k: 'Score range', v: '0-10' }] },
@@ -23,15 +18,6 @@ const lenses = [
   { id: 'pq', num: '04', name: 'Poetic quality', tag: 'Imagery, grammar, lyric depth', desc: 'Evaluates grammar, repetition ratio, cliche density, and imagery quality. Songs that carry weight in their words, not just their melody, score highest.', meta: [{ k: 'Watchpoints', v: 'Cliches, filler repetition' }, { k: 'Score range', v: '0-10' }] },
   { id: 'db', num: '05', name: 'Defense brief', tag: 'Objections and Scripture responses', desc: '2-3 likely congregant objections with Scripture-based responses, an honest concession, and suggested framing. Equips leaders to defend song choices pastorally.', meta: [{ k: 'Includes', v: 'Objections, concession, framing' }, { k: 'Score range', v: '0-10' }] },
 ]
-
-const cardLenses = [
-  { label: 'Scriptural fidelity', score: '9.0', pct: '90%', color: 'green' },
-  { label: 'Theological clarity', score: '8.5', pct: '85%', color: 'green' },
-  { label: 'Singability', score: '7.0', pct: '70%', color: 'amber' },
-  { label: 'Poetic quality', score: '8.0', pct: '80%', color: 'green' },
-  { label: 'Defense brief', score: '9.0', pct: '90%', color: 'green' },
-]
-
 function LogoWhite({ height = 22 }: { height?: number }) {
   const w = height * (672.16 / 174.63)
   return (
@@ -54,7 +40,6 @@ function LogoWhite({ height = 22 }: { height?: number }) {
     </svg>
   )
 }
-
 type RecentSong = {
   id: string
   slug: string
@@ -64,13 +49,24 @@ type RecentSong = {
   score_color: string
   lenses: any
 }
-
+type HeroSong = {
+  id: string
+  slug: string
+  title: string
+  artist: string
+  overall_score: number
+  score_color: string
+  lenses: any
+}
 export default function HomePage() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [openLens, setOpenLens] = useState<string | null>(null)
   const [songCount, setSongCount] = useState<number | null>(null)
   const [recentSongs, setRecentSongs] = useState<RecentSong[]>([])
-
+  const [heroSongs, setHeroSongs] = useState<HeroSong[]>([])
+  const [heroIndex, setHeroIndex] = useState(0)
+  const [heroVisible, setHeroVisible] = useState(true)
+  const heroTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   useEffect(() => {
     supabase
       .from('songs')
@@ -78,7 +74,6 @@ export default function HomePage() {
       .then(({ count }) => {
         if (count !== null) setSongCount(count)
       })
-
     supabase
       .from('songs')
       .select('id, slug, title, artist, overall_score, score_color, lenses')
@@ -96,8 +91,37 @@ export default function HomePage() {
         pick(green); pick(amber); pick(green); pick(orange.length ? orange : amber); pick(green); pick(red.length ? red : amber)
         setRecentSongs(mixed.length >= 4 ? mixed.slice(0, 6) : clean.slice(0, 6))
       })
+    supabase
+      .from('songs')
+      .select('id, slug, title, artist, overall_score, score_color, lenses')
+      .not('overall_score', 'is', null)
+      .not('lenses', 'is', null)
+      .order('overall_score', { ascending: false })
+      .limit(20)
+      .then(({ data }) => {
+        if (!data) return
+        const valid = data.filter((s: HeroSong) =>
+          s.title && s.title.toLowerCase() !== 'default title' &&
+          s.lenses?.scriptural_fidelity?.score &&
+          s.lenses?.theological_clarity?.score &&
+          s.lenses?.congregational_singability?.score &&
+          s.lenses?.poetic_lyrical_quality?.score &&
+          s.lenses?.defense_brief?.score
+        )
+        setHeroSongs(valid.slice(0, 10))
+      })
   }, [])
-
+  useEffect(() => {
+    if (heroSongs.length < 2) return
+    heroTimerRef.current = setTimeout(() => {
+      setHeroVisible(false)
+      setTimeout(() => {
+        setHeroIndex(i => (i + 1) % heroSongs.length)
+        setHeroVisible(true)
+      }, 400)
+    }, 4000)
+    return () => { if (heroTimerRef.current) clearTimeout(heroTimerRef.current) }
+  }, [heroIndex, heroSongs])
   useEffect(() => {
     const els = document.querySelectorAll('.reveal-on-scroll')
     const io = new IntersectionObserver(
@@ -114,55 +138,51 @@ export default function HomePage() {
     els.forEach(el => io.observe(el))
     return () => io.disconnect()
   }, [recentSongs])
-
+  const currentHero = heroSongs[heroIndex]
+  const heroLenses = currentHero ? [
+    { label: 'Scriptural fidelity', score: currentHero.lenses?.scriptural_fidelity?.score ?? 0 },
+    { label: 'Theological clarity', score: currentHero.lenses?.theological_clarity?.score ?? 0 },
+    { label: 'Singability', score: currentHero.lenses?.congregational_singability?.score ?? 0 },
+    { label: 'Poetic quality', score: currentHero.lenses?.poetic_lyrical_quality?.score ?? 0 },
+    { label: 'Defense brief', score: currentHero.lenses?.defense_brief?.score ?? 0 },
+  ] : []
+  const scoreLabel = (s: number) => s >= 8 ? 'Use freely' : s >= 6.5 ? 'Recommended with notes' : s >= 5 ? 'Use with caution' : 'Not recommended'
+  const scoreColors = (sc: string) => ({
+    text: sc === 'green' ? '#2A6010' : sc === 'amber' ? '#7A5010' : sc === 'orange' ? '#8B3010' : '#8B1010',
+    bg: sc === 'green' ? '#DCEFCF' : sc === 'amber' ? '#FEF0CC' : sc === 'orange' ? '#FDE0CC' : '#FDDADA',
+    bar: sc === 'green' ? 'linear-gradient(90deg,#5AA02F,#4A8B2A)' : sc === 'amber' ? 'linear-gradient(90deg,#D68C1A,#C47B0E)' : 'linear-gradient(90deg,#C45020,#A03010)',
+  })
   return (
     <div style={{ fontFamily: "'Sora', sans-serif", background: '#ffffff', color: '#0D1B2A' }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap');
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
         @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
         @keyframes growBar { from { transform: scaleX(0); } to { transform: scaleX(1); } }
         @keyframes floatCard { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
         @keyframes glowDrift { 0%, 100% { opacity: 0.55; transform: translate(0, 0) scale(1); } 50% { opacity: 0.8; transform: translate(-3%, 3%) scale(1.06); } }
-
         .fade-up { opacity: 0; animation: fadeUp 0.7s cubic-bezier(0.2,0.7,0.2,1) forwards; }
         .reveal-on-scroll { opacity: 0; transform: translateY(26px); transition: opacity 0.7s cubic-bezier(0.2,0.7,0.2,1), transform 0.7s cubic-bezier(0.2,0.7,0.2,1); }
         .reveal-on-scroll.in { opacity: 1; transform: none; }
-
         .nav-link { transition: color 0.18s ease; }
         .nav-link:hover { color: rgba(255,255,255,0.95) !important; }
-
         .cta-primary { position: relative; transition: transform 0.2s cubic-bezier(0.2,0.7,0.2,1), box-shadow 0.2s ease; box-shadow: 0 6px 24px -6px rgba(0,181,255,0.55); }
         .cta-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 34px -6px rgba(0,181,255,0.75); }
-        .cta-ghost { transition: color 0.18s ease, gap 0.18s ease; }
+        .cta-ghost { transition: color 0.18s ease; }
         .cta-ghost:hover { color: rgba(255,255,255,0.9) !important; }
-
         .hero-card { animation: floatCard 7s ease-in-out infinite; box-shadow: 0 30px 60px -24px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.6) inset; }
         .hero-glow { animation: glowDrift 9s ease-in-out infinite; }
         .bar-fill { transform-origin: left center; animation: growBar 0.9s cubic-bezier(0.2,0.7,0.2,1) both; }
-
-        .ham-line {
-          display: block; width: 22px; height: 1.5px;
-          background: #ffffff; border-radius: 2px; position: absolute;
-          transition: transform 0.3s cubic-bezier(0.4,0,0.2,1), opacity 0.2s ease;
-        }
+        .hero-card-inner { transition: opacity 0.4s ease; }
+        .ham-line { display: block; width: 22px; height: 1.5px; background: #ffffff; border-radius: 2px; position: absolute; transition: transform 0.3s cubic-bezier(0.4,0,0.2,1), opacity 0.2s ease; }
         .ham-line-1 { transform: translateY(-5px); }
         .ham-line-3 { transform: translateY(5px); }
         .ham-open .ham-line-1 { transform: translateY(0) rotate(45deg); }
         .ham-open .ham-line-2 { opacity: 0; transform: scaleX(0); }
         .ham-open .ham-line-3 { transform: translateY(0) rotate(-45deg); }
-        .mobile-menu {
-          max-height: 0; overflow: hidden;
-          transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1);
-          background: ${NAVY};
-          border-top: 0.5px solid rgba(255,255,255,0.08);
-        }
+        .mobile-menu { max-height: 0; overflow: hidden; transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1); background: ${NAVY}; border-top: 0.5px solid rgba(255,255,255,0.08); }
         .mobile-menu.open { max-height: 280px; }
-        .lens-detail {
-          max-height: 0; overflow: hidden; opacity: 0;
-          transition: max-height 0.35s ease, opacity 0.25s ease;
-        }
+        .lens-detail { max-height: 0; overflow: hidden; opacity: 0; transition: max-height 0.35s ease, opacity 0.25s ease; }
         .lens-detail.open { max-height: 220px; opacity: 1; }
         .lens-row-btn { transition: background 0.18s ease; }
         .lens-row-btn:hover { background: #F5F9FD; }
@@ -171,13 +191,13 @@ export default function HomePage() {
         .song-card { transition: transform 0.2s cubic-bezier(0.2,0.7,0.2,1), box-shadow 0.2s ease, border-color 0.2s ease; }
         .song-card:hover { transform: translateY(-5px); border-color: #C8D4DE !important; box-shadow: 0 18px 30px -18px rgba(13,27,42,0.35); }
         .recently-scroll::-webkit-scrollbar { display: none; }
-
+        .hero-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.3); border: none; padding: 0; cursor: pointer; transition: background 0.2s, transform 0.2s; }
+        .hero-dot.active { background: ${BLUE}; transform: scale(1.3); }
         @media (prefers-reduced-motion: reduce) {
           .fade-up, .bar-fill, .hero-card, .hero-glow { animation: none !important; }
           .reveal-on-scroll { opacity: 1 !important; transform: none !important; }
           .fade-up { opacity: 1 !important; }
         }
-
         @media (max-width: 680px) {
           .hero-grid { grid-template-columns: 1fr !important; }
           .hero-card-wrap { display: none !important; }
@@ -190,8 +210,6 @@ export default function HomePage() {
           .mobile-menu { display: none !important; }
         }
       `}</style>
-
-      {/* NAV */}
       <nav style={{ background: NAVY, position: 'sticky', top: 0, zIndex: 50 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', height: 68, maxWidth: 1100, margin: '0 auto' }}>
           <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
@@ -203,12 +221,7 @@ export default function HomePage() {
             <Link className="nav-link" href="/scoring-philosophy" style={{ fontSize: 13, fontWeight: 400, color: 'rgba(255,255,255,0.55)', textDecoration: 'none' }}>Scoring Philosophy</Link>
             <Link className="cta-primary" href="/songs" style={{ fontSize: 12.5, fontWeight: 500, color: NAVY, background: BLUE, padding: '8px 16px', borderRadius: 8, textDecoration: 'none' }}>Browse Songs</Link>
           </div>
-          <button
-            className={`hamburger-btn${menuOpen ? ' ham-open' : ''}`}
-            onClick={() => setMenuOpen(v => !v)}
-            aria-label="Menu"
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, background: 'none', border: 'none', cursor: 'pointer', position: 'relative', flexShrink: 0 }}
-          >
+          <button className={`hamburger-btn${menuOpen ? ' ham-open' : ''}`} onClick={() => setMenuOpen(v => !v)} aria-label="Menu" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, background: 'none', border: 'none', cursor: 'pointer', position: 'relative', flexShrink: 0 }}>
             <span className="ham-line ham-line-1" />
             <span className="ham-line ham-line-2" />
             <span className="ham-line ham-line-3" />
@@ -217,22 +230,15 @@ export default function HomePage() {
         <div className={`mobile-menu${menuOpen ? ' open' : ''}`}>
           <div style={{ padding: '8px 0 16px' }}>
             {[{ href: '/songs', label: 'Songs' }, { href: '/about', label: 'About' }, { href: '/scoring-philosophy', label: 'Scoring Philosophy' }].map(item => (
-              <Link key={item.href} href={item.href} onClick={() => setMenuOpen(false)}
-                style={{ display: 'block', padding: '13px 24px', fontSize: 16, fontWeight: 400, color: 'rgba(255,255,255,0.7)', textDecoration: 'none' }}>
-                {item.label}
-              </Link>
+              <Link key={item.href} href={item.href} onClick={() => setMenuOpen(false)} style={{ display: 'block', padding: '13px 24px', fontSize: 16, fontWeight: 400, color: 'rgba(255,255,255,0.7)', textDecoration: 'none' }}>{item.label}</Link>
             ))}
           </div>
         </div>
       </nav>
-
-      {/* HERO */}
       <section style={{ position: 'relative', background: `linear-gradient(170deg, ${NAVY} 0%, ${NAVY_DEEP} 100%)`, padding: '72px 24px 76px', overflow: 'hidden' }}>
-        {/* background layers */}
         <div aria-hidden style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '26px 26px', maskImage: 'radial-gradient(ellipse 80% 70% at 50% 0%, #000 30%, transparent 78%)', WebkitMaskImage: 'radial-gradient(ellipse 80% 70% at 50% 0%, #000 30%, transparent 78%)', pointerEvents: 'none' }} />
         <div className="hero-glow" aria-hidden style={{ position: 'absolute', top: '-14%', right: '4%', width: 620, height: 620, background: `radial-gradient(circle, ${BLUE} 0%, transparent 62%)`, opacity: 0.6, filter: 'blur(60px)', pointerEvents: 'none' }} />
         <div aria-hidden style={{ position: 'absolute', bottom: '-30%', left: '-8%', width: 460, height: 460, background: 'radial-gradient(circle, rgba(0,181,255,0.18) 0%, transparent 65%)', filter: 'blur(50px)', pointerEvents: 'none' }} />
-
         <div className="hero-grid" style={{ position: 'relative', display: 'grid', gridTemplateColumns: '1.05fr 1fr', maxWidth: 1000, margin: '0 auto', gap: '3rem', alignItems: 'center' }}>
           <div>
             <div className="fade-up" style={{ animationDelay: '0.02s', display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 10, fontWeight: 500, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: BLUE, marginBottom: 22, padding: '6px 12px', border: '0.5px solid rgba(0,181,255,0.28)', borderRadius: 100, background: 'rgba(0,181,255,0.07)' }}>
@@ -252,19 +258,11 @@ export default function HomePage() {
               Theological review of congregational worship songs for worship leaders. Five lenses. Honest scores. Pastoral framing.
             </p>
             <div className="fade-up" style={{ animationDelay: '0.2s', display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' as const }}>
-              <Link className="cta-primary" href="/songs" style={{ fontSize: 13.5, fontWeight: 500, color: NAVY, background: BLUE, padding: '13px 26px', borderRadius: 10, textDecoration: 'none' }}>
-                Browse Songs
-              </Link>
-              <Link className="cta-ghost" href="/scoring-philosophy" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13.5, fontWeight: 400, color: 'rgba(255,255,255,0.5)', textDecoration: 'none' }}>
-                How scoring works →
-              </Link>
+              <Link className="cta-primary" href="/songs" style={{ fontSize: 13.5, fontWeight: 500, color: NAVY, background: BLUE, padding: '13px 26px', borderRadius: 10, textDecoration: 'none' }}>Browse Songs</Link>
+              <Link className="cta-ghost" href="/scoring-philosophy" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13.5, fontWeight: 400, color: 'rgba(255,255,255,0.5)', textDecoration: 'none' }}>How scoring works →</Link>
             </div>
             <div className="fade-up" style={{ animationDelay: '0.28s', display: 'flex', gap: 36, marginTop: 40, paddingTop: 26, borderTop: '0.5px solid rgba(255,255,255,0.1)' }}>
-              {[
-                [songCount !== null ? String(songCount) : '...', 'Songs reviewed'],
-                ['5', 'Theological lenses'],
-                ['Biblical', 'Every review'],
-              ].map(([num, label]) => (
+              {[[songCount !== null ? String(songCount) : '...', 'Songs reviewed'], ['5', 'Theological lenses'], ['Biblical', 'Every review']].map(([num, label]) => (
                 <div key={label}>
                   <div style={{ fontSize: 24, fontWeight: 600, color: '#ffffff', letterSpacing: '-0.03em' }}>{num}</div>
                   <div style={{ fontSize: 10, fontWeight: 300, color: 'rgba(255,255,255,0.38)', letterSpacing: '0.03em', marginTop: 3 }}>{label}</div>
@@ -272,41 +270,56 @@ export default function HomePage() {
               ))}
             </div>
           </div>
-
-          {/* HERO CARD */}
-          <div className="hero-card-wrap fade-up" style={{ animationDelay: '0.24s', display: 'flex', justifyContent: 'flex-end' }}>
-            <div className="hero-card" style={{ position: 'relative', background: 'linear-gradient(180deg, #FFFFFF 0%, #F1F6FB 100%)', borderRadius: 16, padding: '20px', width: 300 }}>
-              <div aria-hidden style={{ position: 'absolute', inset: 0, borderRadius: 16, padding: 1, background: 'linear-gradient(180deg, rgba(255,255,255,0.9), rgba(0,181,255,0.15))', WebkitMask: 'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)', WebkitMaskComposite: 'xor', maskComposite: 'exclude', pointerEvents: 'none' }} />
-              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 }}>
-                <div>
-                  <p style={{ fontSize: 14, fontWeight: 600, color: '#0D1B2A', letterSpacing: '-0.01em', marginBottom: 3 }}>Holy Forever</p>
-                  <p style={{ fontSize: 11, fontWeight: 300, color: '#7A8A9A' }}>Chris Tomlin</p>
-                </div>
-                <span style={{ fontSize: 9, fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase' as const, color: BLUE, padding: '4px 8px', background: 'rgba(0,181,255,0.1)', borderRadius: 6 }}>Sample</span>
-              </div>
-              {cardLenses.map((l, i) => (
-                <div key={l.label} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 9 }}>
-                  <span style={{ fontSize: 10, color: '#7A8A9A', width: 104, flexShrink: 0 }}>{l.label}</span>
-                  <div style={{ flex: 1, height: 4, background: '#E2E8F0', borderRadius: 3, overflow: 'hidden' }}>
-                    <div className="bar-fill" style={{ height: '100%', borderRadius: 3, width: l.pct, animationDelay: `${0.5 + i * 0.09}s`, background: l.color === 'green' ? 'linear-gradient(90deg, #5AA02F, #4A8B2A)' : 'linear-gradient(90deg, #D68C1A, #C47B0E)' }} />
+          <div className="hero-card-wrap fade-up" style={{ animationDelay: '0.24s', display: 'flex', flexDirection: 'column' as const, alignItems: 'flex-end', gap: 14 }}>
+            {currentHero ? (
+              <Link href={'/songs/' + (currentHero.slug || currentHero.id)} style={{ textDecoration: 'none', width: 300 }}>
+                <div className="hero-card" style={{ position: 'relative', background: 'linear-gradient(180deg, #FFFFFF 0%, #F1F6FB 100%)', borderRadius: 16, padding: '20px', width: 300 }}>
+                  <div aria-hidden style={{ position: 'absolute', inset: 0, borderRadius: 16, padding: 1, background: 'linear-gradient(180deg, rgba(255,255,255,0.9), rgba(0,181,255,0.15))', WebkitMask: 'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)', WebkitMaskComposite: 'xor', maskComposite: 'exclude', pointerEvents: 'none' }} />
+                  <div className="hero-card-inner" style={{ opacity: heroVisible ? 1 : 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 }}>
+                      <div>
+                        <p style={{ fontSize: 14, fontWeight: 600, color: '#0D1B2A', letterSpacing: '-0.01em', marginBottom: 3, maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{currentHero.title}</p>
+                        <p style={{ fontSize: 11, fontWeight: 300, color: '#7A8A9A', maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{currentHero.artist}</p>
+                      </div>
+                      <span style={{ fontSize: 9, fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase' as const, color: BLUE, padding: '4px 8px', background: 'rgba(0,181,255,0.1)', borderRadius: 6, flexShrink: 0 }}>Live</span>
+                    </div>
+                    {heroLenses.map((l, i) => {
+                      const pct = `${(l.score / 10) * 100}%`
+                      const isAmber = l.score < 7.5
+                      return (
+                        <div key={l.label} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 9 }}>
+                          <span style={{ fontSize: 10, color: '#7A8A9A', width: 104, flexShrink: 0 }}>{l.label}</span>
+                          <div style={{ flex: 1, height: 4, background: '#E2E8F0', borderRadius: 3, overflow: 'hidden' }}>
+                            <div className="bar-fill" style={{ height: '100%', borderRadius: 3, width: pct, animationDelay: `${0.5 + i * 0.09}s`, background: isAmber ? 'linear-gradient(90deg,#D68C1A,#C47B0E)' : 'linear-gradient(90deg,#5AA02F,#4A8B2A)' }} />
+                          </div>
+                          <span style={{ fontSize: 11.5, fontWeight: 600, width: 26, textAlign: 'right' as const, color: isAmber ? '#7A5010' : '#2A6010' }}>{l.score.toFixed(1)}</span>
+                        </div>
+                      )
+                    })}
+                    <div style={{ height: '0.5px', background: '#E2E8F0', margin: '14px 0' }} />
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <div>
+                        <p style={{ fontSize: 10, color: '#9AA4AF', marginBottom: 5 }}>Overall score</p>
+                        <span style={{ fontSize: 11, fontWeight: 500, background: scoreColors(currentHero.score_color).bg, color: scoreColors(currentHero.score_color).text, padding: '3px 10px', borderRadius: 20 }}>{scoreLabel(currentHero.overall_score)}</span>
+                      </div>
+                      <span style={{ fontSize: 30, fontWeight: 600, color: scoreColors(currentHero.score_color).text, letterSpacing: '-0.03em' }}>{currentHero.overall_score.toFixed(1)}</span>
+                    </div>
                   </div>
-                  <span style={{ fontSize: 11.5, fontWeight: 600, width: 26, textAlign: 'right' as const, color: l.color === 'green' ? '#2A6010' : '#7A5010' }}>{l.score}</span>
                 </div>
-              ))}
-              <div style={{ height: '0.5px', background: '#E2E8F0', margin: '14px 0' }} />
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div>
-                  <p style={{ fontSize: 10, color: '#9AA4AF', marginBottom: 5 }}>Overall score</p>
-                  <span style={{ fontSize: 11, fontWeight: 500, background: '#DCEFCF', color: '#2A6010', padding: '3px 10px', borderRadius: 20 }}>Use freely</span>
-                </div>
-                <span style={{ fontSize: 30, fontWeight: 600, color: '#2A6010', letterSpacing: '-0.03em' }}>8.3</span>
+              </Link>
+            ) : (
+              <div className="hero-card" style={{ background: 'linear-gradient(180deg, #FFFFFF 0%, #F1F6FB 100%)', borderRadius: 16, padding: '20px', width: 300, minHeight: 280 }} />
+            )}
+            {heroSongs.length > 1 && (
+              <div style={{ display: 'flex', gap: 6, justifyContent: 'center', width: 300 }}>
+                {heroSongs.map((_, i) => (
+                  <button key={i} className={`hero-dot${i === heroIndex ? ' active' : ''}`} onClick={() => { setHeroVisible(false); setTimeout(() => { setHeroIndex(i); setHeroVisible(true) }, 400) }} aria-label={`Song ${i + 1}`} />
+                ))}
               </div>
-            </div>
+            )}
           </div>
         </div>
       </section>
-
-      {/* RECENTLY REVIEWED */}
       <section className="reveal-on-scroll" style={{ background: '#ffffff', padding: '44px 24px', borderBottom: '0.5px solid #F0F4F8' }}>
         <div style={{ maxWidth: 1000, margin: '0 auto' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
@@ -320,13 +333,7 @@ export default function HomePage() {
               const scoreBg = sc === 'green' ? '#DCEFCF' : sc === 'amber' ? '#FEF0CC' : sc === 'orange' ? '#FDE0CC' : '#FDDADA'
               const barColor = sc === 'green' ? '#4A8B2A' : sc === 'amber' ? '#C47B0E' : sc === 'orange' ? '#C45020' : '#C42020'
               const lenses = song.lenses ?? {}
-              const bars = [
-                lenses.scriptural_fidelity?.score ?? 0,
-                lenses.theological_clarity?.score ?? 0,
-                lenses.congregational_singability?.score ?? 0,
-                lenses.poetic_lyrical_quality?.score ?? 0,
-                lenses.defense_brief?.score ?? 0,
-              ]
+              const bars = [lenses.scriptural_fidelity?.score ?? 0, lenses.theological_clarity?.score ?? 0, lenses.congregational_singability?.score ?? 0, lenses.poetic_lyrical_quality?.score ?? 0, lenses.defense_brief?.score ?? 0]
               const href = '/songs/' + (song.slug || song.id)
               return (
                 <Link key={song.id} href={href} style={{ textDecoration: 'none', flexShrink: 0 }}>
@@ -351,10 +358,8 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* PULL QUOTE */}
       <section className="reveal-on-scroll" style={{ position: 'relative', background: `linear-gradient(180deg, #F7F9FC 0%, #EEF3F9 100%)`, padding: '76px 24px', borderBottom: '0.5px solid #E8EDF2', overflow: 'hidden' }}>
-        <div aria-hidden style={{ position: 'absolute', top: 8, left: '50%', transform: 'translateX(-50%)', fontSize: 160, lineHeight: 1, fontWeight: 700, color: BLUE, opacity: 0.08, fontFamily: 'Georgia, serif', pointerEvents: 'none' }}>“</div>
+        <div aria-hidden style={{ position: 'absolute', top: 8, left: '50%', transform: 'translateX(-50%)', fontSize: 160, lineHeight: 1, fontWeight: 700, color: BLUE, opacity: 0.08, fontFamily: 'Georgia, serif', pointerEvents: 'none' }}>"</div>
         <div style={{ position: 'relative', maxWidth: 680, margin: '0 auto', textAlign: 'center' as const }}>
           <p style={{ fontSize: 'clamp(19px, 2.7vw, 26px)', fontWeight: 300, lineHeight: 1.6, letterSpacing: '-0.015em', color: '#0D1B2A' }}>
             If you want to know what a church believes, listen to what it sings. What the Church sings today will shape what the Church believes tomorrow.
@@ -362,8 +367,6 @@ export default function HomePage() {
           <div style={{ width: 32, height: 2.5, background: `linear-gradient(90deg, ${BLUE}, ${BLUE_SOFT})`, borderRadius: 2, margin: '28px auto 0' }} />
         </div>
       </section>
-
-      {/* FIVE LENSES */}
       <section className="reveal-on-scroll" style={{ padding: '64px 24px', borderBottom: '0.5px solid #E8EDF2' }}>
         <div style={{ maxWidth: 1000, margin: '0 auto' }}>
           <div style={{ marginBottom: 24 }}>
@@ -376,11 +379,7 @@ export default function HomePage() {
           <div style={{ border: '0.5px solid #E2E8F0', borderRadius: 14, overflow: 'hidden', boxShadow: '0 12px 30px -22px rgba(13,27,42,0.3)' }}>
             {lenses.map((lens, i) => (
               <div key={lens.id} style={{ background: '#ffffff', borderBottom: i < lenses.length - 1 ? '0.5px solid #F0F4F8' : 'none' }}>
-                <button
-                  className="lens-row-btn"
-                  onClick={() => setOpenLens(prev => prev === lens.id ? null : lens.id)}
-                  style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '18px 22px', width: '100%', background: 'none', border: 'none', textAlign: 'left' as const, fontFamily: "'Sora', sans-serif", cursor: 'pointer' }}
-                >
+                <button className="lens-row-btn" onClick={() => setOpenLens(prev => prev === lens.id ? null : lens.id)} style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '18px 22px', width: '100%', background: 'none', border: 'none', textAlign: 'left' as const, fontFamily: "'Sora', sans-serif", cursor: 'pointer' }}>
                   <span className="lens-num" style={{ fontSize: 11, fontWeight: 500, color: '#9AA4AF', width: 30, height: 30, flexShrink: 0, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', border: '0.5px solid #E2E8F0', borderRadius: '50%' }}>{lens.num}</span>
                   <span style={{ fontSize: 14.5, fontWeight: 500, flex: 1, color: '#0D1B2A' }}>{lens.name}</span>
                   <span className="lens-tag" style={{ fontSize: 11, color: '#9AA4AF', fontWeight: 300 }}>{lens.tag}</span>
@@ -405,14 +404,10 @@ export default function HomePage() {
             ))}
           </div>
           <div style={{ marginTop: 20, textAlign: 'center' as const }}>
-            <Link className="cta-ghost" href="/scoring-philosophy" style={{ fontSize: 13, fontWeight: 400, color: BLUE, textDecoration: 'none' }}>
-              Read the full scoring philosophy →
-            </Link>
+            <Link className="cta-ghost" href="/scoring-philosophy" style={{ fontSize: 13, fontWeight: 400, color: BLUE, textDecoration: 'none' }}>Read the full scoring philosophy →</Link>
           </div>
         </div>
       </section>
-
-      {/* FOOTER */}
       <footer style={{ background: `linear-gradient(180deg, ${NAVY} 0%, ${NAVY_DEEP} 100%)`, padding: '40px 24px' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' as const, gap: 16 }}>
           <LogoWhite height={44} />
