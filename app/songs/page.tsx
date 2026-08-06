@@ -22,6 +22,7 @@ type Song = {
   score_color: string
   recommendation: string
   created_at: string
+  is_top_song: boolean | null
 }
 
 const scoreStyles: Record<string, { color: string; bg: string; bar: string }> = {
@@ -44,8 +45,8 @@ const CCLI_ORDER: Record<string, number> = {
 }
 
 type SortKey = 'newest' | 'alpha_az' | 'alpha_za' | 'score_desc' | 'artist' | 'ccli'
+type FilterKey = 'all' | 'green' | 'amber' | 'orange' | 'red' | 'top'
 
-// Logo 01 — white + blue wordmark
 function LogoWhite({ height = 22 }: { height?: number }) {
   const w = height * (672.16 / 174.63)
   return (
@@ -73,7 +74,7 @@ export default function SongsPage() {
   const [songs, setSongs] = useState<Song[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
-  const [filter, setFilter] = useState('all')
+  const [filter, setFilter] = useState<FilterKey>('all')
   const [sort, setSort] = useState<SortKey>('newest')
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -81,7 +82,7 @@ export default function SongsPage() {
     async function load() {
       const { data } = await supabase
         .from('songs')
-        .select('id, slug, title, artist, ccli_number, overall_score, score_color, recommendation, created_at', { count: 'exact' })
+        .select('id, slug, title, artist, ccli_number, overall_score, score_color, recommendation, created_at, is_top_song', { count: 'exact' })
       if (data) setSongs(data)
       setLoading(false)
     }
@@ -94,7 +95,11 @@ export default function SongsPage() {
       const q = search.toLowerCase()
       list = list.filter(s => s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q))
     }
-    if (filter !== 'all') list = list.filter(s => s.score_color === filter)
+    if (filter === 'top') {
+      list = list.filter(s => s.is_top_song === true)
+    } else if (filter !== 'all') {
+      list = list.filter(s => s.score_color === filter)
+    }
     list.sort((a, b) => {
       if (sort === 'newest') return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       if (sort === 'alpha_az') return a.title.localeCompare(b.title)
@@ -111,26 +116,27 @@ export default function SongsPage() {
     return list
   }, [songs, search, filter, sort])
 
+  const filters: [FilterKey, string][] = [
+    ['all', 'All'],
+    ['top', '⭐ Lifeway Top 100'],
+    ['green', 'Green'],
+    ['amber', 'Amber'],
+    ['orange', 'Orange'],
+    ['red', 'Red'],
+  ]
+
   return (
     <div style={{ fontFamily: "'Sora', sans-serif", background: '#ffffff', color: '#0D1B2A', minHeight: '100vh' }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&display=swap');
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        .ham-line {
-          display: block; width: 22px; height: 1.5px;
-          background: #ffffff; border-radius: 2px; position: absolute;
-          transition: transform 0.3s cubic-bezier(0.4,0,0.2,1), opacity 0.2s ease;
-        }
+        .ham-line { display: block; width: 22px; height: 1.5px; background: #ffffff; border-radius: 2px; position: absolute; transition: transform 0.3s cubic-bezier(0.4,0,0.2,1), opacity 0.2s ease; }
         .ham-line-1 { transform: translateY(-5px); }
         .ham-line-3 { transform: translateY(5px); }
         .ham-open .ham-line-1 { transform: translateY(0) rotate(45deg); }
         .ham-open .ham-line-2 { opacity: 0; transform: scaleX(0); }
         .ham-open .ham-line-3 { transform: translateY(0) rotate(-45deg); }
-        .mobile-menu {
-          max-height: 0; overflow: hidden;
-          transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1);
-          background: ${NAVY}; border-top: 0.5px solid rgba(255,255,255,0.08);
-        }
+        .mobile-menu { max-height: 0; overflow: hidden; transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1); background: ${NAVY}; border-top: 0.5px solid rgba(255,255,255,0.08); }
         .mobile-menu.open { max-height: 280px; }
         .song-row { transition: background 0.12s ease; }
         .song-row:hover { background: #F7FAFD; }
@@ -153,7 +159,6 @@ export default function SongsPage() {
         }
       `}</style>
 
-      {/* NAV */}
       <nav style={{ background: NAVY, position: 'sticky', top: 0, zIndex: 50 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', height: 68, maxWidth: 1100, margin: '0 auto' }}>
           <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
@@ -164,12 +169,7 @@ export default function SongsPage() {
             <Link href="/about" style={{ fontSize: 13, fontWeight: 400, color: 'rgba(255,255,255,0.55)', textDecoration: 'none' }}>About</Link>
             <Link href="/scoring-philosophy" style={{ fontSize: 13, fontWeight: 400, color: 'rgba(255,255,255,0.55)', textDecoration: 'none' }}>Scoring Philosophy</Link>
           </div>
-          <button
-            className={`hamburger-btn${menuOpen ? ' ham-open' : ''}`}
-            onClick={() => setMenuOpen(v => !v)}
-            aria-label="Menu"
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, background: 'none', border: 'none', cursor: 'pointer', position: 'relative', flexShrink: 0 }}
-          >
+          <button className={`hamburger-btn${menuOpen ? ' ham-open' : ''}`} onClick={() => setMenuOpen(v => !v)} aria-label="Menu" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, background: 'none', border: 'none', cursor: 'pointer', position: 'relative', flexShrink: 0 }}>
             <span className="ham-line ham-line-1" />
             <span className="ham-line ham-line-2" />
             <span className="ham-line ham-line-3" />
@@ -178,18 +178,12 @@ export default function SongsPage() {
         <div className={`mobile-menu${menuOpen ? ' open' : ''}`}>
           <div style={{ padding: '8px 0 16px' }}>
             {[{ href: '/songs', label: 'Songs' }, { href: '/about', label: 'About' }, { href: '/scoring-philosophy', label: 'Scoring Philosophy' }].map(item => (
-              <Link key={item.href} href={item.href} onClick={() => setMenuOpen(false)}
-                style={{ display: 'block', padding: '13px 24px', fontSize: 16, fontWeight: 400, color: 'rgba(255,255,255,0.7)', textDecoration: 'none' }}>
-                {item.label}
-              </Link>
+              <Link key={item.href} href={item.href} onClick={() => setMenuOpen(false)} style={{ display: 'block', padding: '13px 24px', fontSize: 16, fontWeight: 400, color: 'rgba(255,255,255,0.7)', textDecoration: 'none' }}>{item.label}</Link>
             ))}
-            <div style={{ height: '0.5px', background: 'rgba(255,255,255,0.08)', margin: '8px 24px' }} />
-            <span style={{ display: 'block', padding: '10px 24px', fontSize: 12, color: BLUE }}></span>
           </div>
         </div>
       </nav>
 
-      {/* LIBRARY HEADER */}
       <div style={{ background: NAVY, padding: '24px 24px 20px' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
           <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap' as const, gap: 12 }}>
@@ -218,7 +212,7 @@ export default function SongsPage() {
           </div>
           <div className="desktop-controls" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
             <div className="filters-scroll">
-              {[['all', 'All'], ['green', 'Green'], ['amber', 'Amber'], ['orange', 'Orange'], ['red', 'Red']].map(([val, label]) => (
+              {filters.map(([val, label]) => (
                 <button key={val} onClick={() => setFilter(val)}
                   style={{ fontSize: 11, fontWeight: filter === val ? 500 : 400, padding: '6px 14px', borderRadius: 20, border: 'none', background: filter === val ? BLUE : 'rgba(255,255,255,0.08)', color: filter === val ? NAVY : 'rgba(255,255,255,0.45)', cursor: 'pointer', whiteSpace: 'nowrap' as const, flexShrink: 0, fontFamily: "'Sora', sans-serif", transition: 'background 0.15s, color 0.15s' }}>
                   {label}
@@ -235,16 +229,22 @@ export default function SongsPage() {
               <option value="ccli">CCLI Top Songs</option>
             </select>
           </div>
+          {filter === 'top' && (
+            <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 10, fontWeight: 300 }}>
+              Sourced from Lifeway Worship Top 100 — updated monthly
+            </p>
+          )}
         </div>
       </div>
 
-      {/* SONG LIST */}
       <div style={{ maxWidth: 1100, margin: '0 auto' }}>
         {loading ? (
           <div style={{ padding: '60px 24px', textAlign: 'center' as const, color: '#9AA4AF', fontSize: 14, fontWeight: 300 }}>Loading songs...</div>
         ) : filtered.length === 0 ? (
           <div style={{ padding: '60px 24px', textAlign: 'center' as const }}>
-            <p style={{ fontSize: 14, fontWeight: 300, color: '#9AA4AF' }}>No songs found.</p>
+            <p style={{ fontSize: 14, fontWeight: 300, color: '#9AA4AF' }}>
+              {filter === 'top' ? 'No Lifeway Top 100 songs tagged yet — run the sync script to populate.' : 'No songs found.'}
+            </p>
             <button onClick={() => { setSearch(''); setFilter('all') }} style={{ marginTop: 12, fontSize: 13, color: BLUE, background: 'none', border: 'none', cursor: 'pointer', fontFamily: "'Sora', sans-serif" }}>Clear filters</button>
           </div>
         ) : (
@@ -262,6 +262,9 @@ export default function SongsPage() {
                     <div style={{ fontSize: 14, fontWeight: 500, color: '#0D1B2A', letterSpacing: '-0.01em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{song.title}</div>
                     <div style={{ fontSize: 12, fontWeight: 300, color: '#7A8A9A', marginTop: 2 }}>{song.artist}</div>
                   </div>
+                  {song.is_top_song && (
+                    <span style={{ fontSize: 10, fontWeight: 500, color: BLUE, background: 'rgba(0,181,255,0.1)', padding: '3px 8px', borderRadius: 20, flexShrink: 0 }}>Lifeway Top 100</span>
+                  )}
                   <span style={{ fontSize: 11, fontWeight: 500, padding: '4px 10px', borderRadius: 20, background: s.bg, color: s.color, flexShrink: 0, whiteSpace: 'nowrap' as const }}>
                     {recLabel[song.score_color] ?? 'Review'}
                   </span>
@@ -280,16 +283,14 @@ export default function SongsPage() {
         )}
       </div>
 
-      {/* FOOTER */}
       <footer style={{ background: NAVY, padding: '32px 24px', marginTop: 40 }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' as const, gap: 16 }}>
-          <LogoWhite height={28} />
+          <LogoWhite height={44} />
           <div style={{ display: 'flex', gap: 20 }}>
             <Link href="/songs" style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>Songs</Link>
             <Link href="/about" style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>About</Link>
             <Link href="/scoring-philosophy" style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>Scoring Philosophy</Link>
           </div>
-          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)' }}></span>
         </div>
       </footer>
     </div>
