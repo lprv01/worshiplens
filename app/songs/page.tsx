@@ -118,7 +118,7 @@ export default function SongsPage() {
 
   const filters: [FilterKey, string][] = [
     ['all', 'All'],
-    ['top', 'Lifeway Top 100'],
+    ['top', 'Top Songs This Month'],
     ['green', 'Green'],
     ['amber', 'Amber'],
     ['orange', 'Orange'],
@@ -217,7 +217,7 @@ export default function SongsPage() {
               <option value="ccli">CCLI Top Songs</option>
             </select>
           </div>
-          {filter === 'top' && (
+          {filter === 'top' && false && (
             <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 10, fontWeight: 300 }}>Sourced from Lifeway Worship Top 100 — updated monthly</p>
           )}
         </div>
