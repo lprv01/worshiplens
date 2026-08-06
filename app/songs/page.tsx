@@ -118,7 +118,7 @@ export default function SongsPage() {
 
   const filters: [FilterKey, string][] = [
     ['all', 'All'],
-    ['top', '⭐ Lifeway Top 100'],
+    ['top', 'Lifeway Top 100'],
     ['green', 'Green'],
     ['amber', 'Amber'],
     ['orange', 'Orange'],
@@ -158,7 +158,6 @@ export default function SongsPage() {
           .mobile-search { display: none !important; }
         }
       `}</style>
-
       <nav style={{ background: NAVY, position: 'sticky', top: 0, zIndex: 50 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', height: 68, maxWidth: 1100, margin: '0 auto' }}>
           <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
@@ -183,32 +182,21 @@ export default function SongsPage() {
           </div>
         </div>
       </nav>
-
       <div style={{ background: NAVY, padding: '24px 24px 20px' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
           <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap' as const, gap: 12 }}>
             <div>
               <h1 style={{ fontSize: 'clamp(20px, 3vw, 28px)', fontWeight: 600, color: '#ffffff', letterSpacing: '-0.03em' }}>Song Library</h1>
-              <p style={{ fontSize: 12, fontWeight: 300, color: 'rgba(255,255,255,0.35)', marginTop: 3 }}>
-                {loading ? 'Loading...' : `${songs.length} songs reviewed`}
-              </p>
+              <p style={{ fontSize: 12, fontWeight: 300, color: 'rgba(255,255,255,0.35)', marginTop: 3 }}>{loading ? 'Loading...' : `${songs.length} songs reviewed`}</p>
             </div>
             <div className="desktop-search" style={{ display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.08)', border: '0.5px solid rgba(255,255,255,0.15)', borderRadius: 8, padding: '9px 14px', gap: 8, width: 260 }}>
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style={{ opacity: 0.4, flexShrink: 0 }}>
-                <circle cx="6.5" cy="6.5" r="5" stroke="white" strokeWidth="1.5" />
-                <path d="M10.5 10.5L14 14" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
-              </svg>
-              <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by title or artist..."
-                style={{ flex: 1, background: 'none', border: 'none', fontFamily: "'Sora', sans-serif", fontSize: 13, fontWeight: 300, color: '#ffffff' }} />
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style={{ opacity: 0.4, flexShrink: 0 }}><circle cx="6.5" cy="6.5" r="5" stroke="white" strokeWidth="1.5" /><path d="M10.5 10.5L14 14" stroke="white" strokeWidth="1.5" strokeLinecap="round" /></svg>
+              <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by title or artist..." style={{ flex: 1, background: 'none', border: 'none', fontFamily: "'Sora', sans-serif", fontSize: 13, fontWeight: 300, color: '#ffffff' }} />
             </div>
           </div>
           <div className="mobile-search" style={{ display: 'none', alignItems: 'center', background: 'rgba(255,255,255,0.08)', border: '0.5px solid rgba(255,255,255,0.15)', borderRadius: 8, padding: '10px 14px', gap: 8, marginBottom: 12 }}>
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style={{ opacity: 0.4, flexShrink: 0 }}>
-              <circle cx="6.5" cy="6.5" r="5" stroke="white" strokeWidth="1.5" />
-              <path d="M10.5 10.5L14 14" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
-            </svg>
-            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by title or artist..."
-              style={{ flex: 1, background: 'none', border: 'none', fontFamily: "'Sora', sans-serif", fontSize: 14, fontWeight: 300, color: '#ffffff' }} />
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style={{ opacity: 0.4, flexShrink: 0 }}><circle cx="6.5" cy="6.5" r="5" stroke="white" strokeWidth="1.5" /><path d="M10.5 10.5L14 14" stroke="white" strokeWidth="1.5" strokeLinecap="round" /></svg>
+            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by title or artist..." style={{ flex: 1, background: 'none', border: 'none', fontFamily: "'Sora', sans-serif", fontSize: 14, fontWeight: 300, color: '#ffffff' }} />
           </div>
           <div className="desktop-controls" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
             <div className="filters-scroll">
@@ -230,21 +218,16 @@ export default function SongsPage() {
             </select>
           </div>
           {filter === 'top' && (
-            <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 10, fontWeight: 300 }}>
-              Sourced from Lifeway Worship Top 100 — updated monthly
-            </p>
+            <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 10, fontWeight: 300 }}>Sourced from Lifeway Worship Top 100 — updated monthly</p>
           )}
         </div>
       </div>
-
       <div style={{ maxWidth: 1100, margin: '0 auto' }}>
         {loading ? (
           <div style={{ padding: '60px 24px', textAlign: 'center' as const, color: '#9AA4AF', fontSize: 14, fontWeight: 300 }}>Loading songs...</div>
         ) : filtered.length === 0 ? (
           <div style={{ padding: '60px 24px', textAlign: 'center' as const }}>
-            <p style={{ fontSize: 14, fontWeight: 300, color: '#9AA4AF' }}>
-              {filter === 'top' ? 'No Lifeway Top 100 songs tagged yet — run the sync script to populate.' : 'No songs found.'}
-            </p>
+            <p style={{ fontSize: 14, fontWeight: 300, color: '#9AA4AF' }}>{filter === 'top' ? 'No Lifeway Top 100 songs tagged yet.' : 'No songs found.'}</p>
             <button onClick={() => { setSearch(''); setFilter('all') }} style={{ marginTop: 12, fontSize: 13, color: BLUE, background: 'none', border: 'none', cursor: 'pointer', fontFamily: "'Sora', sans-serif" }}>Clear filters</button>
           </div>
         ) : (
@@ -254,9 +237,7 @@ export default function SongsPage() {
             return (
               <Link key={song.id} href={href} style={{ textDecoration: 'none' }}>
                 <div className="song-row" style={{ display: 'flex', alignItems: 'center', padding: '14px 24px', borderBottom: '0.5px solid #F0F4F8', gap: 12, cursor: 'pointer' }}>
-                  <span style={{ fontSize: 15, fontWeight: 600, letterSpacing: '-0.02em', color: s.color, width: 40, textAlign: 'center' as const, flexShrink: 0 }}>
-                    {(song.overall_score ?? 0).toFixed(1)}
-                  </span>
+                  <span style={{ fontSize: 15, fontWeight: 600, letterSpacing: '-0.02em', color: s.color, width: 40, textAlign: 'center' as const, flexShrink: 0 }}>{(song.overall_score ?? 0).toFixed(1)}</span>
                   <div style={{ width: 3, height: 40, borderRadius: 2, background: s.bar, flexShrink: 0 }} />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 14, fontWeight: 500, color: '#0D1B2A', letterSpacing: '-0.01em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{song.title}</div>
@@ -265,9 +246,7 @@ export default function SongsPage() {
                   {song.is_top_song && (
                     <span style={{ fontSize: 10, fontWeight: 500, color: BLUE, background: 'rgba(0,181,255,0.1)', padding: '3px 8px', borderRadius: 20, flexShrink: 0 }}>Lifeway Top 100</span>
                   )}
-                  <span style={{ fontSize: 11, fontWeight: 500, padding: '4px 10px', borderRadius: 20, background: s.bg, color: s.color, flexShrink: 0, whiteSpace: 'nowrap' as const }}>
-                    {recLabel[song.score_color] ?? 'Review'}
-                  </span>
+                  <span style={{ fontSize: 11, fontWeight: 500, padding: '4px 10px', borderRadius: 20, background: s.bg, color: s.color, flexShrink: 0, whiteSpace: 'nowrap' as const }}>{recLabel[song.score_color] ?? 'Review'}</span>
                   <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style={{ color: '#C8D4DE', flexShrink: 0 }}>
                     <path d="M6 3.5L10.5 8L6 12.5" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
@@ -282,7 +261,6 @@ export default function SongsPage() {
           </div>
         )}
       </div>
-
       <footer style={{ background: NAVY, padding: '32px 24px', marginTop: 40 }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' as const, gap: 16 }}>
           <LogoWhite height={44} />
