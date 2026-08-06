@@ -7,7 +7,9 @@ import { createClient } from '@supabase/supabase-js'
 import Link from 'next/link'
 
 const NAVY = '#0D1B2A'
+const NAVY_DEEP = '#081320'
 const BLUE = '#00b5ff'
+const BLUE_SOFT = '#7FE3FF'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -96,11 +98,50 @@ export default function HomePage() {
       })
   }, [])
 
+  useEffect(() => {
+    const els = document.querySelectorAll('.reveal-on-scroll')
+    const io = new IntersectionObserver(
+      entries => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            e.target.classList.add('in')
+            io.unobserve(e.target)
+          }
+        })
+      },
+      { threshold: 0.12, rootMargin: '0px 0px -8% 0px' }
+    )
+    els.forEach(el => io.observe(el))
+    return () => io.disconnect()
+  }, [recentSongs])
+
   return (
     <div style={{ fontFamily: "'Sora', sans-serif", background: '#ffffff', color: '#0D1B2A' }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap');
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+        @keyframes growBar { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+        @keyframes floatCard { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+        @keyframes glowDrift { 0%, 100% { opacity: 0.55; transform: translate(0, 0) scale(1); } 50% { opacity: 0.8; transform: translate(-3%, 3%) scale(1.06); } }
+
+        .fade-up { opacity: 0; animation: fadeUp 0.7s cubic-bezier(0.2,0.7,0.2,1) forwards; }
+        .reveal-on-scroll { opacity: 0; transform: translateY(26px); transition: opacity 0.7s cubic-bezier(0.2,0.7,0.2,1), transform 0.7s cubic-bezier(0.2,0.7,0.2,1); }
+        .reveal-on-scroll.in { opacity: 1; transform: none; }
+
+        .nav-link { transition: color 0.18s ease; }
+        .nav-link:hover { color: rgba(255,255,255,0.95) !important; }
+
+        .cta-primary { position: relative; transition: transform 0.2s cubic-bezier(0.2,0.7,0.2,1), box-shadow 0.2s ease; box-shadow: 0 6px 24px -6px rgba(0,181,255,0.55); }
+        .cta-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 34px -6px rgba(0,181,255,0.75); }
+        .cta-ghost { transition: color 0.18s ease, gap 0.18s ease; }
+        .cta-ghost:hover { color: rgba(255,255,255,0.9) !important; }
+
+        .hero-card { animation: floatCard 7s ease-in-out infinite; box-shadow: 0 30px 60px -24px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.6) inset; }
+        .hero-glow { animation: glowDrift 9s ease-in-out infinite; }
+        .bar-fill { transform-origin: left center; animation: growBar 0.9s cubic-bezier(0.2,0.7,0.2,1) both; }
+
         .ham-line {
           display: block; width: 22px; height: 1.5px;
           background: #ffffff; border-radius: 2px; position: absolute;
@@ -122,9 +163,21 @@ export default function HomePage() {
           max-height: 0; overflow: hidden; opacity: 0;
           transition: max-height 0.35s ease, opacity 0.25s ease;
         }
-        .lens-detail.open { max-height: 200px; opacity: 1; }
-        .lens-row-btn:hover { background: #F7FAFD; }
+        .lens-detail.open { max-height: 220px; opacity: 1; }
+        .lens-row-btn { transition: background 0.18s ease; }
+        .lens-row-btn:hover { background: #F5F9FD; }
+        .lens-row-btn:hover .lens-num { background: ${BLUE}; color: ${NAVY}; border-color: ${BLUE}; }
+        .lens-num { transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease; }
+        .song-card { transition: transform 0.2s cubic-bezier(0.2,0.7,0.2,1), box-shadow 0.2s ease, border-color 0.2s ease; }
+        .song-card:hover { transform: translateY(-5px); border-color: #C8D4DE !important; box-shadow: 0 18px 30px -18px rgba(13,27,42,0.35); }
         .recently-scroll::-webkit-scrollbar { display: none; }
+
+        @media (prefers-reduced-motion: reduce) {
+          .fade-up, .bar-fill, .hero-card, .hero-glow { animation: none !important; }
+          .reveal-on-scroll { opacity: 1 !important; transform: none !important; }
+          .fade-up { opacity: 1 !important; }
+        }
+
         @media (max-width: 680px) {
           .hero-grid { grid-template-columns: 1fr !important; }
           .hero-card-wrap { display: none !important; }
@@ -145,9 +198,10 @@ export default function HomePage() {
             <LogoWhite height={22} />
           </Link>
           <div className="desktop-nav-links" style={{ display: 'flex', gap: 28, alignItems: 'center' }}>
-            <Link href="/songs" style={{ fontSize: 13, fontWeight: 400, color: 'rgba(255,255,255,0.55)', textDecoration: 'none' }}>Songs</Link>
-            <Link href="/about" style={{ fontSize: 13, fontWeight: 400, color: 'rgba(255,255,255,0.55)', textDecoration: 'none' }}>About</Link>
-            <Link href="/scoring-philosophy" style={{ fontSize: 13, fontWeight: 400, color: 'rgba(255,255,255,0.55)', textDecoration: 'none' }}>Scoring Philosophy</Link>
+            <Link className="nav-link" href="/songs" style={{ fontSize: 13, fontWeight: 400, color: 'rgba(255,255,255,0.55)', textDecoration: 'none' }}>Songs</Link>
+            <Link className="nav-link" href="/about" style={{ fontSize: 13, fontWeight: 400, color: 'rgba(255,255,255,0.55)', textDecoration: 'none' }}>About</Link>
+            <Link className="nav-link" href="/scoring-philosophy" style={{ fontSize: 13, fontWeight: 400, color: 'rgba(255,255,255,0.55)', textDecoration: 'none' }}>Scoring Philosophy</Link>
+            <Link className="cta-primary" href="/songs" style={{ fontSize: 12.5, fontWeight: 500, color: NAVY, background: BLUE, padding: '8px 16px', borderRadius: 8, textDecoration: 'none' }}>Browse Songs</Link>
           </div>
           <button
             className={`hamburger-btn${menuOpen ? ' ham-open' : ''}`}
@@ -173,62 +227,79 @@ export default function HomePage() {
       </nav>
 
       {/* HERO */}
-      <section style={{ background: NAVY, padding: '52px 24px 48px' }}>
-        <div className="hero-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', maxWidth: 1000, margin: '0 auto', gap: '2.5rem', alignItems: 'center' }}>
+      <section style={{ position: 'relative', background: `linear-gradient(170deg, ${NAVY} 0%, ${NAVY_DEEP} 100%)`, padding: '72px 24px 76px', overflow: 'hidden' }}>
+        {/* background layers */}
+        <div aria-hidden style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '26px 26px', maskImage: 'radial-gradient(ellipse 80% 70% at 50% 0%, #000 30%, transparent 78%)', WebkitMaskImage: 'radial-gradient(ellipse 80% 70% at 50% 0%, #000 30%, transparent 78%)', pointerEvents: 'none' }} />
+        <div className="hero-glow" aria-hidden style={{ position: 'absolute', top: '-14%', right: '4%', width: 620, height: 620, background: `radial-gradient(circle, ${BLUE} 0%, transparent 62%)`, opacity: 0.6, filter: 'blur(60px)', pointerEvents: 'none' }} />
+        <div aria-hidden style={{ position: 'absolute', bottom: '-30%', left: '-8%', width: 460, height: 460, background: 'radial-gradient(circle, rgba(0,181,255,0.18) 0%, transparent 65%)', filter: 'blur(50px)', pointerEvents: 'none' }} />
+
+        <div className="hero-grid" style={{ position: 'relative', display: 'grid', gridTemplateColumns: '1.05fr 1fr', maxWidth: 1000, margin: '0 auto', gap: '3rem', alignItems: 'center' }}>
           <div>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 10, fontWeight: 500, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: BLUE, marginBottom: 16 }}>
-              <span style={{ width: 5, height: 5, background: BLUE, borderRadius: '50%', display: 'inline-block' }} />
+            <div className="fade-up" style={{ animationDelay: '0.02s', display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 10, fontWeight: 500, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: BLUE, marginBottom: 22, padding: '6px 12px', border: '0.5px solid rgba(0,181,255,0.28)', borderRadius: 100, background: 'rgba(0,181,255,0.07)' }}>
+              <span style={{ width: 5, height: 5, background: BLUE, borderRadius: '50%', display: 'inline-block', boxShadow: `0 0 8px ${BLUE}` }} />
               Biblical clarity for song selection
             </div>
-            <h1 style={{ fontSize: 'clamp(32px, 5vw, 48px)', fontWeight: 600, color: '#ffffff', lineHeight: 1.1, letterSpacing: '-0.04em', marginBottom: 16 }}>
-              Know what<br />you <span style={{ color: BLUE, fontWeight: 300 }}>sing.</span>
+            <h1 className="fade-up" style={{ animationDelay: '0.08s', fontSize: 'clamp(38px, 5.6vw, 60px)', fontWeight: 600, color: '#ffffff', lineHeight: 1.04, letterSpacing: '-0.045em', marginBottom: 20 }}>
+              Know what<br />you{' '}
+              <span style={{ position: 'relative', display: 'inline-block', fontWeight: 300, backgroundImage: `linear-gradient(100deg, ${BLUE}, ${BLUE_SOFT})`, WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}>
+                sing.
+                <svg aria-hidden viewBox="0 0 120 12" preserveAspectRatio="none" style={{ position: 'absolute', left: 0, bottom: '-0.14em', width: '100%', height: '0.32em' }}>
+                  <path d="M2 8 Q 40 2, 78 6 T 118 5" fill="none" stroke={BLUE} strokeWidth="2.5" strokeLinecap="round" opacity="0.85" />
+                </svg>
+              </span>
             </h1>
-            <p style={{ fontSize: 14, fontWeight: 300, color: 'rgba(255,255,255,0.5)', lineHeight: 1.7, maxWidth: 380, marginBottom: 24 }}>
+            <p className="fade-up" style={{ animationDelay: '0.14s', fontSize: 15, fontWeight: 300, color: 'rgba(255,255,255,0.58)', lineHeight: 1.7, maxWidth: 400, marginBottom: 30 }}>
               Theological review of congregational worship songs for worship leaders. Five lenses. Honest scores. Pastoral framing.
             </p>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' as const }}>
-              <Link href="/songs" style={{ fontSize: 13, fontWeight: 500, color: NAVY, background: BLUE, padding: '11px 22px', borderRadius: 8, textDecoration: 'none' }}>
+            <div className="fade-up" style={{ animationDelay: '0.2s', display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' as const }}>
+              <Link className="cta-primary" href="/songs" style={{ fontSize: 13.5, fontWeight: 500, color: NAVY, background: BLUE, padding: '13px 26px', borderRadius: 10, textDecoration: 'none' }}>
                 Browse Songs
               </Link>
-              <Link href="/scoring-philosophy" style={{ fontSize: 13, fontWeight: 400, color: 'rgba(255,255,255,0.45)', textDecoration: 'none' }}>
+              <Link className="cta-ghost" href="/scoring-philosophy" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13.5, fontWeight: 400, color: 'rgba(255,255,255,0.5)', textDecoration: 'none' }}>
                 How scoring works →
               </Link>
             </div>
-            <div style={{ display: 'flex', gap: 28, marginTop: 32, paddingTop: 24, borderTop: '0.5px solid rgba(255,255,255,0.1)' }}>
+            <div className="fade-up" style={{ animationDelay: '0.28s', display: 'flex', gap: 36, marginTop: 40, paddingTop: 26, borderTop: '0.5px solid rgba(255,255,255,0.1)' }}>
               {[
                 [songCount !== null ? String(songCount) : '...', 'Songs reviewed'],
                 ['5', 'Theological lenses'],
                 ['Biblical', 'Every review'],
               ].map(([num, label]) => (
                 <div key={label}>
-                  <div style={{ fontSize: 22, fontWeight: 600, color: '#ffffff', letterSpacing: '-0.03em' }}>{num}</div>
-                  <div style={{ fontSize: 10, fontWeight: 300, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.03em', marginTop: 2 }}>{label}</div>
+                  <div style={{ fontSize: 24, fontWeight: 600, color: '#ffffff', letterSpacing: '-0.03em' }}>{num}</div>
+                  <div style={{ fontSize: 10, fontWeight: 300, color: 'rgba(255,255,255,0.38)', letterSpacing: '0.03em', marginTop: 3 }}>{label}</div>
                 </div>
               ))}
             </div>
           </div>
 
           {/* HERO CARD */}
-          <div className="hero-card-wrap" style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <div style={{ background: '#F4F7FB', border: '0.5px solid #E2E8F0', borderRadius: 12, padding: '16px', width: 280 }}>
-              <p style={{ fontSize: 13, fontWeight: 500, color: '#0D1B2A', letterSpacing: '-0.01em', marginBottom: 2 }}>Holy Forever</p>
-              <p style={{ fontSize: 11, fontWeight: 300, color: '#7A8A9A', marginBottom: 12 }}>Chris Tomlin · CCLI #7202827</p>
-              {cardLenses.map(l => (
-                <div key={l.label} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 7 }}>
-                  <span style={{ fontSize: 10, color: '#7A8A9A', width: 100, flexShrink: 0 }}>{l.label}</span>
-                  <div style={{ flex: 1, height: 3, background: '#E2E8F0', borderRadius: 2, overflow: 'hidden' }}>
-                    <div style={{ height: '100%', borderRadius: 2, width: l.pct, background: l.color === 'green' ? '#4A8B2A' : '#C47B0E' }} />
+          <div className="hero-card-wrap fade-up" style={{ animationDelay: '0.24s', display: 'flex', justifyContent: 'flex-end' }}>
+            <div className="hero-card" style={{ position: 'relative', background: 'linear-gradient(180deg, #FFFFFF 0%, #F1F6FB 100%)', borderRadius: 16, padding: '20px', width: 300 }}>
+              <div aria-hidden style={{ position: 'absolute', inset: 0, borderRadius: 16, padding: 1, background: 'linear-gradient(180deg, rgba(255,255,255,0.9), rgba(0,181,255,0.15))', WebkitMask: 'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)', WebkitMaskComposite: 'xor', maskComposite: 'exclude', pointerEvents: 'none' }} />
+              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 }}>
+                <div>
+                  <p style={{ fontSize: 14, fontWeight: 600, color: '#0D1B2A', letterSpacing: '-0.01em', marginBottom: 3 }}>Holy Forever</p>
+                  <p style={{ fontSize: 11, fontWeight: 300, color: '#7A8A9A' }}>Chris Tomlin</p>
+                </div>
+                <span style={{ fontSize: 9, fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase' as const, color: BLUE, padding: '4px 8px', background: 'rgba(0,181,255,0.1)', borderRadius: 6 }}>Sample</span>
+              </div>
+              {cardLenses.map((l, i) => (
+                <div key={l.label} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 9 }}>
+                  <span style={{ fontSize: 10, color: '#7A8A9A', width: 104, flexShrink: 0 }}>{l.label}</span>
+                  <div style={{ flex: 1, height: 4, background: '#E2E8F0', borderRadius: 3, overflow: 'hidden' }}>
+                    <div className="bar-fill" style={{ height: '100%', borderRadius: 3, width: l.pct, animationDelay: `${0.5 + i * 0.09}s`, background: l.color === 'green' ? 'linear-gradient(90deg, #5AA02F, #4A8B2A)' : 'linear-gradient(90deg, #D68C1A, #C47B0E)' }} />
                   </div>
-                  <span style={{ fontSize: 11, fontWeight: 600, width: 24, textAlign: 'right' as const, color: l.color === 'green' ? '#2A6010' : '#7A5010' }}>{l.score}</span>
+                  <span style={{ fontSize: 11.5, fontWeight: 600, width: 26, textAlign: 'right' as const, color: l.color === 'green' ? '#2A6010' : '#7A5010' }}>{l.score}</span>
                 </div>
               ))}
-              <div style={{ height: '0.5px', background: '#E2E8F0', margin: '12px 0' }} />
+              <div style={{ height: '0.5px', background: '#E2E8F0', margin: '14px 0' }} />
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
-                  <p style={{ fontSize: 10, color: '#9AA4AF', marginBottom: 4 }}>Overall score</p>
+                  <p style={{ fontSize: 10, color: '#9AA4AF', marginBottom: 5 }}>Overall score</p>
                   <span style={{ fontSize: 11, fontWeight: 500, background: '#DCEFCF', color: '#2A6010', padding: '3px 10px', borderRadius: 20 }}>Use freely</span>
                 </div>
-                <span style={{ fontSize: 26, fontWeight: 600, color: '#2A6010', letterSpacing: '-0.03em' }}>8.3</span>
+                <span style={{ fontSize: 30, fontWeight: 600, color: '#2A6010', letterSpacing: '-0.03em' }}>8.3</span>
               </div>
             </div>
           </div>
@@ -236,13 +307,13 @@ export default function HomePage() {
       </section>
 
       {/* RECENTLY REVIEWED */}
-      <section style={{ background: '#ffffff', padding: '32px 24px', borderBottom: '0.5px solid #F0F4F8' }}>
+      <section className="reveal-on-scroll" style={{ background: '#ffffff', padding: '44px 24px', borderBottom: '0.5px solid #F0F4F8' }}>
         <div style={{ maxWidth: 1000, margin: '0 auto' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
             <span style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: '#9AA4AF' }}>Recently reviewed</span>
-            <Link href="/songs" style={{ fontSize: 12, color: BLUE, textDecoration: 'none' }}>See all →</Link>
+            <Link className="cta-ghost" href="/songs" style={{ fontSize: 12, color: BLUE, textDecoration: 'none' }}>See all →</Link>
           </div>
-          <div className="recently-scroll" style={{ display: 'flex', gap: 12, overflowX: 'auto' as const, paddingBottom: 4, scrollbarWidth: 'none' as const }}>
+          <div className="recently-scroll" style={{ display: 'flex', gap: 14, overflowX: 'auto' as const, paddingBottom: 8, scrollbarWidth: 'none' as const }}>
             {recentSongs.map(song => {
               const sc = song.score_color || 'green'
               const scoreColor = sc === 'green' ? '#2A6010' : sc === 'amber' ? '#7A5010' : sc === 'orange' ? '#8B3010' : '#8B1010'
@@ -259,9 +330,7 @@ export default function HomePage() {
               const href = '/songs/' + (song.slug || song.id)
               return (
                 <Link key={song.id} href={href} style={{ textDecoration: 'none', flexShrink: 0 }}>
-                  <div style={{ background: '#F4F7FB', border: '0.5px solid #E2E8F0', borderRadius: 12, padding: '14px', width: 200, cursor: 'pointer', transition: 'border-color 0.15s' }}
-                    onMouseEnter={e => (e.currentTarget.style.borderColor = '#C8D4DE')}
-                    onMouseLeave={e => (e.currentTarget.style.borderColor = '#E2E8F0')}>
+                  <div className="song-card" style={{ background: 'linear-gradient(180deg, #FFFFFF 0%, #F4F7FB 100%)', border: '0.5px solid #E2E8F0', borderRadius: 14, padding: '16px', width: 206, cursor: 'pointer' }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
                       <span style={{ fontSize: 14, fontWeight: 600, background: scoreBg, color: scoreColor, padding: '2px 8px', borderRadius: 6 }}>{(song.overall_score ?? 0).toFixed(1)}</span>
                       <span style={{ width: 7, height: 7, borderRadius: '50%', background: barColor, display: 'inline-block' }} />
@@ -284,39 +353,43 @@ export default function HomePage() {
       </section>
 
       {/* PULL QUOTE */}
-      <section style={{ background: '#F7F9FC', padding: '52px 24px', borderBottom: '0.5px solid #E8EDF2' }}>
-        <div style={{ maxWidth: 640, margin: '0 auto', textAlign: 'center' as const }}>
-          <p style={{ fontSize: 'clamp(17px, 2.5vw, 22px)', fontWeight: 300, lineHeight: 1.65, letterSpacing: '-0.01em', color: '#0D1B2A' }}>
+      <section className="reveal-on-scroll" style={{ position: 'relative', background: `linear-gradient(180deg, #F7F9FC 0%, #EEF3F9 100%)`, padding: '76px 24px', borderBottom: '0.5px solid #E8EDF2', overflow: 'hidden' }}>
+        <div aria-hidden style={{ position: 'absolute', top: 8, left: '50%', transform: 'translateX(-50%)', fontSize: 160, lineHeight: 1, fontWeight: 700, color: BLUE, opacity: 0.08, fontFamily: 'Georgia, serif', pointerEvents: 'none' }}>“</div>
+        <div style={{ position: 'relative', maxWidth: 680, margin: '0 auto', textAlign: 'center' as const }}>
+          <p style={{ fontSize: 'clamp(19px, 2.7vw, 26px)', fontWeight: 300, lineHeight: 1.6, letterSpacing: '-0.015em', color: '#0D1B2A' }}>
             If you want to know what a church believes, listen to what it sings. What the Church sings today will shape what the Church believes tomorrow.
           </p>
-          <div style={{ width: 28, height: 2, background: BLUE, borderRadius: 1, margin: '24px auto 0' }} />
+          <div style={{ width: 32, height: 2.5, background: `linear-gradient(90deg, ${BLUE}, ${BLUE_SOFT})`, borderRadius: 2, margin: '28px auto 0' }} />
         </div>
       </section>
 
       {/* FIVE LENSES */}
-      <section style={{ padding: '48px 24px', borderBottom: '0.5px solid #E8EDF2' }}>
+      <section className="reveal-on-scroll" style={{ padding: '64px 24px', borderBottom: '0.5px solid #E8EDF2' }}>
         <div style={{ maxWidth: 1000, margin: '0 auto' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-            <span style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: '#9AA4AF' }}>The evaluation framework</span>
-            <span style={{ fontSize: 12, fontWeight: 300, color: '#9AA4AF' }}>Select a lens to learn more</span>
+          <div style={{ marginBottom: 24 }}>
+            <span style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: BLUE }}>The evaluation framework</span>
+            <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 16, marginTop: 8, flexWrap: 'wrap' as const }}>
+              <h2 style={{ fontSize: 'clamp(22px, 3vw, 30px)', fontWeight: 600, color: '#0D1B2A', letterSpacing: '-0.03em', lineHeight: 1.15 }}>Five lenses on every song</h2>
+              <span style={{ fontSize: 12, fontWeight: 300, color: '#9AA4AF', paddingBottom: 4 }}>Select a lens to learn more</span>
+            </div>
           </div>
-          <div style={{ border: '0.5px solid #E2E8F0', borderRadius: 12, overflow: 'hidden' }}>
+          <div style={{ border: '0.5px solid #E2E8F0', borderRadius: 14, overflow: 'hidden', boxShadow: '0 12px 30px -22px rgba(13,27,42,0.3)' }}>
             {lenses.map((lens, i) => (
               <div key={lens.id} style={{ background: '#ffffff', borderBottom: i < lenses.length - 1 ? '0.5px solid #F0F4F8' : 'none' }}>
                 <button
                   className="lens-row-btn"
                   onClick={() => setOpenLens(prev => prev === lens.id ? null : lens.id)}
-                  style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '16px 20px', width: '100%', background: 'none', border: 'none', textAlign: 'left' as const, fontFamily: "'Sora', sans-serif", cursor: 'pointer', transition: 'background 0.15s' }}
+                  style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '18px 22px', width: '100%', background: 'none', border: 'none', textAlign: 'left' as const, fontFamily: "'Sora', sans-serif", cursor: 'pointer' }}
                 >
-                  <span style={{ fontSize: 11, color: '#9AA4AF', width: 20, flexShrink: 0 }}>{lens.num}</span>
-                  <span style={{ fontSize: 14, fontWeight: 500, flex: 1, color: '#0D1B2A' }}>{lens.name}</span>
+                  <span className="lens-num" style={{ fontSize: 11, fontWeight: 500, color: '#9AA4AF', width: 30, height: 30, flexShrink: 0, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', border: '0.5px solid #E2E8F0', borderRadius: '50%' }}>{lens.num}</span>
+                  <span style={{ fontSize: 14.5, fontWeight: 500, flex: 1, color: '#0D1B2A' }}>{lens.name}</span>
                   <span className="lens-tag" style={{ fontSize: 11, color: '#9AA4AF', fontWeight: 300 }}>{lens.tag}</span>
                   <svg style={{ width: 14, height: 14, color: '#9AA4AF', transition: 'transform 0.2s', transform: openLens === lens.id ? 'rotate(180deg)' : 'none', flexShrink: 0 }} viewBox="0 0 16 16" fill="none">
                     <path d="M3.5 6L8 10.5L12.5 6" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </button>
                 <div className={`lens-detail${openLens === lens.id ? ' open' : ''}`}>
-                  <div style={{ padding: '0 20px 16px 54px', display: 'flex', justifyContent: 'space-between', gap: '2rem', flexWrap: 'wrap' as const }}>
+                  <div style={{ padding: '0 22px 18px 68px', display: 'flex', justifyContent: 'space-between', gap: '2rem', flexWrap: 'wrap' as const }}>
                     <p style={{ fontSize: 13, color: '#4A5568', lineHeight: 1.7, fontWeight: 300, maxWidth: 480 }}>{lens.desc}</p>
                     <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 5, flexShrink: 0 }}>
                       {lens.meta.map(m => (
@@ -331,8 +404,8 @@ export default function HomePage() {
               </div>
             ))}
           </div>
-          <div style={{ marginTop: 16, textAlign: 'center' as const }}>
-            <Link href="/scoring-philosophy" style={{ fontSize: 13, fontWeight: 400, color: BLUE, textDecoration: 'none' }}>
+          <div style={{ marginTop: 20, textAlign: 'center' as const }}>
+            <Link className="cta-ghost" href="/scoring-philosophy" style={{ fontSize: 13, fontWeight: 400, color: BLUE, textDecoration: 'none' }}>
               Read the full scoring philosophy →
             </Link>
           </div>
@@ -340,13 +413,13 @@ export default function HomePage() {
       </section>
 
       {/* FOOTER */}
-      <footer style={{ background: NAVY, padding: '32px 24px' }}>
+      <footer style={{ background: `linear-gradient(180deg, ${NAVY} 0%, ${NAVY_DEEP} 100%)`, padding: '40px 24px' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' as const, gap: 16 }}>
           <LogoWhite height={18} />
-          <div style={{ display: 'flex', gap: 20 }}>
-            <Link href="/songs" style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>Songs</Link>
-            <Link href="/about" style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>About</Link>
-            <Link href="/scoring-philosophy" style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>Scoring Philosophy</Link>
+          <div style={{ display: 'flex', gap: 24 }}>
+            <Link className="nav-link" href="/songs" style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>Songs</Link>
+            <Link className="nav-link" href="/about" style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>About</Link>
+            <Link className="nav-link" href="/scoring-philosophy" style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>Scoring Philosophy</Link>
           </div>
         </div>
       </footer>
