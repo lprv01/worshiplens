@@ -44,8 +44,17 @@ const CCLI_ORDER: Record<string, number> = {
   '7093989': 5, '7202827': 6, '4556538': 7, '7019427': 8,
 }
 
-type SortKey = 'newest' | 'alpha_az' | 'alpha_za' | 'score_desc' | 'artist' | 'ccli'
-type FilterKey = 'all' | 'green' | 'amber' | 'orange' | 'red' | 'top'
+type SortKey = 'top' | 'ccli' | 'newest' | 'alpha' | 'score'
+type FilterKey = 'all' | 'top' | 'ccli' | 'green' | 'amber' | 'orange' | 'red'
+
+// Sort icon — toggles between asc/desc
+function SortIcon({ asc }: { asc: boolean }) {
+  return (
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style={{ display: 'inline-block', marginLeft: 4, verticalAlign: 'middle', opacity: 0.5 }}>
+      <path d={asc ? 'M6 2L2 7h8L6 2Z' : 'M6 10L2 5h8L6 10Z'} fill="currentColor" />
+    </svg>
+  )
+}
 
 function LogoWhite({ height = 22 }: { height?: number }) {
   const w = height * (672.16 / 174.63)
@@ -76,6 +85,8 @@ export default function SongsPage() {
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState<FilterKey>('all')
   const [sort, setSort] = useState<SortKey>('newest')
+  const [alphaAsc, setAlphaAsc] = useState(true)
+  const [scoreAsc, setScoreAsc] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
 
   useEffect(() => {
@@ -95,35 +106,36 @@ export default function SongsPage() {
       const q = search.toLowerCase()
       list = list.filter(s => s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q))
     }
-    if (filter === 'top') {
-      list = list.filter(s => s.is_top_song === true)
-    } else if (filter !== 'all') {
-      list = list.filter(s => s.score_color === filter)
-    }
+    if (filter === 'top') list = list.filter(s => s.is_top_song === true)
+    else if (filter === 'ccli') list = list.filter(s => s.ccli_number && CCLI_ORDER[s.ccli_number] !== undefined)
+    else if (filter !== 'all') list = list.filter(s => s.score_color === filter)
+
     list.sort((a, b) => {
-      if (sort === 'newest') return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-      if (sort === 'alpha_az') return a.title.localeCompare(b.title)
-      if (sort === 'alpha_za') return b.title.localeCompare(a.title)
-      if (sort === 'score_desc') return (b.overall_score ?? 0) - (a.overall_score ?? 0)
-      if (sort === 'artist') return a.artist.localeCompare(b.artist)
+      if (sort === 'top') return (b.is_top_song ? 1 : 0) - (a.is_top_song ? 1 : 0)
       if (sort === 'ccli') {
         const aR = a.ccli_number ? (CCLI_ORDER[a.ccli_number] ?? 999) : 999
         const bR = b.ccli_number ? (CCLI_ORDER[b.ccli_number] ?? 999) : 999
         return aR - bR
       }
+      if (sort === 'newest') return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      if (sort === 'alpha') return alphaAsc ? a.title.localeCompare(b.title) : b.title.localeCompare(a.title)
+      if (sort === 'score') return scoreAsc ? (a.overall_score ?? 0) - (b.overall_score ?? 0) : (b.overall_score ?? 0) - (a.overall_score ?? 0)
       return 0
     })
     return list
-  }, [songs, search, filter, sort])
+  }, [songs, search, filter, sort, alphaAsc, scoreAsc])
 
   const filters: [FilterKey, string][] = [
     ['all', 'All'],
     ['top', 'Top Songs This Month'],
+    ['ccli', 'CCLI Top Songs'],
     ['green', 'Green'],
     ['amber', 'Amber'],
     ['orange', 'Orange'],
     ['red', 'Red'],
   ]
+
+  const selectStyle = { fontFamily: "'Sora', sans-serif", fontSize: 11, fontWeight: 400, color: 'rgba(255,255,255,0.6)', background: 'rgba(255,255,255,0.07)', border: '0.5px solid rgba(255,255,255,0.15)', borderRadius: 6, padding: '7px 28px 7px 10px', flexShrink: 0, cursor: 'pointer', appearance: 'none' as const, backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='rgba(255,255,255,0.4)' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat' as const, backgroundPosition: 'right 8px center' }
 
   return (
     <div style={{ fontFamily: "'Sora', sans-serif", background: '#ffffff', color: '#0D1B2A', minHeight: '100vh' }}>
@@ -142,6 +154,8 @@ export default function SongsPage() {
         .song-row:hover { background: #F7FAFD; }
         .filters-scroll { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
         .filters-scroll::-webkit-scrollbar { display: none; }
+        .sort-toggle { background: rgba(255,255,255,0.07); border: 0.5px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 7px 12px; color: rgba(255,255,255,0.6); font-size: 11px; font-family: 'Sora', sans-serif; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: background 0.15s; white-space: nowrap; }
+        .sort-toggle:hover { background: rgba(255,255,255,0.12); }
         input::placeholder { color: rgba(255,255,255,0.35); }
         input:focus { outline: none; }
         select:focus { outline: none; }
@@ -158,6 +172,7 @@ export default function SongsPage() {
           .mobile-search { display: none !important; }
         }
       `}</style>
+
       <nav style={{ background: NAVY, position: 'sticky', top: 0, zIndex: 50 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', height: 68, maxWidth: 1100, margin: '0 auto' }}>
           <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
@@ -169,9 +184,7 @@ export default function SongsPage() {
             <Link href="/scoring-philosophy" style={{ fontSize: 13, fontWeight: 400, color: 'rgba(255,255,255,0.55)', textDecoration: 'none' }}>Scoring Philosophy</Link>
           </div>
           <button className={`hamburger-btn${menuOpen ? ' ham-open' : ''}`} onClick={() => setMenuOpen(v => !v)} aria-label="Menu" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, background: 'none', border: 'none', cursor: 'pointer', position: 'relative', flexShrink: 0 }}>
-            <span className="ham-line ham-line-1" />
-            <span className="ham-line ham-line-2" />
-            <span className="ham-line ham-line-3" />
+            <span className="ham-line ham-line-1" /><span className="ham-line ham-line-2" /><span className="ham-line ham-line-3" />
           </button>
         </div>
         <div className={`mobile-menu${menuOpen ? ' open' : ''}`}>
@@ -182,6 +195,7 @@ export default function SongsPage() {
           </div>
         </div>
       </nav>
+
       <div style={{ background: NAVY, padding: '24px 24px 20px' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
           <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap' as const, gap: 12 }}>
@@ -207,27 +221,35 @@ export default function SongsPage() {
                 </button>
               ))}
             </div>
-            <select value={sort} onChange={e => setSort(e.target.value as SortKey)}
-              style={{ fontFamily: "'Sora', sans-serif", fontSize: 11, fontWeight: 400, color: 'rgba(255,255,255,0.6)', background: 'rgba(255,255,255,0.07)', border: '0.5px solid rgba(255,255,255,0.15)', borderRadius: 6, padding: '7px 28px 7px 10px', flexShrink: 0, cursor: 'pointer', appearance: 'none' as const, backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='rgba(255,255,255,0.4)' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat' as const, backgroundPosition: 'right 8px center' }}>
-              <option value="newest">Newest reviews</option>
-              <option value="alpha_az">Alphabetical A to Z</option>
-              <option value="alpha_za">Alphabetical Z to A</option>
-              <option value="score_desc">Score: high to low</option>
-              <option value="artist">By artist</option>
-              <option value="ccli">CCLI Top Songs</option>
-            </select>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexShrink: 0 }}>
+              {sort === 'alpha' && (
+                <button className="sort-toggle" onClick={() => setAlphaAsc(v => !v)}>
+                  A-Z <SortIcon asc={alphaAsc} />
+                </button>
+              )}
+              {sort === 'score' && (
+                <button className="sort-toggle" onClick={() => setScoreAsc(v => !v)}>
+                  {scoreAsc ? 'Low to High' : 'High to Low'} <SortIcon asc={!scoreAsc} />
+                </button>
+              )}
+              <select value={sort} onChange={e => setSort(e.target.value as SortKey)} style={selectStyle}>
+                <option value="top">Top Songs This Month</option>
+                <option value="ccli">CCLI Top Songs</option>
+                <option value="newest">Newest Reviews</option>
+                <option value="alpha">Alphabetical</option>
+                <option value="score">By Score</option>
+              </select>
+            </div>
           </div>
-          {filter === 'top' && false && (
-            <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 10, fontWeight: 300 }}>Sourced from Lifeway Worship Top 100 — updated monthly</p>
-          )}
         </div>
       </div>
+
       <div style={{ maxWidth: 1100, margin: '0 auto' }}>
         {loading ? (
           <div style={{ padding: '60px 24px', textAlign: 'center' as const, color: '#9AA4AF', fontSize: 14, fontWeight: 300 }}>Loading songs...</div>
         ) : filtered.length === 0 ? (
           <div style={{ padding: '60px 24px', textAlign: 'center' as const }}>
-            <p style={{ fontSize: 14, fontWeight: 300, color: '#9AA4AF' }}>{filter === 'top' ? 'No Lifeway Top 100 songs tagged yet.' : 'No songs found.'}</p>
+            <p style={{ fontSize: 14, fontWeight: 300, color: '#9AA4AF' }}>No songs found.</p>
             <button onClick={() => { setSearch(''); setFilter('all') }} style={{ marginTop: 12, fontSize: 13, color: BLUE, background: 'none', border: 'none', cursor: 'pointer', fontFamily: "'Sora', sans-serif" }}>Clear filters</button>
           </div>
         ) : (
@@ -243,9 +265,6 @@ export default function SongsPage() {
                     <div style={{ fontSize: 14, fontWeight: 500, color: '#0D1B2A', letterSpacing: '-0.01em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{song.title}</div>
                     <div style={{ fontSize: 12, fontWeight: 300, color: '#7A8A9A', marginTop: 2 }}>{song.artist}</div>
                   </div>
-                  {song.is_top_song && (
-                    <span style={{ fontSize: 10, fontWeight: 500, color: BLUE, background: 'rgba(0,181,255,0.1)', padding: '3px 8px', borderRadius: 20, flexShrink: 0 }}>Lifeway Top 100</span>
-                  )}
                   <span style={{ fontSize: 11, fontWeight: 500, padding: '4px 10px', borderRadius: 20, background: s.bg, color: s.color, flexShrink: 0, whiteSpace: 'nowrap' as const }}>{recLabel[song.score_color] ?? 'Review'}</span>
                   <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style={{ color: '#C8D4DE', flexShrink: 0 }}>
                     <path d="M6 3.5L10.5 8L6 12.5" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
@@ -261,6 +280,7 @@ export default function SongsPage() {
           </div>
         )}
       </div>
+
       <footer style={{ background: NAVY, padding: '32px 24px', marginTop: 40 }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' as const, gap: 16 }}>
           <LogoWhite height={44} />
