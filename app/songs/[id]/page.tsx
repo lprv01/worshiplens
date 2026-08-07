@@ -47,8 +47,18 @@ function scoreLabel(score: number) {
   return 'Avoid'
 }
 
+// Normalize similar song entry to { title, artist, reason }
+function normalizeSimilarEntry(entry: any): { title: string; artist: string; reason?: string } {
+  if (typeof entry === 'string') return { title: entry, artist: '' }
+  return { title: entry.title ?? '', artist: entry.artist ?? '', reason: entry.reason }
+}
 
-async function RelatedSongsSection({ songId, supabase }: { songId: string; supabase: any }) {
+// Build a slug from a title (same logic as batch runner)
+function titleToSlug(title: string): string {
+  return title.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-').trim()
+}
+
+async function RelatedSongsSection({ songId }: { songId: string }) {
   const { data: related } = await supabase.rpc('get_related_songs', { p_song_id: songId, p_limit: 5 })
   if (!related || related.length === 0) return null
   return (
@@ -63,7 +73,6 @@ async function RelatedSongsSection({ songId, supabase }: { songId: string; supab
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
               <span style={{ fontSize: 13, fontWeight: 600, color: '#2A6010', background: '#DCEFCF', padding: '3px 10px', borderRadius: 8 }}>{Number(s.overall_score).toFixed(1)}</span>
-              <span style={{ fontSize: 11, padding: '3px 10px', borderRadius: 20, background: s.recommendation === "Recommended" ? "#DCEFCF" : "#FEF0CC", color: s.recommendation === "Recommended" ? "#2A6010" : "#7A5010", fontWeight: 500 }}>{s.recommendation === "Recommended" ? "Yes" : "With Notes"}</span>
             </div>
           </a>
         ))}
@@ -112,6 +121,10 @@ export default async function SongDetailPage({ params }: { params: Promise<{ id:
   const sermonFit = technical.sermon_series_fit ?? []
   const objections = db.objections ?? []
 
+  const loveList: any[] = similar.if_you_love_this ?? []
+  const concernList: any[] = similar.if_this_concerns_you ?? []
+  const hasSimilar = loveList.length > 0 || concernList.length > 0
+
   return (
     <div style={{ fontFamily: "'Sora', sans-serif", background: '#ffffff', color: '#0D1B2A', minHeight: '100vh' }}>
       <style>{`
@@ -122,6 +135,9 @@ export default async function SongDetailPage({ params }: { params: Promise<{ id:
         details[open] .chev { transform: rotate(180deg); }
         .chev { display: inline-block; transition: transform 0.2s; color: #9AA4AF; }
         .song-row-btn:hover { background: #F7FAFD; }
+        .similar-link { display: flex; align-items: flex-start; gap: 10; padding: 10px 0; border-bottom: 0.5px solid rgba(0,0,0,0.06); text-decoration: none; }
+        .similar-link:last-child { border-bottom: none; }
+        .similar-link:hover .similar-title { text-decoration: underline; }
         @media (max-width: 680px) {
           .song-hero { flex-direction: column !important; align-items: flex-start !important; }
           .two-col { grid-template-columns: 1fr !important; }
@@ -165,7 +181,6 @@ export default async function SongDetailPage({ params }: { params: Promise<{ id:
                 {song.hymn_lineage_badge && <span style={{ fontSize: 11, color: '#2A6010', background: '#DCEFCF', border: '0.5px solid #97C459', padding: '3px 10px', borderRadius: 20 }}>Hymn lineage: {song.hymn_lineage_badge}</span>}
               </div>
             </div>
-
           </div>
         </div>
       </div>
@@ -446,7 +461,7 @@ export default async function SongDetailPage({ params }: { params: Promise<{ id:
           </div>
         )}
 
-        {/* AUDIENCE FIT — full width, 2-col grid collapses to 1-col on mobile */}
+        {/* AUDIENCE FIT */}
         {Object.keys(audienceFit).length > 0 && (
           <div style={{ marginBottom: '1.5rem' }}>
             <p style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: '#9AA4AF', marginBottom: 10 }}>Audience fit</p>
@@ -468,24 +483,48 @@ export default async function SongDetailPage({ params }: { params: Promise<{ id:
         )}
 
         {/* SIMILAR SONGS */}
-        {(similar.if_you_love_this?.length > 0 || similar.if_this_concerns_you?.length > 0) && (
-          <div>
+        {hasSimilar && (
+          <div style={{ marginBottom: '1.5rem' }}>
             <p style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: '#9AA4AF', marginBottom: 12 }}>Similar songs</p>
             <div className="two-col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              {similar.if_you_love_this?.length > 0 && (
-                <div style={{ background: '#DCEFCF', border: '0.5px solid #97C459', borderRadius: 10, padding: '14px' }}>
-                  <p style={{ fontSize: 11, color: '#2A6010', fontWeight: 500, marginBottom: 8 }}>If you love this song</p>
-                  {similar.if_you_love_this.map((s: any, i: number) => (
-                    <p key={i} style={{ fontSize: 13, color: '#2A6010', fontWeight: 300, lineHeight: 1.6 }}>{s.title} — {s.artist}</p>
-                  ))}
+              {loveList.length > 0 && (
+                <div style={{ background: '#DCEFCF', border: '0.5px solid #97C459', borderRadius: 10, padding: '14px 16px' }}>
+                  <p style={{ fontSize: 11, color: '#2A6010', fontWeight: 600, marginBottom: 10, letterSpacing: '0.05em', textTransform: 'uppercase' as const }}>If you love this song</p>
+                  {loveList.map((entry: any, i: number) => {
+                    const s = normalizeSimilarEntry(entry)
+                    const slug = titleToSlug(s.title)
+                    return (
+                      <Link key={i} href={`/songs/${slug}`} className="similar-link" style={{ display: 'flex', alignItems: 'flex-start', gap: 8, paddingTop: i > 0 ? 10 : 0, marginTop: i > 0 ? 10 : 0, borderTop: i > 0 ? '0.5px solid rgba(42,96,16,0.15)' : 'none', textDecoration: 'none' }}>
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style={{ flexShrink: 0, marginTop: 3 }}>
+                          <path d="M2.5 6.5L5 9L9.5 3.5" stroke="#2A6010" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                        <div>
+                          <p className="similar-title" style={{ fontSize: 13, fontWeight: 500, color: '#2A6010', lineHeight: 1.4 }}>{s.title}</p>
+                          {s.artist && <p style={{ fontSize: 11, color: '#4A8B2A', fontWeight: 300, marginTop: 1 }}>{s.artist}</p>}
+                        </div>
+                      </Link>
+                    )
+                  })}
                 </div>
               )}
-              {similar.if_this_concerns_you?.length > 0 && (
-                <div style={{ background: '#FEF0CC', border: '0.5px solid #EF9F27', borderRadius: 10, padding: '14px' }}>
-                  <p style={{ fontSize: 11, color: '#7A5010', fontWeight: 500, marginBottom: 8 }}>If this concerns you</p>
-                  {similar.if_this_concerns_you.map((s: any, i: number) => (
-                    <p key={i} style={{ fontSize: 13, color: '#7A5010', fontWeight: 300, lineHeight: 1.6 }}>{s.title} — {s.artist}</p>
-                  ))}
+              {concernList.length > 0 && (
+                <div style={{ background: '#FEF0CC', border: '0.5px solid #EF9F27', borderRadius: 10, padding: '14px 16px' }}>
+                  <p style={{ fontSize: 11, color: '#7A5010', fontWeight: 600, marginBottom: 10, letterSpacing: '0.05em', textTransform: 'uppercase' as const }}>If this concerns you</p>
+                  {concernList.map((entry: any, i: number) => {
+                    const s = normalizeSimilarEntry(entry)
+                    const slug = titleToSlug(s.title)
+                    return (
+                      <Link key={i} href={`/songs/${slug}`} className="similar-link" style={{ display: 'flex', alignItems: 'flex-start', gap: 8, paddingTop: i > 0 ? 10 : 0, marginTop: i > 0 ? 10 : 0, borderTop: i > 0 ? '0.5px solid rgba(122,80,16,0.15)' : 'none', textDecoration: 'none' }}>
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style={{ flexShrink: 0, marginTop: 3 }}>
+                          <path d="M6 2v5M6 9v.5" stroke="#C47B0E" strokeWidth="1.5" strokeLinecap="round" />
+                        </svg>
+                        <div>
+                          <p className="similar-title" style={{ fontSize: 13, fontWeight: 500, color: '#7A5010', lineHeight: 1.4 }}>{s.title}</p>
+                          {s.artist && <p style={{ fontSize: 11, color: '#C47B0E', fontWeight: 300, marginTop: 1 }}>{s.artist}</p>}
+                        </div>
+                      </Link>
+                    )
+                  })}
                 </div>
               )}
             </div>
@@ -494,14 +533,13 @@ export default async function SongDetailPage({ params }: { params: Promise<{ id:
 
       </div>
 
-      
       {/* RELATED SONGS */}
-      <RelatedSongsSection songId={song.id} supabase={supabase} />
+      <RelatedSongsSection songId={song.id} />
 
-{/* FOOTER */}
+      {/* FOOTER */}
       <footer style={{ background: NAVY, padding: '32px 24px' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' as const, gap: 16 }}>
-          <LogoWhite height={28} />
+          <LogoWhite height={44} />
           <div style={{ display: 'flex', gap: 20 }}>
             <Link href="/songs" style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>Songs</Link>
             <Link href="/about" style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>About</Link>
