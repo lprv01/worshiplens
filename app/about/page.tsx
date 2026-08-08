@@ -206,7 +206,7 @@ export default function AboutPage() {
               <div style={{ fontSize: 15, fontWeight: 600, color: '#0D1B2A', letterSpacing: '-0.01em', marginBottom: 2 }}>Ludwingk Rios</div>
               <div style={{ fontSize: 12, fontWeight: 400, color: '#7A8A9A', marginBottom: 14 }}>Built by a worship leader, for worship leaders</div>
               <p style={{ fontSize: 14, fontWeight: 300, color: '#4A5568', lineHeight: 1.75, maxWidth: 540 }}>
-                Ludwingk has served as Minister of Music at First Baptist Church Cedar Hill, Texas for over four years. He leads with a commitment to multi-generational worship, music that connects every age in the room to the same God. His wife Kellee teaches Bible study to pre-teens, and both of their children, Elizabeth and Ethan, came to faith in this church. This is not a project built from the outside looking in.
+                PLACEHOLDER
               </p>
             </div>
           </div>
