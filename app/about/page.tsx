@@ -194,21 +194,30 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* AUTHOR */}
-      <section style={{ padding: '52px 24px', borderBottom: '0.5px solid #E8EDF2' }}>
+
+      {/* A NOTE FROM THE AUTHOR */}
+      <section style={{ padding: '64px 24px', borderBottom: '0.5px solid #E8EDF2' }}>
         <div style={{ maxWidth: 720, margin: '0 auto' }}>
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 20 }}>
-            <div style={{ width: 64, height: 64, borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: '2px solid #E2E8F0', background: '#1B3050' }}>
-              <Image src="/headshot.png" alt="Ludwingk Rios" width={64} height={64}
-                style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginBottom: 40 }}>
+            <div style={{ width: 128, height: 128, borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: '2px solid #E2E8F0', background: '#1B3050' }}>
+              <Image src="/headshot.png" alt="Ludwingk Rios" width={128} height={128} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }} />
             </div>
             <div>
-              <div style={{ fontSize: 15, fontWeight: 600, color: '#0D1B2A', letterSpacing: '-0.01em', marginBottom: 2 }}>Ludwingk Rios</div>
-              <div style={{ fontSize: 12, fontWeight: 400, color: '#7A8A9A', marginBottom: 14 }}>Built by a worship leader, for worship leaders</div>
-              <p style={{ fontSize: 14, fontWeight: 300, color: '#4A5568', lineHeight: 1.75, maxWidth: 540 }}>
-                PLACEHOLDER
-              </p>
+              <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: BLUE, marginBottom: 6 }}>A Note from the Author</div>
+              <div style={{ fontSize: 16, fontWeight: 600, color: '#0D1B2A', letterSpacing: '-0.01em' }}>Ludwingk Rios</div>
+              <div style={{ fontSize: 12, fontWeight: 300, color: '#9AA4AF', marginTop: 2 }}>Worship Minister, First Baptist Church Cedar Hill</div>
             </div>
+          </div>
+          <p style={{ fontSize: 15, fontWeight: 300, color: '#4A5568', lineHeight: 1.85, marginBottom: 20 }}>Having led worship for over 15 years, my focus as a worship leader is anchored in a simple but weighty truth: the songs a church sings are not background to the service. They are the service. They are prayers set to melody, proclamations of doctrine, and week after week they are quietly forming what a congregation believes about God, about salvation, and about Jesus. A church that sings truth with conviction is a church being shaped in truth. A church handed vague, emotionally charged lyrics without scriptural grounding is a church being slowly malnourished in its understanding of who God is. This is why I have always approached song selection as a shepherding responsibility, not merely a musical one.</p>
+          <p style={{ fontSize: 15, fontWeight: 300, color: '#4A5568', lineHeight: 1.85, marginBottom: 20 }}>I also hold a deep conviction about the evangelistic power of congregational worship. Throughout history, music has served as one of the most far-reaching vehicles for delivering the Gospel, crossing language barriers, cultural divides, and generational gaps in ways that spoken words alone rarely can. When a congregation sings Christ-centered truth together, something happens that transcends the room. I have never found a better word for it than awe. I feel it in a sanctuary full of voices. I also feel it when my family fills the car with worship going 75 miles per hour. Both are holy. Both are gift. Songs memorized in worship become the very language of faith that people carry into their daily lives, their families, their grief, and their witness to the world. The songs we choose are not just for Sunday. They are forming disciples.</p>
+          <p style={{ fontSize: 15, fontWeight: 300, color: '#4A5568', lineHeight: 1.85, marginBottom: 20 }}>WorshipLens grew out of a weekly discipline I had quietly practiced for years before it ever became a platform. Every week, before leading my congregation, I would trace the theological roots of each song, study its place in the broader landscape of worship music, and ask whether its lyrics could truly bear the weight of congregational proclamation. Over time that weekly preparation deepened into something larger than preparation. WorshipLens is the fruit of that journey. Songs shape theology. Leaders shape culture. The platform exists to ensure both are built on solid ground.</p>
+          <p style={{ fontSize: 15, fontWeight: 300, color: '#4A5568', lineHeight: 1.85, marginBottom: 20 }}>As a classically trained violinist, pianist, composer and arranger, I have written songs, cantatas, and musicals, and regularly create arrangements for worship services and special productions, because I believe music is one of God's most extraordinary gifts to humanity, a language that transcends culture and helps carry the Gospel further.</p>
+          <p style={{ fontSize: 15, fontWeight: 300, color: '#4A5568', lineHeight: 1.85, marginBottom: 20 }}>Throughout my career I have served bivocationally, bringing the same creative discipline to my professional life that I bring to the platform of worship. But worship is my primary calling. It shapes how I celebrate, grieve, create, and what I hope for.</p>
+          <p style={{ fontSize: 15, fontWeight: 300, color: '#4A5568', lineHeight: 1.85, marginBottom: 20 }}>The conversation around worship music is one the Church has never fully resolved, and perhaps never will. Since the earliest centuries of gathered worship, Christians have debated what is appropriate, what is reverent, and what belongs in the sanctuary. Hymns were once the radical departure. Gospel, Southern Gospel, contemporary Christian music, modern hymns, praise choruses, and the countless genres that have followed each carried their own season of controversy. The arguments are familiar: this song is too repetitive, that lyric is grammatically imprecise, this genre feels too informal, that style belongs to the world. These are not new objections. They have simply worn new clothes in every generation.</p>
+          <p style={{ fontSize: 15, fontWeight: 300, color: '#4A5568', lineHeight: 1.85, marginBottom: 20 }}>But underneath every one of them is a question worth asking honestly: is this personal preference masquerading as theological conviction? We were designed to worship. God created every genre. And while man is imperfect and the songs he writes will always carry that imperfection, the more urgent question is not whether a lyric or style is polished, but whether the song, at its center, points to the truth, the way, and the life. Whether it glorifies God. Whether it opens the heart to encounter the risen Christ. That is the standard. Everything else is a conversation worth having with humility.</p>
+          <div style={{ borderTop: '0.5px solid #E2E8F0', paddingTop: 24, marginTop: 8 }}>
+            <p style={{ fontSize: 15, fontWeight: 300, color: '#4A5568', lineHeight: 1.85, marginBottom: 8 }}>Ludwingk Rios currently serves as Worship Minister at First Baptist Church Cedar Hill, Texas, where he has served for nearly five years. He and his wife Kellee have been married for 21 years. Both are Baylor alumni who met in church. Kellee teaches the pre-teen Bible study and is a Registered Nurse. Their children, Elizabeth and Ethan, are both active in music and kids ministries at the church. For the Rios family, worship is not a Sunday morning activity. It is the center of everything.</p>
+            <p style={{ fontSize: 15, fontWeight: 600, color: '#0D1B2A', fontStyle: 'italic' }}>Ludwingk Rios</p>
           </div>
         </div>
       </section>
