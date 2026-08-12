@@ -19,3 +19,4 @@ worshiplens_*.py
 # Node
 node_modules/
 .next/
+tsconfig.tsbuildinfo
