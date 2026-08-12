@@ -167,7 +167,7 @@ export default function AboutPage() {
       </section>
 
       {/* A NOTE FROM THE AUTHOR */}
-      <section style={{ padding: '56px 24px', borderBottom: '0.5px solid #E8EDF2' }}>
+      <section id="author-note" style={{ padding: '56px 24px', borderBottom: '0.5px solid #E8EDF2' }}>
         <div style={{ maxWidth: 720, margin: '0 auto' }}>
           <div className="author-head" style={{ display: 'flex', alignItems: 'center', gap: 20, marginBottom: 28 }}>
             <div style={{ width: 128, height: 128, borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: '2px solid #E2E8F0', background: '#1B3050' }}>
@@ -180,7 +180,6 @@ export default function AboutPage() {
               </div>
               <h2 style={{ fontSize: 'clamp(22px, 3vw, 28px)', fontWeight: 600, color: NAVY, letterSpacing: '-0.03em', lineHeight: 1.2 }}>Ludwingk Rios</h2>
               <div style={{ fontSize: 13, fontWeight: 500, color: '#4A5568', marginTop: 4 }}>Worship Leader, Musician, Editor</div>
-              <div style={{ fontSize: 12, fontWeight: 300, color: '#9AA4AF', marginTop: 2 }}>First Baptist Church Cedar Hill, Texas</div>
             </div>
           </div>
 
