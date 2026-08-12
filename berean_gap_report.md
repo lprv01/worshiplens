@@ -1,0 +1,363 @@
+# Berean Test to WorshipLens Gap Report
+
+- Berean Test titles on the index: 786
+- Songs in WorshipLens: 1023
+- Missing from WorshipLens: 355
+
+---
+
+- 10k
+- 40
+- A Life Preserved
+- A Mighty Fortress Is Our God
+- A Prayer
+- A Voice in the Violence
+- Able
+- Acts 2
+- Adoption
+- Adoration
+- After Forever
+- Agnus Dei / King Of Kings (Feat. Brooke Ligertwood, Chidima, Passion & Jenn Johnson)
+- All Praise (Feat. Sean Curran)
+- All The Good Girls Go To Hell
+- All Ye Refugees
+- Arms of Love
+- At Your Name
+- Battlefield
+- Be Unto Your Name (We Are a Moment)
+- Be a Light (Feat. Keith Urban, Chris Tomlin, Hillary Scott & Reba McEntire)
+- Better For It
+- Bitter Roots
+- Black Light Revelation
+- Bleed the Same
+- Bless Me
+- Blessings
+- Blinded by Your Grace, Pt. 2 (Feat. MNEK)
+- Boasting (Feat. Anthony Evans)
+- Boldly I Approach (The Art Of Celebration)
+- Born Again
+- Brand New
+- Breakthrough
+- Breathe Into Me
+- Bringing In The Sheaves
+- Broken Chains
+- Broken Chromosomes
+- By God
+- CHRISTUS VICTOR (AMEN) -  COCHREN & CO.
+- Chief of Sinners Though I Be
+- Child of the King
+- Closed on Sunday
+- Come Alive (Dry Bones)
+- Come Back Home (Feat. Trevor McNevan)
+- Come What May
+- Come and Move (Feat. Benita Jones & Chandler Moore)
+- Come, Ye Thankful People, Come
+- Confidence
+- Count'em
+- Crown Him with Many Crowns
+- Crowns & Thorns (Oceans)
+- Cry Out to Jesus
+- Cry for You (Feat. Taylor Hill)
+- Dancing on the Waves
+- Day One
+- Dear X (You Don't Own Me)
+- Devastator
+- Dirty Water
+- Do What You Want To
+- Don't Tread on Me
+- Down
+- Down from the Mountain (Feat. Erik LeCar)
+- Driven By Love
+- Drops in the Ocean
+- Eagles
+- East to West
+- El Shaddai
+- Even When It Hurts (Praise Song)
+- Every Good Thing
+- Every Season
+- Exalted (Yahweh)
+- Extravagant
+- Faithful
+- Famous For (I Believe) (Feat. Jenn Johnson)
+- Farther Along
+- Father
+- Fear is a Liar
+- Feel It (Feat. Mr. Talkbox)
+- Felix Culpa
+- Fierce
+- Figs
+- Fill Me Up (Feat. Will Reagan)
+- Fill This Place
+- Fill my cup
+- Find Me In The River
+- First
+- Fix My Eyes
+- Flawless
+- Flood
+- Follow God
+- For The Cause
+- For The Cross
+- For You I Am Living
+- For Your Name Is Holy
+- For Your Purpose (Unplugged)
+- For the Greater Good of God
+- Forever Jesus (Feat. Stuart Townend)
+- Forevermore
+- Found in You
+- Fountain (I Am Good)
+- Freedom's Slave
+- Getting Ready
+- Give Me Words to Speak
+- Give Me Your Eyes
+- Glory
+- God Forsaken
+- God Help Me
+- God Help Me To Be
+- God Is
+- God Is In This Story
+- God Is On The Throne
+- God Only Knows
+- God That Saves (Feat. Stephen McWhirter)
+- God of Calvary
+- God of Victory
+- God's Great Dance Floor
+- God's Not Dead (Like a Lion)
+- God's Not Done With You
+- Going Home
+- Going To Another Level
+- Good Fight
+- Good News (Feat. Naomi Raine, Chandler Moore & Todd Galberth)
+- Good To Me
+- Gotta Live (Feat. Jordan Feliz)
+- Grace So Glorious
+- Grace To Grace
+- Gracefully Broken
+- Greater Than
+- Hallelujah
+- Happy Dance
+- Hard Love
+- He Calls Me Friend
+- He Came, He Saw, He Conquered
+- He Is Worthy
+- Head Above Water
+- Head to the Heart
+- Heal Our Land
+- Healing Is in Your Hands
+- Hear His Voice
+- Heart Of The Father
+- Heart Runs
+- Hearts of the Innocent
+- Heaven Invade
+- Hello, My Name Is
+- Help Is On The Way (Maybe Midnight)
+- Here in the Holy
+- Heretic
+- Higher Love
+- Highs & Lows
+- Hills and Valleys
+- Hold Me (Feat. TobyMac)
+- Holy (Feat. Chance The Rapper)
+- Holy (Jesus You Are)
+- Holy (Wedding Day)
+- Holy, Holy, Holy! Lord God Almighty!
+- Home
+- Home is Where You Are
+- Hope For It
+- How Good the Lord Is
+- How You Love Me
+- I AM
+- I Am Free (Who the Son Sets Free)
+- I Am Second
+- I Asked The Lord That I Might Grow
+- I Don’t Wanna Go
+- I Just Need U.
+- I Know
+- I Look To You
+- I Still Haven't Found What I'm Looking For
+- I Still Talk to Jesus
+- I'll Give Thanks (Feat. Kirby Kaple)
+- If We're Honest
+- In Jesus Name (God of Possible)
+- In The Light
+- In The Secret
+- In the Valley of the Dying Sun
+- Into The Deep
+- Into the Sea (It’s Gonna Be OK)
+- It Is Finished (Feat. Melodie Malone)
+- It's Always Been You
+- Jerusalem
+- Jesus Freak
+- Jesus I Come
+- Jesus Is Alive
+- Jesus Is Just Alright
+- Jesus It Is You
+- Jesus, Take the Wheel
+- Job's Song
+- Just Like You (Feat. J.Paul)
+- King Without A Crown
+- King of Majesty
+- Known
+- LEMME TELLYA
+- Lead Me
+- Lead, Kindly Light
+- Leave Me Astounded (Studio)
+- Let It Rain
+- Let Sinners Fly
+- Let You Down
+- Let Your Kingdom Come
+- Like a Lion
+- Long Black Train
+- Love Like This
+- Love Note (Feat. Abbie Gamboa)
+- Love Theory
+- Magnify
+- Majesty in Misery
+- Melancholy (Holy Martyr)
+- Messiah / You're Beautiful
+- Mighty God
+- Million Dollar Man
+- Miracle or Not
+- More
+- More Than Bones
+- More Than Enough
+- More and More of You
+- Move (Feat. Chris McClarney)
+- Multiplied
+- My Feet Are on the Rock
+- My God is Here
+- My Hope is Built on Nothing Less
+- My Savior My God
+- My Worth Is Not in What I Own (Feat. Fernando Ortega)
+- My Year
+- Native Tongue
+- Never Fail
+- No Greater Love (How Marvelous)
+- No Hopeless Soul
+- No One Believes in Me Anymore (Satan's Boast)
+- No Outsiders
+- No Rival
+- Nobody (Feat. Matthew West)
+- Not Today
+- Not Today Satan (Feat. Andy Mineo)
+- Nothing Can Separate Me
+- Nothing is Impossible (Feat. Israel Houghton)
+- Number One
+- O, Peace
+- Oh Lord
+- Oh My Soul
+- Omnipotent (Feat. Kings Kaleidoscope)
+- On Eagle’s Wings
+- On My Side
+- One Thing Remains
+- Only Hope
+- Ooh Ahh (My Life Be Like) (Feat. TobyMac)
+- Open Up the Sky
+- Overcomer
+- P E A C E
+- Perfect Life
+- Pour Your Spirit Out
+- Pray
+- Redeemer
+- Rejoice
+- Relentless
+- Remember
+- Resurrection Power
+- Resurrender (Feat. Brooke Ligertwood)
+- Revelation (Feat. Sonya Isaacs)
+- Right Where You Want Me
+- Rise up
+- Safe (Feat. Isa Fabregas Cuna)
+- Safe Retreat
+- Sanctuary (Let This Be A Place)
+- Scars
+- Scars (Come With Livin')
+- Scars in Heaven
+- See What A Morning (Resurrection Hymn)
+- Selah
+- Someday (Set the Children Free)
+- Son of God
+- Song in the Night
+- Soul on Fire (Feat. All Sons & Daughters)
+- Soul's Anthem (It Is Well)
+- Speak the Name (Feat. Natalie Grant)
+- Spirit Fall (Feat. Chris Tomlin)
+- Spirit of the Sovereign Lord
+- Stand Up, Stand Up for Jesus
+- Stars
+- Start a Fire
+- Strength and Shield
+- Supreme (Feat. Beautiful Eulogy)
+- Sweet Hour Of Prayer
+- Symphony (Feat. Dillon Chase)
+- Take Me to Church
+- Talking to Jesus (Feat. Brandon Lake)
+- Terms and Conditions
+- Testify
+- Thank You for Saving Me
+- That Was Then, This Is Now
+- The Battle Hymn of the Republic
+- The Bird and the Snake
+- The Blood of Jesus Speaks For Me
+- The Breakup Song
+- The Cry
+- The God Who Stays
+- The Gospel
+- The Great Southland
+- The Kingdom Is Yours (Feat. Joncarlos Velez, Dee Wilson & Jamie MacDonald)
+- The Lord is My Salvation
+- The Old
+- The Prayer (Feat. Celine Dion)
+- The Preciousness of Time
+- The Prodigal
+- The Reason
+- The River
+- The Secret Place (Feat. Madison Cunningham)
+- The Slam (Feat. T-Bone)
+- The Storm
+- The Thanksgiving Song
+- The Way (New Horizon)
+- This Girl
+- This Glorious Grace
+- This is That
+- Til the Day I Die (Feat. NF)
+- Timepiece
+- To the Table
+- Touch the Sky
+- Touching Heaven
+- Tribes
+- Trouble will Soon be Over (Feat. Willie B. Harris)
+- True North
+- Trust in You
+- Two Sets Of Jones'
+- Unshakeable
+- Use This Gospel (Feat. Clipse & Kenny G)
+- We Could Be the Ones
+- We Fall Down (My Jesus I Love Thee)
+- We Speak Life
+- We Speak to Nations
+- Well Done
+- What If I Stumble?
+- What a Friend I've Found
+- When I Crossed the Waters
+- When I Survey the Wondrous Cross
+- When the Roll is Called Up Yonder
+- Where I Belong
+- Who Am I
+- Whole Heart (Feat. Kristian Stanfill)
+- Whole Heart (Hold Me Now)
+- Will Your Anchor Hold
+- Wood and Nails (Feat. Audrey Assad & Josh Garrels)
+- Words We'll Sing Forever
+- Worthy, Worthy
+- Yahweh
+- Yeshua over Everything
+- You Are My All In All
+- You Call Me Beautiful
+- You Love Me Anyway
+- You Make Me Brave (Feat. Amanda Lindsay Cook)
+- You Raise Me Up (Feat. Brian Kennedy)
+- You Satisfy
+- You Won't Relent
+- Your Grace Still Amazes Me
+- Your Word Endures Forever
+- You’re Gonna be Okay

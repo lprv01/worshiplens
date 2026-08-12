@@ -39,10 +39,16 @@ const recLabel: Record<string, string> = {
   red:    'Avoid',
 }
 
-const CCLI_ORDER: Record<string, number> = {
-  '7065764': 1, '7089918': 2, '7047788': 3, '7026382': 4,
-  '7093989': 5, '7202827': 6, '4556538': 7, '7019427': 8,
-}
+import ccliTop100 from '../../data/ccli-top-100.json'
+
+// Built from the real CCLI Top 100 list (data/ccli-top-100.json), ranked by
+// position in that file. Previously this was 8 hand-typed CCLI numbers,
+// which is why the CCLI Top Songs filter only ever matched one song.
+const CCLI_ORDER: Record<string, number> = Object.fromEntries(
+  (ccliTop100 as { song: { ccli_number: string } }[])
+    .map((entry, i) => [entry.song.ccli_number, i + 1])
+    .filter(([num]) => num && num !== 'Not available')
+)
 
 type SortKey = 'top' | 'ccli' | 'newest' | 'alpha' | 'score'
 type FilterKey = 'all' | 'top' | 'ccli' | 'green' | 'amber' | 'orange' | 'red'
