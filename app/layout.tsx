@@ -36,14 +36,14 @@ export const metadata: Metadata = {
     siteName: "WorshipLens",
     locale: "en_US",
     type: "website",
-    // images: ["/og-image.png"],
+    images: ["/og-image.png"],
   },
   twitter: {
     card: "summary_large_image",
     title: "WorshipLens | Theological Reviews of Worship Songs",
     description:
       "Theological reviews of over 1,000 worship songs, built for worship leaders.",
-    // images: ["/og-image.png"],
+    images: ["/og-image.png"],
   },
   robots: {
     index: true,
