@@ -47,6 +47,40 @@ function scoreLabel(score: number) {
   return 'Avoid'
 }
 
+// Normalize similar song entry to { title, artist, reason }
+function normalizeSimilarEntry(entry: any): { title: string; artist: string; reason?: string } {
+  if (typeof entry === 'string') return { title: entry, artist: '' }
+  return { title: entry.title ?? '', artist: entry.artist ?? '', reason: entry.reason }
+}
+
+// Build a slug from a title (same logic as batch runner)
+function titleToSlug(title: string): string {
+  return title.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-').trim()
+}
+
+async function RelatedSongsSection({ songId }: { songId: string }) {
+  const { data: related } = await supabase.rpc('get_related_songs', { p_song_id: songId, p_limit: 5 })
+  if (!related || related.length === 0) return null
+  return (
+    <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px 48px' }}>
+      <p style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: '#9AA4AF', marginBottom: 12 }}>Related songs</p>
+      <div style={{ border: '0.5px solid #E2E8F0', borderRadius: 12, overflow: 'hidden' }}>
+        {related.map((s: any, i: number) => (
+          <a key={s.id} href={"/songs/" + s.slug} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px', borderBottom: i < related.length - 1 ? '0.5px solid #F0F4F8' : 'none', background: '#fff', textDecoration: 'none', gap: 12 }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{ fontSize: 14, fontWeight: 500, color: '#0D1B2A', marginBottom: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{s.title}</p>
+              <p style={{ fontSize: 12, color: '#9AA4AF', fontWeight: 300 }}>{s.artist}</p>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+              <span style={{ fontSize: 13, fontWeight: 600, color: '#2A6010', background: '#DCEFCF', padding: '3px 10px', borderRadius: 8 }}>{Number(s.overall_score).toFixed(1)}</span>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export default async function SongDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
 
@@ -87,6 +121,10 @@ export default async function SongDetailPage({ params }: { params: Promise<{ id:
   const sermonFit = technical.sermon_series_fit ?? []
   const objections = db.objections ?? []
 
+  const loveList: any[] = similar.if_you_love_this ?? []
+  const concernList: any[] = similar.if_this_concerns_you ?? []
+  const hasSimilar = loveList.length > 0 || concernList.length > 0
+
   return (
     <div style={{ fontFamily: "'Sora', sans-serif", background: '#ffffff', color: '#0D1B2A', minHeight: '100vh' }}>
       <style>{`
@@ -97,20 +135,24 @@ export default async function SongDetailPage({ params }: { params: Promise<{ id:
         details[open] .chev { transform: rotate(180deg); }
         .chev { display: inline-block; transition: transform 0.2s; color: #9AA4AF; }
         .song-row-btn:hover { background: #F7FAFD; }
+        .similar-link { display: flex; align-items: flex-start; gap: 10; padding: 10px 0; border-bottom: 0.5px solid rgba(0,0,0,0.06); text-decoration: none; }
+        .similar-link:last-child { border-bottom: none; }
+        .similar-link:hover .similar-title { text-decoration: underline; }
         @media (max-width: 680px) {
           .song-hero { flex-direction: column !important; align-items: flex-start !important; }
           .two-col { grid-template-columns: 1fr !important; }
           .detail-pad { padding: 1.5rem 16px !important; }
           .hero-pad { padding: 28px 16px 24px !important; }
           .nav-pad { padding: 0 16px !important; }
+          .audience-grid { grid-template-columns: 1fr !important; }
         }
       `}</style>
 
       {/* NAV */}
       <nav style={{ background: NAVY, position: 'sticky', top: 0, zIndex: 50 }}>
-        <div className="nav-pad" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', height: 56, maxWidth: 1100, margin: '0 auto' }}>
+        <div className="nav-pad" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', height: 68, maxWidth: 1100, margin: '0 auto' }}>
           <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
-            <LogoWhite height={22} />
+            <LogoWhite height={44} />
           </Link>
           <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>
             <Link href="/songs" style={{ fontSize: 13, fontWeight: 400, color: 'rgba(255,255,255,0.55)', textDecoration: 'none' }}>
@@ -139,19 +181,23 @@ export default async function SongDetailPage({ params }: { params: Promise<{ id:
                 {song.hymn_lineage_badge && <span style={{ fontSize: 11, color: '#2A6010', background: '#DCEFCF', border: '0.5px solid #97C459', padding: '3px 10px', borderRadius: 20 }}>Hymn lineage: {song.hymn_lineage_badge}</span>}
               </div>
             </div>
-            <div style={{ textAlign: 'center' as const, flexShrink: 0 }}>
-              <div style={{ width: 80, height: 80, borderRadius: 14, background: oc.bg, display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center', marginBottom: 8, border: `0.5px solid ${oc.border}` }}>
-                <span style={{ fontSize: 28, fontWeight: 600, color: oc.text, lineHeight: 1, letterSpacing: '-0.03em' }}>{overall.toFixed(1)}</span>
-                <span style={{ fontSize: 10, color: oc.text, opacity: 0.6, marginTop: 2 }}>/10</span>
-              </div>
-              <span style={{ fontSize: 11, fontWeight: 500, color: oc.text, background: oc.recBg, padding: '4px 12px', borderRadius: 20 }}>{scoreLabel(overall)}</span>
-              {song.overall_verdict && <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 8, maxWidth: 180, lineHeight: 1.5 }}>{song.overall_verdict}</p>}
-            </div>
           </div>
         </div>
       </div>
 
       <div className="detail-pad" style={{ maxWidth: 1100, margin: '0 auto', padding: '32px 24px 60px' }}>
+
+        {/* OVERALL SCORE + VERDICT */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 20, marginBottom: '2rem', paddingBottom: '2rem', borderBottom: '0.5px solid #E2E8F0' }}>
+          <div style={{ width: 72, height: 72, borderRadius: 14, background: oc.bg, display: 'flex', flexDirection: 'column' as const, alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: `0.5px solid ${oc.border}` }}>
+            <span style={{ fontSize: 26, fontWeight: 600, color: oc.text, lineHeight: 1, letterSpacing: '-0.03em' }}>{overall.toFixed(1)}</span>
+            <span style={{ fontSize: 10, color: oc.text, opacity: 0.6, marginTop: 2 }}>/10</span>
+          </div>
+          <div style={{ flex: 1 }}>
+            <span style={{ fontSize: 11, fontWeight: 500, color: oc.text, background: oc.recBg, padding: '4px 12px', borderRadius: 20, display: 'inline-block', marginBottom: 10 }}>{scoreLabel(overall)}</span>
+            {song.overall_verdict && <p style={{ fontSize: 13, color: '#4A5568', lineHeight: 1.7, fontWeight: 300 }}>{song.overall_verdict}</p>}
+          </div>
+        </div>
 
         {/* FIVE LENSES */}
         <div style={{ marginBottom: '2rem' }}>
@@ -389,11 +435,11 @@ export default async function SongDetailPage({ params }: { params: Promise<{ id:
           </details>
         )}
 
-        {/* THEMES + AUDIENCE */}
-        <div className="two-col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
-          <div>
+        {/* THEMES + SERMON FIT */}
+        {(themes.length > 0 || sermonFit.length > 0) && (
+          <div className="two-col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
             {themes.length > 0 && (
-              <div style={{ marginBottom: '1.25rem' }}>
+              <div>
                 <p style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: '#9AA4AF', marginBottom: 10 }}>Themes</p>
                 <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 6 }}>
                   {themes.map((t: string) => (
@@ -413,48 +459,72 @@ export default async function SongDetailPage({ params }: { params: Promise<{ id:
               </div>
             )}
           </div>
-          <div>
-            {Object.keys(audienceFit).length > 0 && (
-              <div>
-                <p style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: '#9AA4AF', marginBottom: 10 }}>Audience fit</p>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, border: '0.5px solid #E2E8F0', borderRadius: 10, overflow: 'hidden', background: '#E2E8F0' }}>
-                  {[
-                    { k: 'Maturity', v: audienceFit.spiritual_maturity },
-                    { k: 'Age group', v: audienceFit.age_group },
-                    { k: 'Service type', v: audienceFit.service_type },
-                    { k: 'Visitor-friendly', v: audienceFit.visitor_friendliness },
-                    { k: 'Special contexts', v: audienceFit.special_contexts },
-                  ].filter(d => d.v).map(d => (
-                    <div key={d.k} style={{ background: '#fff', padding: '10px 12px' }}>
-                      <p style={{ fontSize: 10, color: '#9AA4AF', textTransform: 'uppercase' as const, letterSpacing: '0.06em', marginBottom: 3 }}>{d.k}</p>
-                      <p style={{ fontSize: 12, color: '#0D1B2A', fontWeight: 400 }}>{d.v}</p>
-                    </div>
-                  ))}
+        )}
+
+        {/* AUDIENCE FIT */}
+        {Object.keys(audienceFit).length > 0 && (
+          <div style={{ marginBottom: '1.5rem' }}>
+            <p style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: '#9AA4AF', marginBottom: 10 }}>Audience fit</p>
+            <div className="audience-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, border: '0.5px solid #E2E8F0', borderRadius: 10, overflow: 'hidden', background: '#E2E8F0' }}>
+              {[
+                { k: 'Maturity', v: audienceFit.spiritual_maturity },
+                { k: 'Age group', v: audienceFit.age_group },
+                { k: 'Service type', v: audienceFit.service_type },
+                { k: 'Visitor-friendly', v: audienceFit.visitor_friendliness },
+                { k: 'Special contexts', v: audienceFit.special_contexts },
+              ].filter(d => d.v).map(d => (
+                <div key={d.k} style={{ background: '#fff', padding: '12px 16px' }}>
+                  <p style={{ fontSize: 10, color: '#9AA4AF', textTransform: 'uppercase' as const, letterSpacing: '0.06em', marginBottom: 4 }}>{d.k}</p>
+                  <p style={{ fontSize: 13, color: '#0D1B2A', fontWeight: 400, lineHeight: 1.6 }}>{d.v}</p>
                 </div>
-              </div>
-            )}
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* SIMILAR SONGS */}
-        {(similar.if_you_love_this?.length > 0 || similar.if_this_concerns_you?.length > 0) && (
-          <div>
+        {hasSimilar && (
+          <div style={{ marginBottom: '1.5rem' }}>
             <p style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.1em', textTransform: 'uppercase' as const, color: '#9AA4AF', marginBottom: 12 }}>Similar songs</p>
             <div className="two-col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              {similar.if_you_love_this?.length > 0 && (
-                <div style={{ background: '#DCEFCF', border: '0.5px solid #97C459', borderRadius: 10, padding: '14px' }}>
-                  <p style={{ fontSize: 11, color: '#2A6010', fontWeight: 500, marginBottom: 8 }}>If you love this song</p>
-                  {similar.if_you_love_this.map((s: any, i: number) => (
-                    <p key={i} style={{ fontSize: 13, color: '#2A6010', fontWeight: 300, lineHeight: 1.6 }}>{s.title} — {s.artist}</p>
-                  ))}
+              {loveList.length > 0 && (
+                <div style={{ background: '#DCEFCF', border: '0.5px solid #97C459', borderRadius: 10, padding: '14px 16px' }}>
+                  <p style={{ fontSize: 11, color: '#2A6010', fontWeight: 600, marginBottom: 10, letterSpacing: '0.05em', textTransform: 'uppercase' as const }}>If you love this song</p>
+                  {loveList.map((entry: any, i: number) => {
+                    const s = normalizeSimilarEntry(entry)
+                    const slug = titleToSlug(s.title)
+                    return (
+                      <Link key={i} href={`/songs/${slug}`} className="similar-link" style={{ display: 'flex', alignItems: 'flex-start', gap: 8, paddingTop: i > 0 ? 10 : 0, marginTop: i > 0 ? 10 : 0, borderTop: i > 0 ? '0.5px solid rgba(42,96,16,0.15)' : 'none', textDecoration: 'none' }}>
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style={{ flexShrink: 0, marginTop: 3 }}>
+                          <path d="M2.5 6.5L5 9L9.5 3.5" stroke="#2A6010" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                        <div>
+                          <p className="similar-title" style={{ fontSize: 13, fontWeight: 500, color: '#2A6010', lineHeight: 1.4 }}>{s.title}</p>
+                          {s.artist && <p style={{ fontSize: 11, color: '#4A8B2A', fontWeight: 300, marginTop: 1 }}>{s.artist}</p>}
+                        </div>
+                      </Link>
+                    )
+                  })}
                 </div>
               )}
-              {similar.if_this_concerns_you?.length > 0 && (
-                <div style={{ background: '#FEF0CC', border: '0.5px solid #EF9F27', borderRadius: 10, padding: '14px' }}>
-                  <p style={{ fontSize: 11, color: '#7A5010', fontWeight: 500, marginBottom: 8 }}>If this concerns you</p>
-                  {similar.if_this_concerns_you.map((s: any, i: number) => (
-                    <p key={i} style={{ fontSize: 13, color: '#7A5010', fontWeight: 300, lineHeight: 1.6 }}>{s.title} — {s.artist}</p>
-                  ))}
+              {concernList.length > 0 && (
+                <div style={{ background: '#FEF0CC', border: '0.5px solid #EF9F27', borderRadius: 10, padding: '14px 16px' }}>
+                  <p style={{ fontSize: 11, color: '#7A5010', fontWeight: 600, marginBottom: 10, letterSpacing: '0.05em', textTransform: 'uppercase' as const }}>If this concerns you</p>
+                  {concernList.map((entry: any, i: number) => {
+                    const s = normalizeSimilarEntry(entry)
+                    const slug = titleToSlug(s.title)
+                    return (
+                      <Link key={i} href={`/songs/${slug}`} className="similar-link" style={{ display: 'flex', alignItems: 'flex-start', gap: 8, paddingTop: i > 0 ? 10 : 0, marginTop: i > 0 ? 10 : 0, borderTop: i > 0 ? '0.5px solid rgba(122,80,16,0.15)' : 'none', textDecoration: 'none' }}>
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style={{ flexShrink: 0, marginTop: 3 }}>
+                          <path d="M6 2v5M6 9v.5" stroke="#C47B0E" strokeWidth="1.5" strokeLinecap="round" />
+                        </svg>
+                        <div>
+                          <p className="similar-title" style={{ fontSize: 13, fontWeight: 500, color: '#7A5010', lineHeight: 1.4 }}>{s.title}</p>
+                          {s.artist && <p style={{ fontSize: 11, color: '#C47B0E', fontWeight: 300, marginTop: 1 }}>{s.artist}</p>}
+                        </div>
+                      </Link>
+                    )
+                  })}
                 </div>
               )}
             </div>
@@ -463,10 +533,13 @@ export default async function SongDetailPage({ params }: { params: Promise<{ id:
 
       </div>
 
+      {/* RELATED SONGS */}
+      <RelatedSongsSection songId={song.id} />
+
       {/* FOOTER */}
       <footer style={{ background: NAVY, padding: '32px 24px' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' as const, gap: 16 }}>
-          <LogoWhite height={18} />
+          <LogoWhite height={44} />
           <div style={{ display: 'flex', gap: 20 }}>
             <Link href="/songs" style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>Songs</Link>
             <Link href="/about" style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>About</Link>
