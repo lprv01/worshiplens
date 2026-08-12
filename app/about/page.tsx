@@ -37,8 +37,32 @@ function LogoWhite({ height = 22 }: { height?: number }) {
   )
 }
 
+// Eyebrow + heading pair used by every section below the hero
+function SectionHeading({ eyebrow, title }: { eyebrow: string; title: string }) {
+  return (
+    <div style={{ marginBottom: 30 }}>
+      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: BLUE, marginBottom: 14 }}>
+        <span style={{ width: 5, height: 5, background: BLUE, borderRadius: '50%', display: 'inline-block' }} />
+        {eyebrow}
+      </div>
+      <h2 style={{ fontSize: 'clamp(24px, 3.4vw, 34px)', fontWeight: 600, color: NAVY, lineHeight: 1.15, letterSpacing: '-0.035em' }}>
+        {title}
+      </h2>
+    </div>
+  )
+}
+
+const BODY: React.CSSProperties = {
+  fontSize: 15,
+  fontWeight: 300,
+  color: '#4A5568',
+  lineHeight: 1.85,
+  marginBottom: 20,
+}
+
 export default function AboutPage() {
   const [menuOpen, setMenuOpen] = useState(false)
+  const [noteOpen, setNoteOpen] = useState(false)
   const [songCount, setSongCount] = useState<number | null>(null)
 
   useEffect(() => {
@@ -72,10 +96,21 @@ export default function AboutPage() {
         @media (max-width: 680px) {
           .desktop-nav-links { display: none !important; }
           .hamburger-btn { display: flex !important; }
+          .author-head { flex-direction: column; align-items: flex-start !important; }
         }
         @media (min-width: 681px) {
           .hamburger-btn { display: none !important; }
           .mobile-menu { display: none !important; }
+        }
+        .note-body {
+          max-height: 0; overflow: hidden;
+          transition: max-height 0.55s cubic-bezier(0.4,0,0.2,1);
+        }
+        .note-body.open { max-height: 4200px; }
+        .note-toggle:hover { opacity: 0.7; }
+        .note-toggle:focus-visible { outline: 2px solid ${BLUE}; outline-offset: 4px; border-radius: 4px; }
+        @media (prefers-reduced-motion: reduce) {
+          .note-body, .mobile-menu, .ham-line { transition: none !important; }
         }
       `}</style>
 
@@ -126,22 +161,78 @@ export default function AboutPage() {
             A tool built for the<br />leaders <span style={{ color: BLUE, fontWeight: 300 }}>in the room.</span>
           </h1>
           <p style={{ fontSize: 15, fontWeight: 300, color: 'rgba(255,255,255,0.5)', lineHeight: 1.7, maxWidth: 560 }}>
-            WorshipLens is a theological worship song review platform built.
+            A theological review of the songs your church sings.
+          </p>
+        </div>
+      </section>
+
+      {/* A NOTE FROM THE AUTHOR */}
+      <section style={{ padding: '56px 24px', borderBottom: '0.5px solid #E8EDF2' }}>
+        <div style={{ maxWidth: 720, margin: '0 auto' }}>
+          <div className="author-head" style={{ display: 'flex', alignItems: 'center', gap: 20, marginBottom: 28 }}>
+            <div style={{ width: 128, height: 128, borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: '2px solid #E2E8F0', background: '#1B3050' }}>
+              <Image src="/headshot.png" alt="Ludwingk Rios" width={128} height={128} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }} />
+            </div>
+            <div>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: BLUE, marginBottom: 8 }}>
+                <span style={{ width: 5, height: 5, background: BLUE, borderRadius: '50%', display: 'inline-block' }} />
+                A Note from the Author
+              </div>
+              <h2 style={{ fontSize: 'clamp(22px, 3vw, 28px)', fontWeight: 600, color: NAVY, letterSpacing: '-0.03em', lineHeight: 1.2 }}>Ludwingk Rios</h2>
+              <div style={{ fontSize: 13, fontWeight: 500, color: '#4A5568', marginTop: 4 }}>Worship Leader, Musician, Editor</div>
+              <div style={{ fontSize: 12, fontWeight: 300, color: '#9AA4AF', marginTop: 2 }}>First Baptist Church Cedar Hill, Texas</div>
+            </div>
+          </div>
+
+          <div style={{ borderLeft: `3px solid ${BLUE}`, paddingLeft: 20, marginBottom: 26 }}>
+            <p style={{ fontSize: 17, fontWeight: 500, color: NAVY, lineHeight: 1.55, letterSpacing: '-0.015em' }}>
+              The songs a church sings are not background to the service. They are the service.
+            </p>
+          </div>
+
+          <button
+            className="note-toggle"
+            onClick={() => setNoteOpen(v => !v)}
+            aria-expanded={noteOpen}
+            aria-controls="author-note"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, fontWeight: 500, color: BLUE, transition: 'opacity 0.2s ease' }}
+          >
+            {noteOpen ? 'Collapse the full note' : 'Read the full note'}
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"
+              style={{ transform: noteOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.35s cubic-bezier(0.4,0,0.2,1)' }}>
+              <path d="M6 9l6 6 6-6" />
+            </svg>
+          </button>
+
+          <div id="author-note" className={`note-body${noteOpen ? ' open' : ''}`}>
+            <div style={{ borderTop: '0.5px solid #E2E8F0', marginTop: 24, paddingTop: 28 }}>
+              <p style={BODY}>Having led worship for over 15 years, my focus as a worship leader is anchored in a simple but weighty truth: the songs a church sings are not background to the service. They are the service. They are prayers set to melody, proclamations of doctrine, and week after week they are quietly forming what a congregation believes about God, about salvation, and about Jesus. A church that sings truth with conviction is a church being shaped in truth. A church handed vague, emotionally charged lyrics without scriptural grounding is a church being slowly malnourished in its understanding of who God is. This is why I have always approached song selection as a shepherding responsibility, not merely a musical one.</p>
+              <p style={BODY}>I also hold a deep conviction about the evangelistic power of congregational worship. Throughout history, music has served as one of the most far-reaching vehicles for delivering the Gospel, crossing language barriers, cultural divides, and generational gaps in ways that spoken words alone rarely can. When a congregation sings Christ-centered truth together, something happens that transcends the room. I have never found a better word for it than awe. I feel it in a sanctuary full of voices. I also feel it when my family fills the car with worship going 75 miles per hour. Both are holy. Both are gift. Songs memorized in worship become the very language of faith that people carry into their daily lives, their families, their grief, and their witness to the world. The songs we choose are not just for Sunday. They are forming disciples.</p>
+              <p style={BODY}>WorshipLens grew out of a weekly discipline I had quietly practiced for years before it ever became a platform. Every week, before leading my congregation, I would trace the theological roots of each song, study its place in the broader landscape of worship music, and ask whether its lyrics could truly bear the weight of congregational proclamation. Over time that weekly preparation deepened into something larger than preparation. WorshipLens is the fruit of that journey. Songs shape theology. Leaders shape culture. The platform exists to ensure both are built on solid ground.</p>
+              <p style={BODY}>As a classically trained violinist, pianist, composer and arranger, I have written songs, cantatas, and musicals, and regularly create arrangements for worship services and special productions, because I believe music is one of God&apos;s most extraordinary gifts to humanity, a language that transcends culture and helps carry the Gospel further.</p>
+              <p style={{ ...BODY, marginBottom: 0 }}>Throughout my career I have served bivocationally, bringing the same creative discipline to my professional life that I bring to the platform of worship. But worship is my primary calling. It shapes how I celebrate, grieve, create, and what I hope for.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SHORT BIO */}
+      <section style={{ padding: '44px 24px', background: '#F7F9FC', borderBottom: '0.5px solid #E8EDF2' }}>
+        <div style={{ maxWidth: 720, margin: '0 auto' }}>
+          <p style={{ fontSize: 14, fontWeight: 300, color: '#4A5568', lineHeight: 1.85, borderLeft: '2px solid #E2E8F0', paddingLeft: 20 }}>
+            Ludwingk Rios currently serves as Worship Minister at First Baptist Church Cedar Hill, Texas, where he has served for nearly five years. He and his wife Kellee have been married for 21 years. Both are Baylor alumni who met in church. Kellee teaches the pre-teen Bible study and is a Registered Nurse. Their children, Elizabeth and Ethan, are both active in music and kids ministries at the church. For the Rios family, worship is not a Sunday morning activity. It is the center of everything.
           </p>
         </div>
       </section>
 
       {/* WHAT IT DOES */}
-      <section style={{ padding: '52px 24px', borderBottom: '0.5px solid #E8EDF2' }}>
+      <section style={{ padding: '64px 24px', borderBottom: '0.5px solid #E8EDF2' }}>
         <div style={{ maxWidth: 720, margin: '0 auto' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: BLUE, marginBottom: 20 }}>
-            <span style={{ width: 5, height: 5, background: BLUE, borderRadius: '50%', display: 'inline-block' }} />
-            What WorshipLens does
-          </div>
-          <p style={{ fontSize: 15, fontWeight: 300, color: '#4A5568', lineHeight: 1.75, marginBottom: 16 }}>
+          <SectionHeading eyebrow="The Platform" title="What WorshipLens does" />
+          <p style={{ ...BODY, marginBottom: 16 }}>
             WorshipLens evaluates the theology and lyrical quality of worship songs through a biblical lens. Each song is reviewed for scriptural fidelity, theological clarity, singability, and poetic strength, with a written defense explaining the evaluation.
           </p>
-          <p style={{ fontSize: 15, fontWeight: 300, color: '#4A5568', lineHeight: 1.75, marginBottom: 24 }}>
+          <p style={{ ...BODY, marginBottom: 24 }}>
             The goal is simple: to help worship leaders and churches choose songs that faithfully reflect the truth of Scripture.
           </p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
@@ -168,57 +259,39 @@ export default function AboutPage() {
       </section>
 
       {/* WHY IT EXISTS */}
-      <section style={{ padding: '52px 24px', background: '#F7F9FC', borderBottom: '0.5px solid #E8EDF2' }}>
+      <section style={{ padding: '64px 24px', background: '#F7F9FC', borderBottom: '0.5px solid #E8EDF2' }}>
         <div style={{ maxWidth: 720, margin: '0 auto' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: BLUE, marginBottom: 20 }}>
-            <span style={{ width: 5, height: 5, background: BLUE, borderRadius: '50%', display: 'inline-block' }} />
-            Why WorshipLens exists
-          </div>
-          <p style={{ fontSize: 15, fontWeight: 300, color: '#4A5568', lineHeight: 1.75, marginBottom: 16 }}>
+          <SectionHeading eyebrow="The Reason" title="Why WorshipLens exists" />
+          <p style={{ ...BODY, marginBottom: 16 }}>
             Worship leaders have long wrestled with the tension created by the ever-changing styles and expectations of worship within the church. Over time, however, many have come to recognize that when our focus shifts away from style and back toward truth, worship begins to take its rightful place.
           </p>
-          <p style={{ fontSize: 15, fontWeight: 300, color: '#4A5568', lineHeight: 1.75, marginBottom: 16 }}>
+          <p style={{ ...BODY, marginBottom: 16 }}>
             Too often congregations find themselves divided by preferences and stylistic debates. When worship becomes framed primarily through the lens of style, those preferences can quietly distract us from the deeper purpose of worship itself.
           </p>
           <div style={{ borderLeft: `3px solid ${BLUE}`, paddingLeft: 20, margin: '28px 0' }}>
             <p style={{ fontSize: 16, fontWeight: 500, color: '#0D1B2A', lineHeight: 1.6, letterSpacing: '-0.01em' }}>
-              "What we sing shapes what we believe. WorshipLens exists to make that conviction actionable."
+              &ldquo;What we sing shapes what we believe. WorshipLens exists to make that conviction actionable.&rdquo;
             </p>
           </div>
-          <p style={{ fontSize: 15, fontWeight: 300, color: '#4A5568', lineHeight: 1.75, marginBottom: 16 }}>
+          <p style={{ ...BODY, marginBottom: 16 }}>
             This tool was built from the inside, by a working music minister, for working music ministers. Every review is written with a pastoral posture: not to condemn songs or their writers, but to equip leaders with the clarity and language to make confident, defensible decisions.
           </p>
-          <p style={{ fontSize: 15, fontWeight: 300, color: '#4A5568', lineHeight: 1.75 }}>
+          <p style={{ ...BODY, marginBottom: 0 }}>
             And at the center of it all is a simple reminder: worship is not ultimately about us. It is about Him. Sing to the audience of One.
           </p>
         </div>
       </section>
 
-
-      {/* A NOTE FROM THE AUTHOR */}
+      {/* THE WORSHIP DILEMMA */}
       <section style={{ padding: '64px 24px', borderBottom: '0.5px solid #E8EDF2' }}>
         <div style={{ maxWidth: 720, margin: '0 auto' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 20, marginBottom: 40 }}>
-            <div style={{ width: 128, height: 128, borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: '2px solid #E2E8F0', background: '#1B3050' }}>
-              <Image src="/headshot.png" alt="Ludwingk Rios" width={128} height={128} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }} />
-            </div>
-            <div>
-              <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: BLUE, marginBottom: 6 }}>A Note from the Author</div>
-              <div style={{ fontSize: 16, fontWeight: 600, color: '#0D1B2A', letterSpacing: '-0.01em' }}>Ludwingk Rios</div>
-              <div style={{ fontSize: 12, fontWeight: 300, color: '#9AA4AF', marginTop: 2 }}>Worship Minister, First Baptist Church Cedar Hill</div>
-            </div>
-          </div>
-          <p style={{ fontSize: 15, fontWeight: 300, color: '#4A5568', lineHeight: 1.85, marginBottom: 20 }}>Having led worship for over 15 years, my focus as a worship leader is anchored in a simple but weighty truth: the songs a church sings are not background to the service. They are the service. They are prayers set to melody, proclamations of doctrine, and week after week they are quietly forming what a congregation believes about God, about salvation, and about Jesus. A church that sings truth with conviction is a church being shaped in truth. A church handed vague, emotionally charged lyrics without scriptural grounding is a church being slowly malnourished in its understanding of who God is. This is why I have always approached song selection as a shepherding responsibility, not merely a musical one.</p>
-          <p style={{ fontSize: 15, fontWeight: 300, color: '#4A5568', lineHeight: 1.85, marginBottom: 20 }}>I also hold a deep conviction about the evangelistic power of congregational worship. Throughout history, music has served as one of the most far-reaching vehicles for delivering the Gospel, crossing language barriers, cultural divides, and generational gaps in ways that spoken words alone rarely can. When a congregation sings Christ-centered truth together, something happens that transcends the room. I have never found a better word for it than awe. I feel it in a sanctuary full of voices. I also feel it when my family fills the car with worship going 75 miles per hour. Both are holy. Both are gift. Songs memorized in worship become the very language of faith that people carry into their daily lives, their families, their grief, and their witness to the world. The songs we choose are not just for Sunday. They are forming disciples.</p>
-          <p style={{ fontSize: 15, fontWeight: 300, color: '#4A5568', lineHeight: 1.85, marginBottom: 20 }}>WorshipLens grew out of a weekly discipline I had quietly practiced for years before it ever became a platform. Every week, before leading my congregation, I would trace the theological roots of each song, study its place in the broader landscape of worship music, and ask whether its lyrics could truly bear the weight of congregational proclamation. Over time that weekly preparation deepened into something larger than preparation. WorshipLens is the fruit of that journey. Songs shape theology. Leaders shape culture. The platform exists to ensure both are built on solid ground.</p>
-          <p style={{ fontSize: 15, fontWeight: 300, color: '#4A5568', lineHeight: 1.85, marginBottom: 20 }}>As a classically trained violinist, pianist, composer and arranger, I have written songs, cantatas, and musicals, and regularly create arrangements for worship services and special productions, because I believe music is one of God's most extraordinary gifts to humanity, a language that transcends culture and helps carry the Gospel further.</p>
-          <p style={{ fontSize: 15, fontWeight: 300, color: '#4A5568', lineHeight: 1.85, marginBottom: 20 }}>Throughout my career I have served bivocationally, bringing the same creative discipline to my professional life that I bring to the platform of worship. But worship is my primary calling. It shapes how I celebrate, grieve, create, and what I hope for.</p>
-          <p style={{ fontSize: 15, fontWeight: 300, color: '#4A5568', lineHeight: 1.85, marginBottom: 20 }}>The conversation around worship music is one the Church has never fully resolved, and perhaps never will. Since the earliest centuries of gathered worship, Christians have debated what is appropriate, what is reverent, and what belongs in the sanctuary. Hymns were once the radical departure. Gospel, Southern Gospel, contemporary Christian music, modern hymns, praise choruses, and the countless genres that have followed each carried their own season of controversy. The arguments are familiar: this song is too repetitive, that lyric is grammatically imprecise, this genre feels too informal, that style belongs to the world. These are not new objections. They have simply worn new clothes in every generation.</p>
-          <p style={{ fontSize: 15, fontWeight: 300, color: '#4A5568', lineHeight: 1.85, marginBottom: 20 }}>But underneath every one of them is a question worth asking honestly: is this personal preference masquerading as theological conviction? We were designed to worship. God created every genre. And while man is imperfect and the songs he writes will always carry that imperfection, the more urgent question is not whether a lyric or style is polished, but whether the song, at its center, points to the truth, the way, and the life. Whether it glorifies God. Whether it opens the heart to encounter the risen Christ. That is the standard. Everything else is a conversation worth having with humility.</p>
-          <div style={{ borderTop: '0.5px solid #E2E8F0', paddingTop: 24, marginTop: 8 }}>
-            <p style={{ fontSize: 15, fontWeight: 300, color: '#4A5568', lineHeight: 1.85, marginBottom: 8 }}>Ludwingk Rios currently serves as Worship Minister at First Baptist Church Cedar Hill, Texas, where he has served for nearly five years. He and his wife Kellee have been married for 21 years. Both are Baylor alumni who met in church. Kellee teaches the pre-teen Bible study and is a Registered Nurse. Their children, Elizabeth and Ethan, are both active in music and kids ministries at the church. For the Rios family, worship is not a Sunday morning activity. It is the center of everything.</p>
-            <p style={{ fontSize: 15, fontWeight: 600, color: '#0D1B2A', fontStyle: 'italic' }}>Ludwingk Rios</p>
-          </div>
+          <SectionHeading eyebrow="The Tension" title="The Worship Dilemma" />
+          <p style={{ ...BODY, marginBottom: 16 }}>
+            The conversation around worship music is one the Church has never fully resolved, and perhaps never will. Since the earliest centuries of gathered worship, Christians have debated what is appropriate, what is reverent, and what belongs in the sanctuary. Hymns were once the radical departure. Gospel, Southern Gospel, contemporary Christian music, modern hymns, praise choruses, and the countless genres that have followed each carried their own season of controversy. The arguments are familiar: this song is too repetitive, that lyric is grammatically imprecise, this genre feels too informal, that style belongs to the world. These are not new objections. They have simply worn new clothes in every generation.
+          </p>
+          <p style={{ ...BODY, marginBottom: 0 }}>
+            But underneath every one of them is a question worth asking honestly: is this personal preference masquerading as theological conviction? We were designed to worship. God created every genre. And while man is imperfect and the songs he writes will always carry that imperfection, the more urgent question is not whether a lyric or style is polished, but whether the song, at its center, points to the truth, the way, and the life. Whether it glorifies God. Whether it opens the heart to encounter the risen Christ. That is the standard. Everything else is a conversation worth having with humility.
+          </p>
         </div>
       </section>
 
