@@ -47,6 +47,7 @@ type RecentSong = {
 type HeroSong = {
   id: string; slug: string; title: string; artist: string
   overall_score: number; score_color: string; lenses: any; created_at: string
+  youtube_url?: string | null
 }
 export default function HomePage() {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -72,7 +73,7 @@ export default function HomePage() {
       setRecentSongs(mixed.length >= 4 ? mixed.slice(0, 6) : clean.slice(0, 6))
     })
     // Hero: newest reviews, deduped by base title (strip parentheticals)
-    supabase.from('songs').select('id, slug, title, artist, overall_score, score_color, lenses, created_at').not('overall_score', 'is', null).not('lenses', 'is', null).order('created_at', { ascending: false }).limit(40).then(({ data }) => {
+    supabase.from('songs').select('id, slug, title, artist, overall_score, score_color, lenses, created_at, youtube_url').not('overall_score', 'is', null).not('lenses', 'is', null).not('title', 'in', '("1,000 Names","A Thousand Thank Yous","All I Need Is You")').order('created_at', { ascending: false }).limit(40).then(({ data }) => {
       if (!data) return
       const baseTitle = (t: string) => t.toLowerCase().replace(/\s*\(.*?\)\s*/g, '').trim()
       const seen = new Set<string>()
@@ -214,7 +215,7 @@ export default function HomePage() {
               <Link className="cta-ghost" href="/scoring-philosophy" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13.5, fontWeight: 400, color: 'rgba(255,255,255,0.5)', textDecoration: 'none' }}>How scoring works →</Link>
             </div>
             <div className="fade-up" style={{ animationDelay: '0.28s', display: 'flex', gap: 36, marginTop: 40, paddingTop: 26, borderTop: '0.5px solid rgba(255,255,255,0.1)' }}>
-              {[[songCount !== null ? String(songCount) : '...', 'Songs reviewed'], ['5', 'Theological lenses'], ['Biblical', 'Every review']].map(([num, label]) => (
+              {[[songCount !== null ? String(songCount) : '1,000+', 'Songs reviewed'], ['5', 'Theological lenses'], ['Biblical', 'Every review']].map(([num, label]) => (
                 <div key={label}>
                   <div style={{ fontSize: 24, fontWeight: 600, color: '#ffffff', letterSpacing: '-0.03em' }}>{num}</div>
                   <div style={{ fontSize: 10, fontWeight: 300, color: 'rgba(255,255,255,0.38)', letterSpacing: '0.03em', marginTop: 3 }}>{label}</div>
@@ -233,7 +234,18 @@ export default function HomePage() {
                         <p style={{ fontSize: 14, fontWeight: 600, color: '#0D1B2A', letterSpacing: '-0.01em', marginBottom: 3, maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{currentHero.title}</p>
                         <p style={{ fontSize: 11, fontWeight: 300, color: '#7A8A9A', maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const }}>{currentHero.artist}</p>
                       </div>
-                      <span style={{ fontSize: 9, fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase' as const, color: BLUE, padding: '4px 8px', background: 'rgba(0,181,255,0.1)', borderRadius: 6, flexShrink: 0 }}>Live</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+                        {currentHero.youtube_url && (
+                          <button
+                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.open(currentHero.youtube_url!, '_blank', 'noopener,noreferrer') }}
+                            aria-label={`Watch ${currentHero.title} on YouTube`}
+                            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 22, height: 22, borderRadius: '50%', background: '#FF0000', border: 'none', cursor: 'pointer', padding: 0, flexShrink: 0 }}
+                          >
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff"><path d="M8 5v14l11-7z" /></svg>
+                          </button>
+                        )}
+                        <span style={{ fontSize: 9, fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase' as const, color: BLUE, padding: '4px 8px', background: 'rgba(0,181,255,0.1)', borderRadius: 6 }}>Live</span>
+                      </div>
                     </div>
                     {heroLenses.map((l, i) => {
                       const pct = `${(l.score / 10) * 100}%`
@@ -316,7 +328,10 @@ export default function HomePage() {
           <p style={{ fontSize: 'clamp(19px, 2.7vw, 26px)', fontWeight: 300, lineHeight: 1.6, letterSpacing: '-0.015em', color: '#0D1B2A' }}>
             If you want to know what a church believes, listen to what it sings. What the Church sings today will shape what the Church believes tomorrow.
           </p>
-          <div style={{ width: 32, height: 2.5, background: `linear-gradient(90deg, ${BLUE}, ${BLUE_SOFT})`, borderRadius: 2, margin: '28px auto 0' }} />
+          <div style={{ width: 32, height: 2.5, background: `linear-gradient(90deg, ${BLUE}, ${BLUE_SOFT})`, borderRadius: 2, margin: '28px auto 20px' }} />
+          <Link href="/about" style={{ fontSize: 13, fontWeight: 400, color: '#7A8A9A', textDecoration: 'none' }}>
+            Ludwingk Rios, Worship Leader and Editor →
+          </Link>
         </div>
       </section>
       <section className="reveal-on-scroll" style={{ padding: '64px 24px', borderBottom: '0.5px solid #E8EDF2' }}>
