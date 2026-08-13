@@ -162,7 +162,7 @@ export default function HomePage() {
         }
         @media (max-width: 680px) {
           .hero-grid { grid-template-columns: 1fr !important; }
-          .hero-card-wrap { display: none !important; }
+          .hero-card-wrap { align-items: center !important; margin-top: 8px; }
           .desktop-nav-links { display: none !important; }
           .hamburger-btn { display: flex !important; }
           .lens-tag { display: none; }
@@ -225,8 +225,8 @@ export default function HomePage() {
           </div>
           <div className="hero-card-wrap fade-up" style={{ animationDelay: '0.24s', display: 'flex', flexDirection: 'column' as const, alignItems: 'flex-end', gap: 14 }}>
             {currentHero ? (
-              <Link href={'/songs/' + (currentHero.slug || currentHero.id)} style={{ textDecoration: 'none', width: 300 }}>
-                <div className="hero-card" style={{ position: 'relative', background: 'linear-gradient(180deg, #FFFFFF 0%, #F1F6FB 100%)', borderRadius: 16, padding: '20px', width: 300 }}>
+              <Link href={'/songs/' + (currentHero.slug || currentHero.id)} style={{ textDecoration: 'none', width: '100%', maxWidth: 300 }}>
+                <div className="hero-card" style={{ position: 'relative', background: 'linear-gradient(180deg, #FFFFFF 0%, #F1F6FB 100%)', borderRadius: 16, padding: '20px', width: '100%', maxWidth: 300 }}>
                   <div aria-hidden style={{ position: 'absolute', inset: 0, borderRadius: 16, padding: 1, background: 'linear-gradient(180deg, rgba(255,255,255,0.9), rgba(0,181,255,0.15))', WebkitMask: 'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)', WebkitMaskComposite: 'xor', maskComposite: 'exclude', pointerEvents: 'none' }} />
                   <div className="hero-card-inner" style={{ opacity: heroVisible ? 1 : 0 }}>
                     <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 }}>
@@ -272,10 +272,10 @@ export default function HomePage() {
                 </div>
               </Link>
             ) : (
-              <div className="hero-card" style={{ background: 'linear-gradient(180deg, #FFFFFF 0%, #F1F6FB 100%)', borderRadius: 16, padding: '20px', width: 300, minHeight: 280 }} />
+              <div className="hero-card" style={{ background: 'linear-gradient(180deg, #FFFFFF 0%, #F1F6FB 100%)', borderRadius: 16, padding: '20px', width: '100%', maxWidth: 300, minHeight: 280 }} />
             )}
             {heroSongs.length > 1 && (
-              <div style={{ display: 'flex', gap: 6, justifyContent: 'center', width: 300 }}>
+              <div style={{ display: 'flex', gap: 6, justifyContent: 'center', width: '100%', maxWidth: 300 }}>
                 {heroSongs.map((_, i) => (
                   <button key={i} className={`hero-dot${i === heroIndex ? ' active' : ''}`} onClick={() => { setHeroVisible(false); setTimeout(() => { setHeroIndex(i); setHeroVisible(true) }, 400) }} aria-label={`Song ${i + 1}`} />
                 ))}
