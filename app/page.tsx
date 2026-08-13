@@ -58,6 +58,8 @@ export default function HomePage() {
   const [heroIndex, setHeroIndex] = useState(0)
   const [heroVisible, setHeroVisible] = useState(true)
   const heroTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const touchStartXRef = useRef<number | null>(null)
+  const didSwipeRef = useRef(false)
   useEffect(() => {
     supabase.from('songs').select('id', { count: 'exact', head: true }).then(({ count }) => { if (count !== null) setSongCount(count) })
     supabase.from('songs').select('id, slug, title, artist, overall_score, score_color, lenses').order('created_at', { ascending: false }).limit(12).then(({ data }) => {
@@ -223,9 +225,32 @@ export default function HomePage() {
               ))}
             </div>
           </div>
-          <div className="hero-card-wrap fade-up" style={{ animationDelay: '0.24s', display: 'flex', flexDirection: 'column' as const, alignItems: 'flex-end', gap: 14 }}>
+          <div
+            className="hero-card-wrap fade-up"
+            style={{ animationDelay: '0.24s', display: 'flex', flexDirection: 'column' as const, alignItems: 'flex-end', gap: 14 }}
+            onTouchStart={(e) => { touchStartXRef.current = e.touches[0].clientX; didSwipeRef.current = false }}
+            onTouchMove={(e) => {
+              if (touchStartXRef.current === null) return
+              if (Math.abs(e.touches[0].clientX - touchStartXRef.current) > 10) didSwipeRef.current = true
+            }}
+            onTouchEnd={(e) => {
+              if (touchStartXRef.current === null || heroSongs.length < 2) return
+              const dx = e.changedTouches[0].clientX - touchStartXRef.current
+              touchStartXRef.current = null
+              if (Math.abs(dx) > 40) {
+                const dir = dx < 0 ? 1 : -1
+                const next = (heroIndex + dir + heroSongs.length) % heroSongs.length
+                setHeroVisible(false)
+                setTimeout(() => { setHeroIndex(next); setHeroVisible(true) }, 400)
+              }
+            }}
+          >
             {currentHero ? (
-              <Link href={'/songs/' + (currentHero.slug || currentHero.id)} style={{ textDecoration: 'none', width: '100%', maxWidth: 300 }}>
+              <Link
+                href={'/songs/' + (currentHero.slug || currentHero.id)}
+                style={{ textDecoration: 'none', width: '100%', maxWidth: 300 }}
+                onClick={(e) => { if (didSwipeRef.current) { e.preventDefault(); didSwipeRef.current = false } }}
+              >
                 <div className="hero-card" style={{ position: 'relative', background: 'linear-gradient(180deg, #FFFFFF 0%, #F1F6FB 100%)', borderRadius: 16, padding: '20px', width: '100%', maxWidth: 300 }}>
                   <div aria-hidden style={{ position: 'absolute', inset: 0, borderRadius: 16, padding: 1, background: 'linear-gradient(180deg, rgba(255,255,255,0.9), rgba(0,181,255,0.15))', WebkitMask: 'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)', WebkitMaskComposite: 'xor', maskComposite: 'exclude', pointerEvents: 'none' }} />
                   <div className="hero-card-inner" style={{ opacity: heroVisible ? 1 : 0 }}>
