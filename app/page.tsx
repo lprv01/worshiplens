@@ -73,7 +73,7 @@ export default function HomePage() {
       setRecentSongs(mixed.length >= 4 ? mixed.slice(0, 6) : clean.slice(0, 6))
     })
     // Hero: newest reviews, deduped by base title (strip parentheticals)
-    supabase.from('songs').select('id, slug, title, artist, overall_score, score_color, lenses, created_at, youtube_url').not('overall_score', 'is', null).not('lenses', 'is', null).not('title', 'in', '("1,000 Names","A Thousand Thank Yous","All I Need Is You")').order('created_at', { ascending: false }).limit(40).then(({ data }) => {
+    supabase.from('songs').select('id, slug, title, artist, overall_score, score_color, lenses, created_at, youtube_url').not('overall_score', 'is', null).not('lenses', 'is', null).not('title', 'in', '("1,000 Names","A Thousand Thank Yous","All I Need Is You","Anthem")').order('created_at', { ascending: false }).limit(40).then(({ data }) => {
       if (!data) return
       const baseTitle = (t: string) => t.toLowerCase().replace(/\s*\(.*?\)\s*/g, '').trim()
       const seen = new Set<string>()
