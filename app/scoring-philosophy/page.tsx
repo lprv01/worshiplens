@@ -31,8 +31,81 @@ function LogoWhite({ height = 22 }: { height?: number }) {
   )
 }
 
-export default function AboutPage() {
+const lenses = [
+  {
+    num: '01',
+    name: 'Scriptural fidelity',
+    desc: 'Biblical accuracy and alignment. Flags Word of Faith language, vague universalism, or elevation of personal experience over Scripture. Checks whether lyric fragments are rooted in specific texts or theologically unmoored.',
+  },
+  {
+    num: '02',
+    name: 'Theological clarity',
+    desc: 'The Radio Test. Could a secular station play this without knowing it is worship? Evaluates whether the object of worship is unmistakably the God of Scripture and whether the theological arc holds across the whole song.',
+  },
+  {
+    num: '03',
+    name: 'Congregational singability',
+    desc: 'Practical accessibility for untrained voices. Ideal range A3-D5. Notes original key and recommends transposition where needed. Evaluates melody learnability and whether the song rewards congregational participation.',
+  },
+  {
+    num: '04',
+    name: 'Poetic and lyrical quality',
+    desc: 'Grammar, repetition ratio, cliche density, imagery quality, and congregational voice distribution (individual vs. corporate). Songs that carry theological weight in their words, not just their melody, score highest.',
+  },
+  {
+    num: '05',
+    name: 'Defense brief',
+    desc: 'How defensible is this song in a real congregation? Addresses 2-3 likely objections with Scripture-based responses, honest concessions, and suggested framing. A high score means a worship leader can stand behind this song with confidence.',
+  },
+]
+
+const objectionTypes = [
+  {
+    type: 'Style and tolerance',
+    color: BLUE,
+    bgColor: 'rgba(0,181,255,0.08)',
+    quote: 'The repetition is more than I can assimilate into my worship experience. It taxes my heart.',
+    explanation: 'A valid personal experience, not a theological objection. Repetition has deep biblical precedent (Psalm 136 repeats its refrain 26 times; Revelation 4:8 describes heaven singing the same phrase day and night). WorshipLens does not score lower because some people find repetition difficult. The defense brief acknowledges the experience and places responsibility with the worship leader to contextualize for their congregation.',
+  },
+  {
+    type: 'Linguistic register',
+    color: '#C47B0E',
+    bgColor: 'rgba(196,123,14,0.08)',
+    quote: 'As a linguist, this phrasing bothers me. We would never actually say it this way in conversation.',
+    explanation: 'An academically trained person applying conversational language standards to liturgical text. Worship language has always operated at a higher register than everyday speech. Person-shifting (third to second person, addressing both God and the congregation in the same breath) is a recognized Psalmic convention found in Psalm 22, 42, and 103. The observation is technically defensible in isolation. The theological conclusion drawn from it usually is not.',
+  },
+  {
+    type: 'Embedded implication',
+    color: '#8B3010',
+    bgColor: 'rgba(139,48,16,0.08)',
+    quote: 'This phrasing implies there is a schedule God is required to meet. That seems theologically off.',
+    explanation: 'The objection WorshipLens takes most seriously. A linguistic observation sometimes surfaces a real theological tension underneath. These are examined carefully under Theological Clarity and Scriptural Fidelity. If a phrase genuinely misrepresents the character of God it is noted and scored accordingly. If it is a familiar idiom that functions within its intended meaning, it is acknowledged proportionally and never elevated beyond what it actually is.',
+  },
+]
+
+const whatItIsNot = [
+  'WorshipLens does not tell worship leaders what to sing. It equips them to make informed decisions. A song scoring 6.8 may be exactly right for a specific congregation in a specific season.',
+  'WorshipLens does not evaluate musical performance, production quality, or stylistic preference. A song is not penalized for being contemporary, for having a simple chord structure, or for being associated with a particular worship movement.',
+  'Reviews reflect a stated theological perspective, rooted in Scripture. A song scoring lower here may score differently through another tradition\'s lens, and that is appropriate. The perspective is stated, not hidden.',
+  'WorshipLens does not condemn songwriters. The analysis never includes the songwriter\'s name in any evaluative context. Songs are examined for what they communicate to a congregation, not for the character or intent of the person who wrote them.',
+]
+
+const quotationTiers = [
+  { num: '01', title: 'Scripture-origin fragments', desc: 'Quoted freely with immediate biblical citation. These fragments belong to Scripture, not the songwriter. The analysis is pointing through the lyric back to its source.' },
+  { num: '02', title: 'Paraphrase fragments', desc: 'The songwriter\'s rendering of a biblical concept. Quoted to show the parallel and evaluate the fidelity of the paraphrase. This is the core of WorshipLens analysis and sits squarely within theological commentary.' },
+  { num: '03', title: 'Original lyrical phrases', desc: 'The songwriter\'s own creative expression. Used sparingly and only when the phrase itself is the specific point under examination.' },
+]
+
+const scoreBands = [
+  { range: '8.0 to 10.0', label: 'Recommended', color: '#2A6010', bar: '#4A8B2A', desc: 'Strong across all lenses. Use with confidence. Any deductions are minor and named.' },
+  { range: '6.5 to 7.9', label: 'Recommended with notes', color: '#7A5010', bar: '#C47B0E', desc: 'Good theological foundation. Specific areas need pastoral attention before use.' },
+  { range: '5.0 to 6.4', label: 'Use with caution', color: '#8B3010', bar: '#C45020', desc: 'Real concerns are present. The defense brief is essential reading before leading this song.' },
+  { range: 'Below 5.0', label: 'Not recommended', color: '#8B1010', bar: '#C42020', desc: 'Theological or lyrical issues outweigh the song\'s congregational value.' },
+]
+
+export default function ScoringPhilosophyPage() {
   const [menuOpen, setMenuOpen] = useState(false)
+  const [openObj, setOpenObj] = useState<number | null>(null)
 
   return (
     <div style={{ fontFamily: "'Sora', sans-serif", background: '#ffffff', color: '#0D1B2A' }}>
@@ -55,9 +128,15 @@ export default function AboutPage() {
           background: ${NAVY}; border-top: 0.5px solid rgba(255,255,255,0.08);
         }
         .mobile-menu.open { max-height: 280px; }
+        .obj-detail {
+          max-height: 0; overflow: hidden; opacity: 0;
+          transition: max-height 0.35s ease, opacity 0.25s ease;
+        }
+        .obj-detail.open { max-height: 400px; opacity: 1; }
         @media (max-width: 680px) {
           .desktop-nav-links { display: none !important; }
           .hamburger-btn { display: flex !important; }
+          .score-bands-grid { grid-template-columns: 1fr !important; }
         }
         @media (min-width: 681px) {
           .hamburger-btn { display: none !important; }
@@ -73,7 +152,7 @@ export default function AboutPage() {
           </Link>
           <div className="desktop-nav-links" style={{ display: 'flex', gap: 28, alignItems: 'center' }}>
             <Link href="/songs" style={{ fontSize: 13, fontWeight: 400, color: 'rgba(255,255,255,0.55)', textDecoration: 'none' }}>Songs</Link>
-            <Link href="/about" style={{ fontSize: 13, fontWeight: 500, color: '#ffffff', textDecoration: 'none' }}>About</Link>
+            <Link href="/about" style={{ fontSize: 13, fontWeight: 400, color: 'rgba(255,255,255,0.55)', textDecoration: 'none' }}>About</Link>
             <Link href="/scoring-philosophy" style={{ fontSize: 13, fontWeight: 500, color: '#ffffff', textDecoration: 'none' }}>Scoring Philosophy</Link>
           </div>
           <button
@@ -106,90 +185,209 @@ export default function AboutPage() {
         <div style={{ maxWidth: 720, margin: '0 auto' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: BLUE, marginBottom: 16 }}>
             <span style={{ width: 5, height: 5, background: BLUE, borderRadius: '50%', display: 'inline-block' }} />
-            About WorshipLens
+            How WorshipLens scores songs
           </div>
           <h1 style={{ fontSize: 'clamp(28px, 4vw, 42px)', fontWeight: 600, color: '#ffffff', lineHeight: 1.1, letterSpacing: '-0.04em', marginBottom: 16 }}>
-            A tool built for the<br />leaders <span style={{ color: BLUE, fontWeight: 300 }}>in the room.</span>
+            Scoring <span style={{ color: BLUE, fontWeight: 300 }}>Philosophy</span>
           </h1>
           <p style={{ fontSize: 15, fontWeight: 300, color: 'rgba(255,255,255,0.5)', lineHeight: 1.7, maxWidth: 560 }}>
-            How every song is measured. Five lenses, plain language, one honest score.
+            Every deduction is traceable. Every score means something specific. Here is exactly how WorshipLens evaluates worship songs and why.
           </p>
         </div>
       </section>
 
-      {/* WHAT IT DOES */}
+      {/* NO PERFECT SONG */}
       <section style={{ padding: '52px 24px', borderBottom: '0.5px solid #E8EDF2' }}>
         <div style={{ maxWidth: 720, margin: '0 auto' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: BLUE, marginBottom: 20 }}>
             <span style={{ width: 5, height: 5, background: BLUE, borderRadius: '50%', display: 'inline-block' }} />
-            What WorshipLens does
+            Core conviction
           </div>
+          <h2 style={{ fontSize: 'clamp(22px, 3vw, 30px)', fontWeight: 600, color: '#0D1B2A', letterSpacing: '-0.03em', marginBottom: 16 }}>No song is a perfect song</h2>
           <p style={{ fontSize: 15, fontWeight: 300, color: '#4A5568', lineHeight: 1.75, marginBottom: 16 }}>
-            WorshipLens evaluates the theology and lyrical quality of worship songs through a biblical lens. Each song is reviewed for scriptural fidelity, theological clarity, singability, and poetic strength, with a written defense explaining the evaluation.
+            A 10/10 across all five lenses would require a song that is simultaneously beyond theological critique, universally singable, poetically flawless, and in need of zero pastoral defense. That song does not exist. And probably should not.
+          </p>
+          <p style={{ fontSize: 15, fontWeight: 300, color: '#4A5568', lineHeight: 1.75, marginBottom: 16 }}>
+            A 10 in any individual lens is possible and means beyond reasonable critique in that dimension. An overall 10/10 is unreachable by design because the musical and poetic lenses carry inherent subjectivity. No melody suits every voice. No congregation is universal.
           </p>
           <p style={{ fontSize: 15, fontWeight: 300, color: '#4A5568', lineHeight: 1.75, marginBottom: 24 }}>
-            The goal is simple: to help worship leaders and churches choose songs that faithfully reflect the truth of Scripture.
+            This is a feature of the framework, not a limitation. A 9.4 from WorshipLens carries more weight than a perfect score from a narrower rubric because it survived more scrutiny. Every deduction is named. Vague reductions are not permitted.
           </p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
-            {[
-              { num: '01', name: 'Scriptural fidelity', desc: 'Does it align with Scripture?' },
-              { num: '02', name: 'Theological clarity', desc: 'The Radio Test' },
-              { num: '03', name: 'Singability', desc: 'Range A3-D5, congregational fit' },
-              { num: '04', name: 'Poetic quality', desc: 'Imagery, grammar, lyric depth' },
-              { num: '05', name: 'Defense brief', desc: 'Objections and Scripture responses' },
-            ].map(l => (
-              <div key={l.num} style={{ background: '#F7F9FC', border: '0.5px solid #E2E8F0', borderRadius: 10, padding: '14px 16px' }}>
-                <div style={{ fontSize: 10, color: '#9AA4AF', marginBottom: 4 }}>{l.num}</div>
-                <div style={{ fontSize: 13, fontWeight: 500, color: '#0D1B2A', marginBottom: 3 }}>{l.name}</div>
-                <div style={{ fontSize: 12, fontWeight: 300, color: '#7A8A9A' }}>{l.desc}</div>
+          <div style={{ borderLeft: `3px solid ${BLUE}`, paddingLeft: 20 }}>
+            <p style={{ fontSize: 16, fontWeight: 500, color: '#0D1B2A', lineHeight: 1.6, letterSpacing: '-0.01em' }}>
+              Every worship song was written by an imperfect human being. The question is never whether a song has limitations. The question is whether those limitations disqualify it from doing what congregational worship songs are meant to do: direct the hearts of God&apos;s people toward Him.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* SCORE BANDS */}
+      <section style={{ padding: '52px 24px', background: '#F7F9FC', borderBottom: '0.5px solid #E8EDF2' }}>
+        <div style={{ maxWidth: 720, margin: '0 auto' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: BLUE, marginBottom: 20 }}>
+            <span style={{ width: 5, height: 5, background: BLUE, borderRadius: '50%', display: 'inline-block' }} />
+            Score bands
+          </div>
+          <h2 style={{ fontSize: 'clamp(20px, 3vw, 28px)', fontWeight: 600, color: '#0D1B2A', letterSpacing: '-0.03em', marginBottom: 20 }}>What the numbers mean</h2>
+          <p style={{ fontSize: 15, fontWeight: 300, color: '#4A5568', lineHeight: 1.75, marginBottom: 24 }}>
+            Scores are not grades. A 7.2 is not a C. It means the song has genuine value and genuine limitations, both of which are named in the review.
+          </p>
+          <div className="score-bands-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            {scoreBands.map(band => (
+              <div key={band.range} style={{ background: '#ffffff', border: '0.5px solid #E2E8F0', borderRadius: 10, padding: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                  <div style={{ width: 10, height: 10, borderRadius: '50%', background: band.bar, flexShrink: 0 }} />
+                  <span style={{ fontSize: 12, fontWeight: 600, color: band.color }}>{band.range}</span>
+                </div>
+                <div style={{ fontSize: 13, fontWeight: 500, color: '#0D1B2A', marginBottom: 6 }}>{band.label}</div>
+                <div style={{ fontSize: 12, fontWeight: 300, color: '#7A8A9A', lineHeight: 1.6 }}>{band.desc}</div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* WHY IT EXISTS */}
+      {/* FIVE LENSES */}
+      <section style={{ padding: '52px 24px', borderBottom: '0.5px solid #E8EDF2' }}>
+        <div style={{ maxWidth: 720, margin: '0 auto' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: BLUE, marginBottom: 20 }}>
+            <span style={{ width: 5, height: 5, background: BLUE, borderRadius: '50%', display: 'inline-block' }} />
+            The five lenses
+          </div>
+          <h2 style={{ fontSize: 'clamp(20px, 3vw, 28px)', fontWeight: 600, color: '#0D1B2A', letterSpacing: '-0.03em', marginBottom: 20 }}>What each lens measures</h2>
+          <p style={{ fontSize: 15, fontWeight: 300, color: '#4A5568', lineHeight: 1.75, marginBottom: 24 }}>
+            All five lenses are weighted equally. A song that scores brilliantly on theology but is unsingable by a real congregation is not fully serving its purpose.
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 10 }}>
+            {lenses.map(lens => (
+              <div key={lens.num} style={{ background: '#F7F9FC', border: '0.5px solid #E2E8F0', borderRadius: 10, padding: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+                  <span style={{ fontSize: 11, color: '#9AA4AF', fontWeight: 400 }}>{lens.num}</span>
+                  <span style={{ fontSize: 14, fontWeight: 500, color: '#0D1B2A' }}>{lens.name}</span>
+                </div>
+                <p style={{ fontSize: 13, fontWeight: 300, color: '#4A5568', lineHeight: 1.7 }}>{lens.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* THREE OBJECTION TYPES */}
       <section style={{ padding: '52px 24px', background: '#F7F9FC', borderBottom: '0.5px solid #E8EDF2' }}>
         <div style={{ maxWidth: 720, margin: '0 auto' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: BLUE, marginBottom: 20 }}>
             <span style={{ width: 5, height: 5, background: BLUE, borderRadius: '50%', display: 'inline-block' }} />
-            Why WorshipLens exists
+            The defense brief
           </div>
-          <p style={{ fontSize: 15, fontWeight: 300, color: '#4A5568', lineHeight: 1.75, marginBottom: 16 }}>
-            Worship leaders have long wrestled with the tension created by the ever-changing styles and expectations of worship within the church. Over time, however, many have come to recognize that when our focus shifts away from style and back toward truth, worship begins to take its rightful place.
+          <h2 style={{ fontSize: 'clamp(20px, 3vw, 28px)', fontWeight: 600, color: '#0D1B2A', letterSpacing: '-0.03em', marginBottom: 16 }}>Three types of congregant objections</h2>
+          <p style={{ fontSize: 15, fontWeight: 300, color: '#4A5568', lineHeight: 1.75, marginBottom: 24 }}>
+            Most objections that surface in a real congregation fall into one of three categories. Recognizing which type you are facing changes how you respond.
           </p>
+          <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 10 }}>
+            {objectionTypes.map((obj, i) => (
+              <div key={i} style={{ background: '#ffffff', border: '0.5px solid #E2E8F0', borderRadius: 10, overflow: 'hidden' }}>
+                <button
+                  onClick={() => setOpenObj(prev => prev === i ? null : i)}
+                  style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '16px 20px', width: '100%', background: 'none', border: 'none', textAlign: 'left' as const, fontFamily: "'Sora', sans-serif", cursor: 'pointer' }}
+                >
+                  <div style={{ width: 10, height: 10, borderRadius: '50%', background: obj.color, flexShrink: 0 }} />
+                  <span style={{ fontSize: 14, fontWeight: 500, color: '#0D1B2A', flex: 1 }}>{obj.type}</span>
+                  <svg style={{ width: 14, height: 14, color: '#9AA4AF', transition: 'transform 0.2s', transform: openObj === i ? 'rotate(180deg)' : 'none', flexShrink: 0 }} viewBox="0 0 16 16" fill="none">
+                    <path d="M3.5 6L8 10.5L12.5 6" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </button>
+                <div className={`obj-detail${openObj === i ? ' open' : ''}`}>
+                  <div style={{ padding: '0 20px 20px' }}>
+                    <div style={{ background: obj.bgColor, borderLeft: `3px solid ${obj.color}`, padding: '10px 14px', borderRadius: '0 6px 6px 0', marginBottom: 14 }}>
+                      <p style={{ fontSize: 13, fontWeight: 400, color: '#0D1B2A', lineHeight: 1.6, fontStyle: 'italic' as const }}>&ldquo;{obj.quote}&rdquo;</p>
+                    </div>
+                    <p style={{ fontSize: 14, fontWeight: 300, color: '#4A5568', lineHeight: 1.75 }}>{obj.explanation}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* GRAMMAR PRINCIPLE */}
+      <section style={{ padding: '52px 24px', borderBottom: '0.5px solid #E8EDF2' }}>
+        <div style={{ maxWidth: 720, margin: '0 auto' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: BLUE, marginBottom: 20 }}>
+            <span style={{ width: 5, height: 5, background: BLUE, borderRadius: '50%', display: 'inline-block' }} />
+            Editorial principle
+          </div>
+          <h2 style={{ fontSize: 'clamp(20px, 3vw, 28px)', fontWeight: 600, color: '#0D1B2A', letterSpacing: '-0.03em', marginBottom: 16 }}>Grammar in context</h2>
           <p style={{ fontSize: 15, fontWeight: 300, color: '#4A5568', lineHeight: 1.75, marginBottom: 16 }}>
-            Too often congregations find themselves divided by preferences and stylistic debates. When worship becomes framed primarily through the lens of style, those preferences can quietly distract us from the deeper purpose of worship itself.
+            Grammatical observations are noted where they exist, but their severity is always evaluated in the context of how the song actually functions in congregational worship, not how it would read under forensic linguistic analysis.
           </p>
-          <div style={{ borderLeft: `3px solid ${BLUE}`, paddingLeft: 20, margin: '28px 0' }}>
-            <p style={{ fontSize: 16, fontWeight: 500, color: '#0D1B2A', lineHeight: 1.6, letterSpacing: '-0.01em' }}>
-              "What we sing shapes what we believe. WorshipLens exists to make that conviction actionable."
+          <p style={{ fontSize: 15, fontWeight: 300, color: '#4A5568', lineHeight: 1.75, marginBottom: 24 }}>
+            Person-shifting within a song, such as addressing the soul, then God, then the congregation within the same verse, is not a lyrical flaw. It is a Psalmic convention with three thousand years of liturgical precedent. Psalm 103, Psalm 22, and Psalm 42 all do exactly this. A minor pronoun ambiguity that has never once misdirected worship in practice is a minor pronoun ambiguity and nothing more.
+          </p>
+          <div style={{ background: '#0D1B2A', borderRadius: 10, padding: '20px 24px' }}>
+            <p style={{ fontSize: 16, fontWeight: 500, color: '#ffffff', lineHeight: 1.6, letterSpacing: '-0.01em' }}>
+              The goal is equipping worship leaders, not winning a grammar argument.
             </p>
           </div>
-          <p style={{ fontSize: 15, fontWeight: 300, color: '#4A5568', lineHeight: 1.75, marginBottom: 16 }}>
-            This tool was built from the inside, by a working music minister, for working music ministers. Every review is written with a pastoral posture: not to condemn songs or their writers, but to equip leaders with the clarity and language to make confident, defensible decisions.
+        </div>
+      </section>
+
+      {/* LYRIC QUOTATION */}
+      <section style={{ padding: '52px 24px', background: '#F7F9FC', borderBottom: '0.5px solid #E8EDF2' }}>
+        <div style={{ maxWidth: 720, margin: '0 auto' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: BLUE, marginBottom: 20 }}>
+            <span style={{ width: 5, height: 5, background: BLUE, borderRadius: '50%', display: 'inline-block' }} />
+            Lyric quotation
+          </div>
+          <h2 style={{ fontSize: 'clamp(20px, 3vw, 28px)', fontWeight: 600, color: '#0D1B2A', letterSpacing: '-0.03em', marginBottom: 16 }}>How fragments are used in reviews</h2>
+          <p style={{ fontSize: 15, fontWeight: 300, color: '#4A5568', lineHeight: 1.75, marginBottom: 24 }}>
+            WorshipLens never reproduces full lyrics. Fragments are evidence, not decoration. Each appears only to support a specific theological observation.
           </p>
-          <p style={{ fontSize: 15, fontWeight: 300, color: '#4A5568', lineHeight: 1.75 }}>
-            And at the center of it all is a simple reminder: worship is not ultimately about us. It is about Him. Sing to the audience of One.
-          </p>
+          <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 10 }}>
+            {quotationTiers.map(tier => (
+              <div key={tier.num} style={{ background: '#ffffff', border: '0.5px solid #E2E8F0', borderRadius: 10, padding: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+                  <span style={{ fontSize: 11, color: '#9AA4AF' }}>{tier.num}</span>
+                  <span style={{ fontSize: 14, fontWeight: 500, color: '#0D1B2A' }}>{tier.title}</span>
+                </div>
+                <p style={{ fontSize: 13, fontWeight: 300, color: '#4A5568', lineHeight: 1.7 }}>{tier.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* WHAT WORSHIPLENS IS NOT */}
+      <section style={{ padding: '52px 24px', borderBottom: '0.5px solid #E8EDF2' }}>
+        <div style={{ maxWidth: 720, margin: '0 auto' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase' as const, color: BLUE, marginBottom: 20 }}>
+            <span style={{ width: 5, height: 5, background: BLUE, borderRadius: '50%', display: 'inline-block' }} />
+            Scope and perspective
+          </div>
+          <h2 style={{ fontSize: 'clamp(20px, 3vw, 28px)', fontWeight: 600, color: '#0D1B2A', letterSpacing: '-0.03em', marginBottom: 16 }}>What WorshipLens is not</h2>
+          <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 12 }}>
+            {whatItIsNot.map((point, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '14px 16px', background: '#F7F9FC', border: '0.5px solid #E2E8F0', borderRadius: 10 }}>
+                <div style={{ width: 6, height: 6, borderRadius: '50%', background: BLUE, flexShrink: 0, marginTop: 6 }} />
+                <p style={{ fontSize: 14, fontWeight: 300, color: '#4A5568', lineHeight: 1.75 }}>{point}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* AUTHOR */}
-      <section style={{ padding: '52px 24px', borderBottom: '0.5px solid #E8EDF2' }}>
-        <div style={{ maxWidth: 720, margin: '0 auto' }}>
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 20 }}>
-            <div style={{ width: 64, height: 64, borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: '2px solid #E2E8F0', background: '#1B3050' }}>
-              <Image src="/headshot.png" alt="Ludwingk Rios" width={64} height={64}
-                style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }} />
-            </div>
-            <div>
-              <div style={{ fontSize: 15, fontWeight: 600, color: '#0D1B2A', letterSpacing: '-0.01em', marginBottom: 2 }}>Ludwingk Rios</div>
-              <div style={{ fontSize: 12, fontWeight: 400, color: '#7A8A9A', marginBottom: 10 }}>Built by a worship leader, for worship leaders</div>
-              <Link href="/about#author-note" style={{ fontSize: 13, color: '#00b5ff', textDecoration: 'none' }}>
-                Read the full note from the author →
-              </Link>
-            </div>
+      <section style={{ padding: '44px 24px', borderBottom: '0.5px solid #E8EDF2' }}>
+        <div style={{ maxWidth: 720, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 16 }}>
+          <div style={{ width: 56, height: 56, borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: '2px solid #E2E8F0', background: '#1B3050' }}>
+            <Image src="/headshot.png" alt="Ludwingk Rios" width={56} height={56} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }} />
+          </div>
+          <div>
+            <div style={{ fontSize: 15, fontWeight: 600, color: '#0D1B2A', letterSpacing: '-0.01em', marginBottom: 2 }}>Ludwingk Rios</div>
+            <div style={{ fontSize: 12, fontWeight: 400, color: '#7A8A9A', marginBottom: 10 }}>Built by a worship leader, for worship leaders</div>
+            <Link href="/about#author-note" style={{ fontSize: 13, color: BLUE, textDecoration: 'none' }}>
+              Read the full note from the author →
+            </Link>
           </div>
         </div>
       </section>
@@ -198,10 +396,10 @@ export default function AboutPage() {
       <section style={{ padding: '52px 24px', background: NAVY }}>
         <div style={{ maxWidth: 720, margin: '0 auto', textAlign: 'center' as const }}>
           <h2 style={{ fontSize: 'clamp(22px, 3vw, 32px)', fontWeight: 600, color: '#ffffff', letterSpacing: '-0.03em', marginBottom: 14 }}>
-            Ready to review your <span style={{ color: BLUE, fontWeight: 300 }}>song list?</span>
+            See the framework <span style={{ color: BLUE, fontWeight: 300 }}>in action</span>
           </h2>
           <p style={{ fontSize: 14, fontWeight: 300, color: 'rgba(255,255,255,0.5)', lineHeight: 1.7, maxWidth: 420, margin: '0 auto 28px' }}>
-            107 songs reviewed and ready. Search by title, filter by score, or browse the full library.
+            Browse the song library and see every lens score, deduction, and defense brief applied to real congregational worship songs.
           </p>
           <Link href="/songs" style={{ display: 'inline-block', fontSize: 13, fontWeight: 500, color: NAVY, background: BLUE, padding: '12px 28px', borderRadius: 8, textDecoration: 'none' }}>
             Browse the Library
