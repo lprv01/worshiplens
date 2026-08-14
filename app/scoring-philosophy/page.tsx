@@ -112,7 +112,7 @@ export default function AboutPage() {
             A tool built for the<br />leaders <span style={{ color: BLUE, fontWeight: 300 }}>in the room.</span>
           </h1>
           <p style={{ fontSize: 15, fontWeight: 300, color: 'rgba(255,255,255,0.5)', lineHeight: 1.7, maxWidth: 560 }}>
-            WorshipLens is a theological worship song review platform built.
+            How every song is measured. Five lenses, plain language, one honest score.
           </p>
         </div>
       </section>
@@ -144,11 +144,6 @@ export default function AboutPage() {
                 <div style={{ fontSize: 12, fontWeight: 300, color: '#7A8A9A' }}>{l.desc}</div>
               </div>
             ))}
-          </div>
-          <div style={{ marginTop: 20 }}>
-            <Link href="/scoring-philosophy" style={{ fontSize: 13, color: BLUE, textDecoration: 'none' }}>
-              Read the full scoring philosophy →
-            </Link>
           </div>
         </div>
       </section>
