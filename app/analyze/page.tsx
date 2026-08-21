@@ -467,8 +467,8 @@ export default function AnalyzePage() {
     return (
       <div style={{ fontFamily: "'Sora', sans-serif", background: NAVY, minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
         <style>{styles}</style>
-        <nav style={{ borderBottom: '0.5px solid rgba(255,255,255,0.08)', padding: '0 24px', height: 56, display: 'flex', alignItems: 'center' }}>
-          <Link href="/" style={{ textDecoration: 'none' }}><LogoWhite height={22} /></Link>
+        <nav style={{ borderBottom: '0.5px solid rgba(255,255,255,0.08)', padding: '0 24px', height: 68, display: 'flex', alignItems: 'center' }}>
+          <Link href="/" style={{ textDecoration: 'none' }}><LogoWhite height={44} /></Link>
         </nav>
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 24px' }}>
           <div style={{ width: '100%', maxWidth: 360 }}>
@@ -505,9 +505,9 @@ export default function AnalyzePage() {
 
       {/* NAV */}
       <nav style={{ borderBottom: '0.5px solid rgba(255,255,255,0.08)', position: 'sticky', top: 0, zIndex: 50, background: NAVY }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', height: 56, maxWidth: 1100, margin: '0 auto' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', height: 68, maxWidth: 1100, margin: '0 auto' }}>
           <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
-            <LogoWhite height={22} />
+            <LogoWhite height={44} />
           </Link>
           <div className="desktop-nav-links" style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
             <Link href="/songs" style={{ fontSize: 13, fontWeight: 400, color: 'rgba(255,255,255,0.45)', textDecoration: 'none' }}>Songs</Link>
@@ -988,9 +988,9 @@ export default function AnalyzePage() {
       </div>
 
       {/* FOOTER */}
-      <footer style={{ borderTop: '0.5px solid rgba(255,255,255,0.08)', padding: '28px 24px' }}>
+      <footer style={{ borderTop: '0.5px solid rgba(255,255,255,0.08)', padding: '40px 24px' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
-          <LogoWhite height={18} />
+          <LogoWhite height={44} />
           <div style={{ display: 'flex', gap: 20 }}>
             <Link href="/songs" style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', textDecoration: 'none' }}>Songs</Link>
             <Link href="/about" style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', textDecoration: 'none' }}>About</Link>

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 const ANALYZE_PASSWORD = process.env.ANALYZE_PASSWORD
+const GUEST_PASSWORD = process.env.GUEST_PASSWORD
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -63,16 +64,36 @@ Generate a complete WorshipLens review as a single valid JSON object. No text ou
 {"meta":{"title":"","artist":"","identified_from_lyrics":false,"suggested_titles":[],"ccli_number":"","slug":"","key_original":"","key_recommended":"","range_original":"","range_recommended":"","time_signature":"","time_signature_source":"recommended","time_signature_reasoning":"","meter_pattern":"","meter_name":"","poetic_foot":"","tempo_bpm":0,"copyright":"","release_year":"","album":"","genre":"","hymn_lineage_badge":null},"overall_score":0.0,"overall_verdict":"","recommendation":"Recommended","lenses":{"scriptural_fidelity":{"score":0.0,"deduction_line":"","summary":"","watchpoints":[],"lyric_examples":[]},"theological_clarity":{"score":0.0,"deduction_line":"","summary":"","radio_test_result":"Passes","radio_test_note":"","theological_arc":"","watchpoints":[]},"congregational_singability":{"score":0.0,"deduction_line":"","summary":"","key_original":"","key_recommended":"","range_original":"","range_recommended":"","ceiling_note":"","melody_accessibility":""},"poetic_lyrical_quality":{"score":0.0,"deduction_line":"","summary":"","repetition_ratio_pct":0,"cliche_density":"low","imagery_quality":"","voice_distribution":{"individual_pct":0,"corporate_pct":0,"flag":null,"note":""},"grammar_notes":[],"lyric_modifications":[],"watchpoints":[]},"defense_brief":{"score":0.0,"summary":"","objections":[{"objection":"","who_raises_it":"","tag":"Theological","scripture_response":"","suggested_framing":"","ccli_modification_note":"","honest_concession":""}]}},"full_analysis":{"paragraphs":["","","",""]},"scripture_map":{"primary":[{"reference":"","connection":""}],"supporting":[{"reference":"","connection":""}]},"theological_nuances":{"affirmed":[{"label":"","note":""}],"flagged":[]},"hymn_lineage":null,"story_behind_song":{"available":true,"publisher_note":null,"items":[{"text":"","source":""}]},"technical":{"themes":[],"sermon_series_fit":[],"seasonal_tags":[],"audience_fit":{"spiritual_maturity":"","age_group":"","service_type":"","visitor_friendliness":"","special_contexts":""}},"set_intelligence":{"available_at_500_songs":true,"pairs_well_with":[],"avoid_pairing_with":[],"set_arc":null},"similar_songs":{"if_you_love_this":[],"if_this_concerns_you":[]}}`
 }
 
+type Role = 'admin' | 'guest'
+
+// Guests get their own password so it can be shared and rotated without
+// handing out admin access. Role is derived from which secret matched, never
+// from anything the client sends.
+function roleFor(password: unknown): Role | null {
+  const p = typeof password === 'string' ? password : ''
+  if (!p) return null
+  if (ANALYZE_PASSWORD && p === ANALYZE_PASSWORD) return 'admin'
+  if (GUEST_PASSWORD && p === GUEST_PASSWORD) return 'guest'
+  return null
+}
+
 export async function POST(req: NextRequest) {
   const body = await req.json()
   const { action, password } = body
 
-  if (!ANALYZE_PASSWORD || password !== ANALYZE_PASSWORD) {
+  const role = roleFor(password)
+  if (!role) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
+  // Anything that reads or writes the database is admin-only. A guest
+  // password can analyze lyrics and nothing else.
+  if ((action === 'upload' || action === 'list') && role !== 'admin') {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
+
   if (action === 'verify') {
-    return NextResponse.json({ ok: true })
+    return NextResponse.json({ ok: true, role })
   }
 
   if (action === 'analyze') {
