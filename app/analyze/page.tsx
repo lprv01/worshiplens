@@ -5,7 +5,6 @@ import Link from 'next/link'
 
 const NAVY = '#0D1B2A'
 const BLUE = '#00b5ff'
-const ANALYZE_PASSWORD = process.env.NEXT_PUBLIC_ANALYZE_PASSWORD || 'worshiplens'
 
 // ── Logo (copied from existing pages) ───────────────────────────────────────
 function LogoWhite({ height = 22 }: { height?: number }) {
@@ -202,11 +201,20 @@ export default function AnalyzePage() {
   const [uploadMsg, setUploadMsg] = useState<{ type: 'ok' | 'err'; text: string } | null>(null)
 
   // ── Password gate ──
-  function handleUnlock() {
-    if (pwInput.trim() === ANALYZE_PASSWORD) {
-      setUnlocked(true)
-      setPwError(false)
-    } else {
+  async function handleUnlock() {
+    try {
+      const r = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'verify', password: pwInput.trim() }),
+      })
+      if (r.ok) {
+        setUnlocked(true)
+        setPwError(false)
+      } else {
+        setPwError(true)
+      }
+    } catch {
       setPwError(true)
     }
   }
@@ -240,8 +248,6 @@ export default function AnalyzePage() {
   // ── Analyze ──
   async function handleAnalyze() {
     const d = getSongData()
-    const apiKey = process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY
-    if (!apiKey) { setAnalyzeError('NEXT_PUBLIC_ANTHROPIC_API_KEY not set in environment variables.'); return }
 
     setAnalyzing(true)
     setAnalyzeError('')
@@ -253,35 +259,19 @@ export default function AnalyzePage() {
     }, 3500)
 
     try {
-      const r = await fetch('https://api.anthropic.com/v1/messages', {
+      const r = await fetch('/api/analyze', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01',
-        },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 8000,
-          system: 'You are WorshipLens, a theological review assistant for Baptist worship leaders. Analyze worship songs for biblical accuracy, theological clarity, congregational singability, poetic quality, and pastoral defensibility. Use lyrics for analysis only. Never reproduce full lyrics. Never use em dashes.',
-          messages: [{ role: 'user', content: buildPrompt(d) }],
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'analyze', password: pwInput.trim(), songData: d }),
       })
 
       clearInterval(interval)
+      const data = await r.json().catch(() => ({}))
       if (!r.ok) {
-        const err = await r.json().catch(() => ({}))
-        throw new Error((err as any)?.error?.message || `API error ${r.status}`)
+        throw new Error((data as any)?.error || `API error ${r.status}`)
       }
 
-      const data = await r.json()
-      let txt = ''
-      for (const b of (data.content || [])) { if (b.type === 'text') txt += b.text }
-      txt = txt.replace(/```json/g, '').replace(/```/g, '').trim()
-      const js = txt.indexOf('{'), je = txt.lastIndexOf('}')
-      if (js >= 0 && je > js) txt = txt.slice(js, je + 1)
-
-      const result = JSON.parse(txt)
+      const result = data.result
       result._formData = d
       setReview(result)
       setActiveTab('scores')
@@ -296,10 +286,6 @@ export default function AnalyzePage() {
   // ── Upload to Supabase ──
   async function handleUpload() {
     if (!review) return
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-    if (!url || !key) { setUploadMsg({ type: 'err', text: 'Supabase env vars not configured.' }); return }
-
     const meta = review.meta || {}
     const fd = review._formData || {}
     const score = review.overall_score || 0
@@ -347,15 +333,10 @@ export default function AnalyzePage() {
     }
 
     try {
-      const res = await fetch(`${url}/rest/v1/songs`, {
+      const res = await fetch('/api/analyze', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': key,
-          'Authorization': `Bearer ${key}`,
-          'Prefer': 'resolution=merge-duplicates',
-        },
-        body: JSON.stringify(row),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'upload', password: pwInput.trim(), row }),
       })
       if (!res.ok) {
         const err = await res.json().catch(() => ({}))
