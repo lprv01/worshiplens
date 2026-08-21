@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import Link from 'next/link'
 
 const NAVY = '#0D1B2A'
@@ -31,9 +31,37 @@ function LogoWhite({ height = 22 }: { height?: number }) {
 }
 
 // ── Types ────────────────────────────────────────────────────────────────────
-type ParsedSong = { title: string; artist: string; ccli: string; key: string; album: string; lyrics: string }
+type ParsedSong = {
+  title: string
+  artist: string
+  ccli: string
+  key: string
+  album: string
+  timeSignature: string
+  lyrics: string
+}
+type MetaKey = 'title' | 'artist' | 'ccli' | 'key' | 'album' | 'timeSignature'
+type LibrarySong = {
+  id: string
+  slug: string
+  title: string
+  artist: string
+  ccli_number: string | null
+  overall_score: number | null
+  recommendation: string | null
+  created_at: string
+}
 type ReviewResult = Record<string, any>
 type TabKey = 'scores' | 'review' | 'defense' | 'technical' | 'story' | 'similar'
+
+const META_FIELDS: { key: MetaKey; label: string; placeholder: string; span?: number }[] = [
+  { key: 'title', label: 'Song Title', placeholder: 'Goodness of God', span: 3 },
+  { key: 'artist', label: 'Artist / Authors', placeholder: 'Bethel Music, Jenn Johnson', span: 3 },
+  { key: 'ccli', label: 'CCLI #', placeholder: '7117726', span: 2 },
+  { key: 'key', label: 'Default Key', placeholder: 'Eb', span: 2 },
+  { key: 'album', label: 'Album', placeholder: 'Victory', span: 2 },
+  { key: 'timeSignature', label: 'Time Signature', placeholder: 'Leave blank to recommend', span: 2 },
+]
 
 const LENS_CONFIG = [
   { key: 'scriptural_fidelity', label: 'Scriptural Fidelity', color: '#22c55e', bg: '#052e16' },
@@ -55,102 +83,104 @@ const PROGRESS_STEPS = [
 ]
 
 // ── Smart Parser ─────────────────────────────────────────────────────────────
+// Only claims a title when the paste shows real export structure (an Authors
+// header, a pipe-separated credit line, a CCLI number, or a Default Key). A
+// bare lyric dump gets no invented title - the first line of a chorus is not
+// a song title, and guessing one poisons the analysis downstream.
+const EMPTY_PARSE: ParsedSong = { title: '', artist: '', ccli: '', key: '', album: '', timeSignature: '', lyrics: '' }
+
 function smartParse(raw: string): ParsedSong {
+  if (!raw.trim()) return EMPTY_PARSE
+
   const lines = raw.split('\n').map(l => l.trim())
-  let title = '', artist = '', ccli = '', key = '', album = '', lyrics = ''
+  let title = '', artist = '', ccli = '', key = '', album = '', timeSignature = '', lyrics = ''
 
   const ccliMatch = raw.match(/CCLI\s*(?:Song\s*)?#\s*(\d{5,8})/i) ||
     raw.match(/Song\s+Number\s*\n\s*(\d{5,8})/i)
   if (ccliMatch) ccli = ccliMatch[1]
 
-  const keyMatch = raw.match(/Default\s+Key\s*[:\n]\s*([A-Ga-g][#bB]?[Mm]?)/i) ||
-    raw.match(/\bKey\s*[:\n]\s*([A-Ga-g][#bB]?[Mm]?)/i)
+  const keyMatch = raw.match(/Default\s+Key\s*[:\n]\s*([A-Ga-g][#bB]?[Mm]?)\b/i) ||
+    raw.match(/^\s*Key\s*[:\n]\s*([A-Ga-g][#bB]?[Mm]?)\b/im)
   if (keyMatch) key = keyMatch[1].trim()
+
+  const albumMatch = raw.match(/^\s*Album\s*[:\n]\s*(.+)$/im)
+  if (albumMatch) album = albumMatch[1].trim()
+
+  const timeMatch = raw.match(/(?:Time\s*Sig(?:nature)?|Meter)\s*[:\n]\s*(\d{1,2}\s*\/\s*\d{1,2})/i)
+  if (timeMatch) timeSignature = timeMatch[1].replace(/\s+/g, '')
 
   const pipeLine = lines.find(l => l.includes(' | ') && !l.includes('ccli.com') && !l.startsWith('©'))
   if (pipeLine) {
-    artist = pipeLine.split('|').map(a => a.trim()).join(', ')
+    artist = pipeLine.split('|').map(a => a.trim()).filter(Boolean).join(', ')
   }
-  if (!artist) {
-    const authIdx = lines.findIndex(l => /^authors?$/i.test(l))
-    if (authIdx >= 0) {
-      const nameLines: string[] = []
-      for (let i = authIdx + 1; i < Math.min(authIdx + 6, lines.length); i++) {
-        const l = lines[i]
-        if (!l || /^(song number|default key|ccli|verse|chorus|bridge|pre|tag|add to)/i.test(l)) break
-        nameLines.push(l)
-      }
-      if (nameLines.length) {
-        artist = nameLines.join(' ').replace(/([a-z])([A-Z])/g, '$1, $2').trim()
-      }
+
+  const authIdx = lines.findIndex(l => /^authors?$/i.test(l))
+  if (!artist && authIdx >= 0) {
+    const nameLines: string[] = []
+    for (let i = authIdx + 1; i < Math.min(authIdx + 6, lines.length); i++) {
+      const l = lines[i]
+      if (!l || /^(song number|default key|album|time sig|meter|ccli|verse|chorus|bridge|pre|tag|add to)/i.test(l)) break
+      nameLines.push(l)
+    }
+    if (nameLines.length) {
+      artist = nameLines.join(' ').replace(/([a-z])([A-Z])/g, '$1, $2').trim()
     }
   }
 
-  const skipWords = /^(authors?|song number|default key|key|ccli|add to|verse|chorus|bridge|pre-chorus|tag|ending|interlude|for use|planning by|©)/i
-  for (const line of lines) {
-    if (line && !skipWords.test(line) && line.length > 1 && line.length < 80 && !/^\d+$/.test(line)) {
-      title = line
-      break
-    }
-  }
+  // Structural evidence that this is an export and not a bare lyric dump.
+  const structured = !!(ccli || key || album || pipeLine || authIdx >= 0)
 
-  const sectionPattern = /^(verse|chorus|bridge|pre-?chorus|tag|ending|interlude|refrain|hook)/i
-  const footerPattern = /^(ccli song|for use solely|planning by|©|last edited|delete|clone|busy|apple and|build|media player)/i
-  const lyricsLines: string[] = []
-  let inLyrics = false
-  for (const line of lines) {
-    if (sectionPattern.test(line)) inLyrics = true
-    if (inLyrics && footerPattern.test(line)) break
-    if (inLyrics) lyricsLines.push(line)
-  }
-  lyrics = lyricsLines.join('\n').trim()
-
-  if (!lyrics) {
-    let pastHeader = false
-    const rawLyrics: string[] = []
+  const skipWords = /^(authors?|song number|default key|album|time sig|meter|key|ccli|add to|verse|chorus|bridge|pre-?chorus|tag|ending|interlude|refrain|hook|for use|planning by|©)/i
+  if (structured) {
     for (const line of lines) {
-      if (!pastHeader && line === title) { pastHeader = true; continue }
-      if (!pastHeader) continue
-      if (footerPattern.test(line)) break
-      if (/^(authors?|song number|default key|add to worshiptools)/i.test(line)) continue
-      rawLyrics.push(line)
+      if (line && !skipWords.test(line) && line.length > 1 && line.length < 80 && !/^\d+$/.test(line)) {
+        title = line
+        break
+      }
     }
-    lyrics = rawLyrics.join('\n').trim()
   }
 
-  return { title, artist, ccli, key, album, lyrics }
-}
+  const sectionPattern = /^(verse|chorus|bridge|pre-?chorus|tag|ending|interlude|refrain|hook)\b/i
+  const footerPattern = /^(ccli song|for use solely|planning by|©|last edited|delete|clone|busy|apple and|build|media player)/i
 
-// ── Prompt builder ───────────────────────────────────────────────────────────
-function buildPrompt(p: ParsedSong): string {
-  return `You are WorshipLens, a theological review assistant for Baptist worship leaders in the BGCT/Texas Baptists tradition. Your tone is pastoral, equipping, and honest.
+  if (structured) {
+    // An export has a metadata header to skip past. Start at the first section
+    // label, stop at the footer.
+    const lyricsLines: string[] = []
+    let inLyrics = false
+    for (const line of lines) {
+      if (sectionPattern.test(line)) inLyrics = true
+      if (inLyrics && footerPattern.test(line)) break
+      if (inLyrics) lyricsLines.push(line)
+    }
+    lyrics = lyricsLines.join('\n').trim()
 
-SONG DATA:
-Title: ${p.title}
-Artist: ${p.artist}
-CCLI #: ${p.ccli || 'not provided'}
-Key: ${p.key || 'not provided'}
-Album: ${p.album || 'not provided'}
+    // No section labels in the export: take everything after the title line.
+    if (!lyrics) {
+      let pastHeader = false
+      const rawLyrics: string[] = []
+      for (const line of lines) {
+        if (!pastHeader && title && line === title) { pastHeader = true; continue }
+        if (!pastHeader) continue
+        if (footerPattern.test(line)) break
+        if (/^(authors?|song number|default key|album|time sig|meter|add to worshiptools)/i.test(line)) continue
+        rawLyrics.push(line)
+      }
+      lyrics = rawLyrics.join('\n').trim()
+    }
+  }
 
-LYRICS (PRIVATE - for analysis only, never reproduced):
-${p.lyrics}
+  // Unstructured paste: there is no header to skip, so the whole thing is the
+  // lyric. Section-scanning here would silently eat any verse that appears
+  // before the first section label.
+  if (!lyrics) {
+    lyrics = lines
+      .filter(l => !footerPattern.test(l))
+      .join('\n')
+      .trim()
+  }
 
-RULES:
-- NEVER reproduce the full lyrics. Quote only short fragments (under 10 words) directly relevant to analysis.
-- Never refer to the songwriter by name in analysis fields. Say "the lyric", "the song", "this line".
-- Never use em dashes in any output field. Use a regular hyphen (-) or rewrite the sentence.
-- Score reductions must always trace to a specific, nameable reason.
-- grammar_notes and lyric_modifications must be [] if no genuine issues exist.
-- hymn_lineage must be null if no genuine historic hymn connection exists.
-- story_behind_song: populate with 2-4 items whenever you have reasonable knowledge of the song's origin.
-- voice_distribution: analyze from the lyrics provided.
-- key_recommended: calculate from key provided, targeting A3-D5 congregational range.
-
-SCORING: Each lens scored 0-10. Overall 10/10 is unreachable by design. Deduction lines must state the reason first.
-
-Generate a complete WorshipLens review as a single valid JSON object. No text outside the JSON. No markdown fences.
-
-{"meta":{"title":"","artist":"","ccli_number":"","slug":"","key_original":"","key_recommended":"","range_original":"","range_recommended":"","time_signature":"","tempo_bpm":0,"copyright":"","release_year":"","album":"","genre":"","hymn_lineage_badge":null},"overall_score":0.0,"overall_verdict":"","recommendation":"Recommended","lenses":{"scriptural_fidelity":{"score":0.0,"deduction_line":"","summary":"","watchpoints":[],"lyric_examples":[]},"theological_clarity":{"score":0.0,"deduction_line":"","summary":"","radio_test_result":"Passes","radio_test_note":"","theological_arc":"","watchpoints":[]},"congregational_singability":{"score":0.0,"deduction_line":"","summary":"","key_original":"","key_recommended":"","range_original":"","range_recommended":"","ceiling_note":"","melody_accessibility":""},"poetic_lyrical_quality":{"score":0.0,"deduction_line":"","summary":"","repetition_ratio_pct":0,"cliche_density":"low","imagery_quality":"","voice_distribution":{"individual_pct":0,"corporate_pct":0,"flag":null,"note":""},"grammar_notes":[],"lyric_modifications":[],"watchpoints":[]},"defense_brief":{"score":0.0,"summary":"","objections":[{"objection":"","who_raises_it":"","tag":"Theological","scripture_response":"","suggested_framing":"","ccli_modification_note":"","honest_concession":""}]}},"full_analysis":{"paragraphs":["","","",""]},"scripture_map":{"primary":[{"reference":"","connection":""}],"supporting":[{"reference":"","connection":""}]},"theological_nuances":{"affirmed":[{"label":"","note":""}],"flagged":[]},"hymn_lineage":null,"story_behind_song":{"available":true,"publisher_note":null,"items":[{"text":"","source":""}]},"technical":{"themes":[],"sermon_series_fit":[],"seasonal_tags":[],"audience_fit":{"spiritual_maturity":"","age_group":"","service_type":"","visitor_friendliness":"","special_contexts":""}},"set_intelligence":{"available_at_500_songs":true,"pairs_well_with":[],"avoid_pairing_with":[],"set_arc":null},"similar_songs":{"if_you_love_this":[],"if_this_concerns_you":[]}}`
+  return { title, artist, ccli, key, album, timeSignature, lyrics }
 }
 
 function scoreColor(s: number) {
@@ -176,19 +206,17 @@ export default function AnalyzePage() {
   const [pwInput, setPwInput] = useState('')
   const [pwError, setPwError] = useState(false)
 
-  // Mode
-  const [mode, setMode] = useState<'paste' | 'manual'>('paste')
+  // Single input: one paste box, plus optional detail overrides.
+  // Anything the parser finds pre-fills a detail field; typing in a field
+  // pins it so a later re-parse cannot overwrite what you entered.
   const [pasteRaw, setPasteRaw] = useState('')
-  const [parsed, setParsed] = useState<ParsedSong | null>(null)
-  const [parseMsg, setParseMsg] = useState<{ type: 'ok' | 'warn'; text: string } | null>(null)
+  const [edits, setEdits] = useState<Partial<Record<MetaKey, string>>>({})
 
-  // Manual fields
-  const [title, setTitle] = useState('')
-  const [artist, setArtist] = useState('')
-  const [ccli, setCcli] = useState('')
-  const [key, setKey] = useState('')
-  const [album, setAlbum] = useState('')
-  const [lyrics, setLyrics] = useState('')
+  const auto = useMemo(() => smartParse(pasteRaw), [pasteRaw])
+
+  const fieldValue = (k: MetaKey) => (edits[k] !== undefined ? edits[k]! : auto[k])
+  const isAutoFilled = (k: MetaKey) => edits[k] === undefined && !!auto[k]
+  const setField = (k: MetaKey, v: string) => setEdits(e => ({ ...e, [k]: v }))
 
   // Analysis
   const [analyzing, setAnalyzing] = useState(false)
@@ -199,6 +227,50 @@ export default function AnalyzePage() {
 
   // Upload
   const [uploadMsg, setUploadMsg] = useState<{ type: 'ok' | 'err'; text: string } | null>(null)
+
+  // Title chosen from the model's suggestions (only offered when we had none)
+  const [chosenTitle, setChosenTitle] = useState('')
+
+  // Library
+  const [view, setView] = useState<'analyze' | 'library'>('analyze')
+  const [libRows, setLibRows] = useState<LibrarySong[] | null>(null)
+  const [libLoading, setLibLoading] = useState(false)
+  const [libError, setLibError] = useState('')
+  const [libQuery, setLibQuery] = useState('')
+  const [libTotal, setLibTotal] = useState<number | null>(null)
+
+  async function loadLibrary(force = false) {
+    if (libLoading) return
+    if (libRows && !force) return
+    setLibLoading(true)
+    setLibError('')
+    try {
+      const r = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'list', password: pwInput.trim() }),
+      })
+      const data = await r.json().catch(() => ({}))
+      if (!r.ok) throw new Error((data as any)?.error || `Failed to load library (${r.status})`)
+      setLibRows((data as any).rows || [])
+      setLibTotal(typeof (data as any).total === 'number' ? (data as any).total : null)
+    } catch (e: any) {
+      setLibError(e.message || 'Failed to load library')
+    } finally {
+      setLibLoading(false)
+    }
+  }
+
+  const filteredLib = useMemo(() => {
+    if (!libRows) return []
+    const q = libQuery.trim().toLowerCase()
+    if (!q) return libRows
+    return libRows.filter(s =>
+      (s.title || '').toLowerCase().includes(q) ||
+      (s.artist || '').toLowerCase().includes(q) ||
+      (s.ccli_number || '').toString().includes(q)
+    )
+  }, [libRows, libQuery])
 
   // ── Password gate ──
   async function handleUnlock() {
@@ -219,30 +291,23 @@ export default function AnalyzePage() {
     }
   }
 
-  // ── Parse ──
-  function handleParse() {
-    const p = smartParse(pasteRaw)
-    setParsed(p)
-    const missing = []
-    if (!p.title) missing.push('title')
-    if (!p.artist) missing.push('artist')
-    if (!p.lyrics) missing.push('lyrics')
-    if (missing.length === 0) {
-      setParseMsg({ type: 'ok', text: 'Parsed successfully. Ready to analyze.' })
-    } else {
-      setParseMsg({ type: 'warn', text: `Could not find: ${missing.join(', ')}. Switch to Manual Fields to fix.` })
+  // ── Get active song data ──
+  // Lyrics are the only requirement. Everything else is a hint: supplied by
+  // you, recovered by the parser, or left for the model to infer.
+  function getSongData(): ParsedSong {
+    return {
+      title: fieldValue('title').trim(),
+      artist: fieldValue('artist').trim(),
+      ccli: fieldValue('ccli').trim(),
+      key: fieldValue('key').trim(),
+      album: fieldValue('album').trim(),
+      timeSignature: fieldValue('timeSignature').trim(),
+      lyrics: auto.lyrics,
     }
   }
 
-  // ── Get active song data ──
-  function getSongData(): ParsedSong {
-    if (mode === 'paste' && parsed) return parsed
-    return { title, artist, ccli, key, album, lyrics }
-  }
-
   function canAnalyze() {
-    const d = getSongData()
-    return !!(d.title && d.artist && d.lyrics)
+    return !!getSongData().lyrics
   }
 
   // ── Analyze ──
@@ -268,7 +333,12 @@ export default function AnalyzePage() {
       clearInterval(interval)
       const data = await r.json().catch(() => ({}))
       if (!r.ok) {
-        throw new Error((data as any)?.error || `API error ${r.status}`)
+        const dbg = (data as any)?.debug
+        if (dbg) console.error('[analyze] server debug', dbg)
+        const detail = dbg
+          ? ` | stop_reason=${dbg.stop_reason} tokens=${dbg.output_tokens} len=${dbg.text_length} pos=${dbg.position}\n...${dbg.snippet}...`
+          : ''
+        throw new Error(((data as any)?.error || `API error ${r.status}`) + detail)
       }
 
       const result = data.result
@@ -298,11 +368,12 @@ export default function AnalyzePage() {
       defense_brief: lenses.defense_brief?.score || 0,
     }
     const colorStr = score >= 8 ? 'green' : score >= 6.5 ? 'amber' : score >= 5 ? 'orange' : 'red'
-    const slug = meta.slug || makeSlug(meta.title || fd.title || '')
+    const effectiveTitle = chosenTitle || meta.title || fd.title || ''
+    const slug = makeSlug(effectiveTitle) || meta.slug || `untitled-${(review.overall_score || 0).toFixed(1).replace('.', '')}`
 
     const row = {
-      title: meta.title || fd.title,
-      artist: meta.artist || fd.artist,
+      title: effectiveTitle || 'Untitled song',
+      artist: meta.artist || fd.artist || 'Unknown',
       ccli_number: meta.ccli_number || fd.ccli || null,
       slug,
       overall_score: score,
@@ -312,7 +383,7 @@ export default function AnalyzePage() {
       lens_scores,
       key_original: fd.key || meta.key_original || '',
       key_recommended: meta.key_recommended || '',
-      time_signature: meta.time_signature || '',
+      time_signature: fd.timeSignature || meta.time_signature || '',
       tempo_bpm: meta.tempo_bpm || null,
       copyright: meta.copyright || '',
       release_year: meta.release_year || '',
@@ -343,6 +414,7 @@ export default function AnalyzePage() {
         throw new Error((err as any).message || `Upload failed ${res.status}`)
       }
       setUploadMsg({ type: 'ok', text: `"${row.title}" uploaded to Supabase successfully.` })
+      loadLibrary(true)   // keep the Library tab honest after a write
     } catch (e: any) {
       setUploadMsg({ type: 'err', text: e.message })
     }
@@ -350,13 +422,11 @@ export default function AnalyzePage() {
 
   function handleReset() {
     setReview(null)
-    setParsed(null)
-    setParseMsg(null)
     setPasteRaw('')
-    setTitle(''); setArtist(''); setCcli(''); setKey(''); setAlbum(''); setLyrics('')
+    setEdits({})
     setAnalyzeError('')
     setUploadMsg(null)
-    setMode('paste')
+    setChosenTitle('')
   }
 
   const styles = `
@@ -369,7 +439,12 @@ export default function AnalyzePage() {
     .az-tab:hover { color: rgba(255,255,255,0.6); }
     .az-tab.active { border-bottom-color: ${BLUE}; color: #fff; }
     .az-lens-card { border-radius: 8px; padding: 14px 16px; margin-bottom: 8px; border-left: 3px solid; }
-    .az-mode-btn { flex: 1; padding: 10px; border: none; font-family: 'Sora', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.05em; cursor: pointer; transition: all 0.15s; }
+    .az-title-chip { font-family: 'Sora', sans-serif; font-size: 12px; font-weight: 500; padding: 5px 12px; border-radius: 20px; border: 0.5px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.65); cursor: pointer; transition: all 0.15s; }
+    .az-title-chip:hover { border-color: rgba(0,181,255,0.5); color: #fff; }
+    .az-title-chip.active { background: ${BLUE}; border-color: ${BLUE}; color: ${NAVY}; font-weight: 600; }
+    .az-lib-row { display: flex; align-items: center; padding: 12px 14px; margin-bottom: 6px; border-radius: 8px; background: rgba(255,255,255,0.04); border: 0.5px solid rgba(255,255,255,0.08); text-decoration: none; transition: all 0.15s; }
+    .az-lib-row:hover { background: rgba(255,255,255,0.07); border-color: rgba(0,181,255,0.35); }
+    .az-auto-chip { font-size: 8px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: ${BLUE}; background: rgba(0,181,255,0.12); border: 0.5px solid rgba(0,181,255,0.3); border-radius: 3px; padding: 1px 5px; }
     .az-input { width: 100%; background: rgba(255,255,255,0.05); border: 0.5px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 10px 14px; font-size: 13px; font-family: 'Sora', sans-serif; color: #fff; outline: none; transition: border-color 0.2s; }
     .az-input::placeholder { color: rgba(255,255,255,0.25); }
     .az-input:focus { border-color: rgba(255,255,255,0.3); }
@@ -382,6 +457,8 @@ export default function AnalyzePage() {
       .desktop-nav-links { display: none !important; }
       .az-grid2 { grid-template-columns: 1fr !important; }
       .az-grid3 { grid-template-columns: 1fr 1fr !important; }
+      .az-detail-grid { grid-template-columns: repeat(2, 1fr) !important; }
+      .az-detail-grid > div { grid-column: span 2 !important; }
     }
   `
 
@@ -442,118 +519,158 @@ export default function AnalyzePage() {
 
       <div style={{ maxWidth: 760, margin: '0 auto', padding: '36px 24px 80px' }}>
 
+        {/* VIEW TOGGLE */}
+        <div style={{ display: 'flex', gap: 4, marginBottom: 24, borderBottom: '0.5px solid rgba(255,255,255,0.1)' }}>
+          {([['analyze', 'Analyzer'], ['library', 'Library']] as const).map(([v, label]) => (
+            <button
+              key={v}
+              className={`az-tab${view === v ? ' active' : ''}`}
+              onClick={() => { setView(v); if (v === 'library') loadLibrary() }}
+            >
+              {label}
+              {v === 'library' && libRows && (
+                <span style={{ marginLeft: 6, opacity: 0.5 }}>{libTotal ?? libRows.length}</span>
+              )}
+            </button>
+          ))}
+        </div>
+
+        {/* LIBRARY */}
+        {view === 'library' && (
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+              <input
+                className="az-input"
+                placeholder="Search by title, artist, or CCLI #"
+                value={libQuery}
+                onChange={e => setLibQuery(e.target.value)}
+                style={{ flex: 1 }}
+              />
+              <button
+                onClick={() => loadLibrary(true)}
+                disabled={libLoading}
+                style={{ padding: '10px 16px', borderRadius: 8, border: '0.5px solid rgba(255,255,255,0.15)', background: 'none', color: 'rgba(255,255,255,0.6)', fontSize: 12, cursor: 'pointer', fontFamily: "'Sora', sans-serif", whiteSpace: 'nowrap' }}
+              >
+                {libLoading ? 'Loading...' : 'Refresh'}
+              </button>
+            </div>
+
+            {libError && (
+              <div style={{ padding: '10px 14px', background: '#1a0505', border: '0.5px solid #f87171', borderRadius: 8, fontSize: 12, color: '#f87171', marginBottom: 12 }}>
+                {libError}
+              </div>
+            )}
+
+            {libLoading && !libRows && (
+              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)', padding: '20px 0' }}>Loading uploaded songs...</div>
+            )}
+
+            {libRows && filteredLib.length === 0 && (
+              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)', padding: '20px 0' }}>
+                {libQuery ? `No songs match "${libQuery}".` : 'No songs uploaded yet.'}
+              </div>
+            )}
+
+            {filteredLib.length > 0 && (
+              <>
+                <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', marginBottom: 4 }}>
+                  {libQuery
+                    ? `${filteredLib.length} of ${libRows!.length} loaded`
+                    : `${libRows!.length} songs${libTotal && libTotal > libRows!.length ? ` of ${libTotal}` : ''}`}
+                </div>
+                {filteredLib.map(s => (
+                  <Link key={s.id} href={`/songs/${s.slug}`} className="az-lib-row">
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.title || 'Untitled song'}</div>
+                      <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {s.artist || 'Artist unknown'}
+                        {s.ccli_number ? ` · CCLI #${s.ccli_number}` : ''}
+                      </div>
+                    </div>
+                    <div style={{ textAlign: 'right', flexShrink: 0, marginLeft: 14 }}>
+                      <div style={{ fontSize: 18, fontWeight: 600, color: scoreColor(s.overall_score || 0) }}>
+                        {(s.overall_score ?? 0).toFixed(1)}
+                      </div>
+                      <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                        {s.created_at ? new Date(s.created_at).toLocaleDateString() : ''}
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </>
+            )}
+          </div>
+        )}
+
         {/* INPUT FORM */}
-        {!review && (
+        {view === 'analyze' && !review && (
           <>
             <div style={{ marginBottom: 28 }}>
               <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color: BLUE, marginBottom: 8 }}>Internal Tool</div>
               <h1 style={{ fontSize: 26, fontWeight: 600, letterSpacing: '-0.03em' }}>Song Analyzer</h1>
-              <p style={{ fontSize: 13, fontWeight: 300, color: 'rgba(255,255,255,0.4)', marginTop: 6 }}>Paste a song export to generate a full WorshipLens review and upload to Supabase.</p>
+              <p style={{ fontSize: 13, fontWeight: 300, color: 'rgba(255,255,255,0.4)', marginTop: 6 }}>Paste a song export or just the lyrics. Everything else is optional - anything you leave blank gets detected or inferred.</p>
             </div>
 
-            {/* MODE TOGGLE */}
-            <div style={{ display: 'flex', border: '0.5px solid rgba(255,255,255,0.12)', borderRadius: 8, overflow: 'hidden', marginBottom: 24 }}>
-              <button className="az-mode-btn" onClick={() => setMode('paste')}
-                style={{ background: mode === 'paste' ? 'rgba(255,255,255,0.08)' : 'none', color: mode === 'paste' ? '#fff' : 'rgba(255,255,255,0.35)', borderRight: '0.5px solid rgba(255,255,255,0.12)' }}>
-                PASTE ALL
-              </button>
-              <button className="az-mode-btn" onClick={() => setMode('manual')}
-                style={{ background: mode === 'manual' ? 'rgba(255,255,255,0.08)' : 'none', color: mode === 'manual' ? '#fff' : 'rgba(255,255,255,0.35)' }}>
-                MANUAL FIELDS
-              </button>
+            {/* PASTE BOX */}
+            <div style={{ marginBottom: 20 }}>
+              <label style={{ display: 'block', fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: 8 }}>
+                Song Export or Lyrics *
+              </label>
+              <textarea
+                className="az-input"
+                rows={14}
+                placeholder={'Paste anything here - a SongSelect export, a WorshipTools dump, or just the raw lyrics.\n\nFor example:\n\nTurn Your Eyes\n\nAuthors\nAndrew Holt | Bernie Herms\n\nDefault Key\nC\n\nVerse 1\nO soul are you weary...\n\nCCLI Song # 7158162'}
+                value={pasteRaw}
+                onChange={e => setPasteRaw(e.target.value)}
+                style={{ resize: 'vertical' }}
+              />
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', marginTop: 4 }}>Lyrics are used for analysis only. Never stored or displayed.</div>
             </div>
 
-            {/* PASTE MODE */}
-            {mode === 'paste' && (
-              <div style={{ marginBottom: 20 }}>
-                <label style={{ display: 'block', fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: 8 }}>
-                  Paste Song Export
-                </label>
-                <textarea
-                  className="az-input"
-                  rows={14}
-                  placeholder={'Paste everything here — SongSelect export, WorshipTools dump, or raw copy/paste.\n\nFor example:\n\nTurn Your Eyes\n\nAuthors\nAndrew Holt | Bernie Herms\n\nDefault Key\nC\n\nVerse 1\nO soul are you weary...\n\nCCLI Song # 7158162'}
-                  value={pasteRaw}
-                  onChange={e => { setPasteRaw(e.target.value); setParsed(null); setParseMsg(null) }}
-                  style={{ resize: 'vertical' }}
-                />
-                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', marginTop: 4 }}>Lyrics are used for analysis only. Never stored or displayed.</div>
-
-                <button
-                  className="az-btn"
-                  style={{ marginTop: 12, marginBottom: 10, background: pasteRaw.trim() ? BLUE : 'rgba(255,255,255,0.08)', color: pasteRaw.trim() ? NAVY : 'rgba(255,255,255,0.25)' }}
-                  disabled={!pasteRaw.trim()}
-                  onClick={handleParse}
-                >
-                  Parse Song Data
-                </button>
-
-                {parseMsg && (
-                  <div style={{ padding: '10px 14px', borderRadius: 8, fontSize: 12, marginBottom: 8,
-                    background: parseMsg.type === 'ok' ? '#052e16' : '#2a1f00',
-                    border: `0.5px solid ${parseMsg.type === 'ok' ? '#22c55e' : '#fbbf24'}`,
-                    color: parseMsg.type === 'ok' ? '#22c55e' : '#fbbf24' }}>
-                    {parseMsg.text}
-                  </div>
-                )}
-
-                {parsed && (
-                  <div style={{ background: 'rgba(255,255,255,0.04)', border: '0.5px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '12px 14px', marginBottom: 12 }}>
-                    <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', marginBottom: 10 }}>Parsed Fields</div>
-                    <div className="az-grid2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                      {[['Title', parsed.title], ['Artist', parsed.artist], ['CCLI #', parsed.ccli], ['Key', parsed.key]].map(([label, val]) => (
-                        <div key={label}>
-                          <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 2 }}>{label}</div>
-                          <div style={{ fontSize: 13, fontWeight: val ? 500 : 300, color: val ? '#fff' : 'rgba(255,255,255,0.25)' }}>{val || 'not found'}</div>
-                        </div>
-                      ))}
-                      <div style={{ gridColumn: '1/-1' }}>
-                        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 2 }}>Lyrics preview</div>
-                        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', fontStyle: 'italic' }}>{parsed.lyrics.split('\n').slice(0, 3).join(' / ')}</div>
-                      </div>
-                    </div>
-                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', marginTop: 10 }}>
-                      Not right?{' '}
-                      <button onClick={() => setMode('manual')} style={{ background: 'none', border: 'none', color: BLUE, fontSize: 11, cursor: 'pointer', textDecoration: 'underline' }}>
-                        Switch to Manual Fields
-                      </button>
-                    </div>
-                  </div>
+            {/* OPTIONAL DETAILS */}
+            <div style={{ marginBottom: 20 }}>
+              <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 10 }}>
+                <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)' }}>
+                  Details <span style={{ color: 'rgba(255,255,255,0.25)' }}>- all optional</span>
+                </div>
+                {Object.keys(edits).length > 0 && (
+                  <button onClick={() => setEdits({})} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.3)', fontSize: 11, cursor: 'pointer', fontFamily: "'Sora', sans-serif", textDecoration: 'underline' }}>
+                    Reset to detected
+                  </button>
                 )}
               </div>
-            )}
 
-            {/* MANUAL MODE */}
-            {mode === 'manual' && (
-              <div style={{ marginBottom: 20 }}>
-                <div className="az-grid2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>Song Title *</label>
-                    <input className="az-input" placeholder="Goodness of God" value={title} onChange={e => setTitle(e.target.value)} />
+              <div className="az-detail-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 12 }}>
+                {META_FIELDS.map(f => (
+                  <div key={f.key} style={{ gridColumn: `span ${f.span || 2}` }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>
+                      {f.label}
+                      {isAutoFilled(f.key) && <span className="az-auto-chip">Detected</span>}
+                    </label>
+                    <input
+                      className="az-input"
+                      placeholder={f.placeholder}
+                      value={fieldValue(f.key)}
+                      onChange={e => setField(f.key, e.target.value)}
+                      style={isAutoFilled(f.key) ? { borderColor: 'rgba(0,181,255,0.35)' } : undefined}
+                    />
                   </div>
-                  <div>
-                    <label style={{ display: 'block', fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>Artist / Authors *</label>
-                    <input className="az-input" placeholder="Bethel Music, Jenn Johnson" value={artist} onChange={e => setArtist(e.target.value)} />
-                  </div>
+                ))}
+              </div>
+
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.28)', marginTop: 10, lineHeight: 1.6 }}>
+                Leave <strong style={{ fontWeight: 600, color: 'rgba(255,255,255,0.4)' }}>Time Signature</strong> blank and WorshipLens will recommend one from the lyric meter, with its reasoning shown in the Technical tab.
+              </div>
+            </div>
+
+            {/* DETECTED LYRICS PREVIEW */}
+            {auto.lyrics && (
+              <div style={{ background: 'rgba(255,255,255,0.04)', border: '0.5px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '12px 14px', marginBottom: 16 }}>
+                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>
+                  Lyrics detected - {auto.lyrics.split('\n').filter(Boolean).length} lines
                 </div>
-                <div className="az-grid3" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 12 }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>CCLI #</label>
-                    <input className="az-input" placeholder="7117726" value={ccli} onChange={e => setCcli(e.target.value)} />
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>Default Key</label>
-                    <input className="az-input" placeholder="Eb" value={key} onChange={e => setKey(e.target.value)} />
-                  </div>
-                  <div>
-                    <label style={{ display: 'block', fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>Album</label>
-                    <input className="az-input" placeholder="Victory" value={album} onChange={e => setAlbum(e.target.value)} />
-                  </div>
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>Lyrics *</label>
-                  <textarea className="az-input" rows={12} placeholder="Paste full lyrics here with section labels (Verse 1, Chorus, Bridge...)" value={lyrics} onChange={e => setLyrics(e.target.value)} style={{ resize: 'vertical' }} />
-                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', marginTop: 4 }}>Lyrics are used for analysis only. Never stored or displayed.</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', fontStyle: 'italic' }}>
+                  {auto.lyrics.split('\n').filter(Boolean).slice(0, 3).join(' / ')}
                 </div>
               </div>
             )}
@@ -579,18 +696,43 @@ export default function AnalyzePage() {
         )}
 
         {/* RESULTS */}
-        {review && (
+        {view === 'analyze' && review && (
           <>
             {/* RESULT HEADER */}
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 28, paddingBottom: 20, borderBottom: '0.5px solid rgba(255,255,255,0.1)' }}>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 24, fontWeight: 600, letterSpacing: '-0.03em', marginBottom: 4 }}>
-                  {review.meta?.title || review._formData?.title}
+                <div style={{ fontSize: 24, fontWeight: 600, letterSpacing: '-0.03em', marginBottom: 4, color: chosenTitle ? '#fff' : undefined }}>
+                  {chosenTitle || review.meta?.title || review._formData?.title || 'Untitled song'}
                 </div>
-                <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)' }}>{review.meta?.artist || review._formData?.artist}</div>
+                <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)' }}>
+                  {review.meta?.artist || review._formData?.artist || 'Artist unknown'}
+                  {review.meta?.identified_from_lyrics && (
+                    <span className="az-auto-chip" style={{ marginLeft: 8 }}>Identified from lyrics</span>
+                  )}
+                </div>
                 {(review.meta?.ccli_number || review._formData?.ccli) && (
                   <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', marginTop: 2 }}>CCLI #{review.meta?.ccli_number || review._formData?.ccli}</div>
                 )}
+                {/* TITLE SUGGESTIONS - only offered when we arrived with no title */}
+                {(review.meta?.suggested_titles || []).length > 0 && (
+                  <div style={{ marginTop: 12, maxWidth: 480 }}>
+                    <div style={{ fontSize: 9, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', marginBottom: 7 }}>
+                      {chosenTitle ? 'Title chosen - pick another to change it' : 'No title given - pick one'}
+                    </div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
+                      {review.meta.suggested_titles.map((t: string) => (
+                        <button
+                          key={t}
+                          onClick={() => setChosenTitle(chosenTitle === t ? '' : t)}
+                          className={`az-title-chip${chosenTitle === t ? ' active' : ''}`}
+                        >
+                          {t}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {review.overall_verdict && (
                   <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', fontStyle: 'italic', marginTop: 8, lineHeight: 1.6, maxWidth: 480 }}>{review.overall_verdict}</div>
                 )}
@@ -709,6 +851,7 @@ export default function AnalyzePage() {
                     ['Rec. Key', review.lenses?.congregational_singability?.key_recommended || review.meta?.key_recommended],
                     ['Original Range', review.lenses?.congregational_singability?.range_original],
                     ['Rec. Range', review.lenses?.congregational_singability?.range_recommended],
+                    ['Time Signature', review.meta?.time_signature],
                     ['Tempo', review.meta?.tempo_bpm ? `${review.meta.tempo_bpm} BPM` : null],
                     ['Radio Test', review.lenses?.theological_clarity?.radio_test_result],
                     ['Genre', review.meta?.genre],
@@ -721,6 +864,34 @@ export default function AnalyzePage() {
                     </div>
                   ))}
                 </div>
+                {/* METER / TIME SIGNATURE REASONING */}
+                {(review.meta?.time_signature_reasoning || review.meta?.meter_pattern || review.meta?.meter_name) && (
+                  <div style={{ background: 'rgba(0,181,255,0.05)', border: '0.5px solid rgba(0,181,255,0.25)', borderRadius: 8, padding: '14px 16px', marginBottom: 16 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                      <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: BLUE }}>Meter Analysis</span>
+                      <span className="az-auto-chip">
+                        {review.meta?.time_signature_source === 'provided' ? 'You supplied this' : 'Recommended'}
+                      </span>
+                    </div>
+                    <div className="az-grid3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 12 }}>
+                      {[
+                        ['Signature', review.meta?.time_signature],
+                        ['Syllable Pattern', review.meta?.meter_pattern],
+                        ['Hymn Meter', review.meta?.meter_name],
+                        ['Poetic Foot', review.meta?.poetic_foot],
+                      ].filter(([, v]) => v).map(([label, val]) => (
+                        <div key={label as string} style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 6, padding: '8px 12px' }}>
+                          <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 3 }}>{label}</div>
+                          <div style={{ fontSize: 13, fontWeight: 600, textTransform: label === 'Poetic Foot' ? 'capitalize' : 'none' }}>{val as string}</div>
+                        </div>
+                      ))}
+                    </div>
+                    {review.meta?.time_signature_reasoning && (
+                      <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', lineHeight: 1.7 }}>{review.meta.time_signature_reasoning}</div>
+                    )}
+                  </div>
+                )}
+
                 {review.technical?.audience_fit && (
                   <>
                     <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', marginBottom: 10 }}>Audience Fit</div>
