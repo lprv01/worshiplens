@@ -213,26 +213,89 @@ export async function POST(req: NextRequest) {
   }
 
   if (action === 'upload') {
-    const { row } = body
+    const { row, force } = body
     if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
       return NextResponse.json({ error: 'Supabase env vars not configured on server' }, { status: 500 })
     }
+
+    const sbHeaders = {
+      'Content-Type': 'application/json',
+      apikey: SUPABASE_SERVICE_ROLE_KEY,
+      Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+    }
+
     try {
+      // A song's identity is its CCLI number when it has one. Slug is only a
+      // fallback, and it is what let duplicates through before: two uploads of
+      // the same hymn with different artist credits both slugged to the same
+      // string but were inserted as separate rows.
+      const matchedOn = row.ccli_number ? 'ccli_number' : 'slug'
+      const filter = row.ccli_number
+        ? `ccli_number=eq.${encodeURIComponent(String(row.ccli_number))}`
+        : `slug=eq.${encodeURIComponent(String(row.slug || ''))}`
+
+      let existing: any[] = []
+      if (row.ccli_number || row.slug) {
+        const lookup = await fetch(
+          `${SUPABASE_URL}/rest/v1/songs?${filter}&select=id,title,artist,slug,ccli_number,overall_score,created_at&order=created_at.desc`,
+          { headers: sbHeaders },
+        )
+        if (lookup.ok) {
+          const found = await lookup.json()
+          if (Array.isArray(found)) existing = found
+        }
+      }
+
+      // Never silently add a second copy. Hand the decision back instead.
+      if (existing.length > 0 && !force) {
+        return NextResponse.json({
+          error: 'This song is already in the library.',
+          duplicate: {
+            matchedOn,
+            count: existing.length,
+            rows: existing.slice(0, 3).map(r => ({
+              id: r.id,
+              title: r.title,
+              artist: r.artist,
+              ccli_number: r.ccli_number,
+              overall_score: r.overall_score,
+              created_at: r.created_at,
+            })),
+          },
+        }, { status: 409 })
+      }
+
+      // Replacing: update the newest existing row in place rather than adding
+      // another one, so the row id and any inbound links survive.
+      if (existing.length > 0 && force) {
+        const target = existing[0]
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/songs?id=eq.${encodeURIComponent(target.id)}`, {
+          method: 'PATCH',
+          headers: sbHeaders,
+          body: JSON.stringify(row),
+        })
+        if (!res.ok) {
+          const errText = await res.text().catch(() => '')
+          return NextResponse.json({ error: errText || `Supabase error ${res.status}` }, { status: 502 })
+        }
+        return NextResponse.json({
+          ok: true,
+          mode: 'updated',
+          replaced: target.id,
+          alsoPresent: existing.length - 1,
+        })
+      }
+
       const res = await fetch(`${SUPABASE_URL}/rest/v1/songs`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          apikey: SUPABASE_SERVICE_ROLE_KEY,
-          Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
-          Prefer: 'resolution=merge-duplicates',
-        },
+        headers: { ...sbHeaders, Prefer: 'resolution=merge-duplicates' },
         body: JSON.stringify(row),
       })
       if (!res.ok) {
         const errText = await res.text().catch(() => '')
         return NextResponse.json({ error: errText || `Supabase error ${res.status}` }, { status: 502 })
       }
-      return NextResponse.json({ ok: true })
+      return NextResponse.json({ ok: true, mode: 'inserted' })
     } catch (e: any) {
       return NextResponse.json({ error: e.message || 'Upload failed' }, { status: 500 })
     }

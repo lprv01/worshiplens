@@ -227,6 +227,8 @@ export default function AnalyzePage() {
 
   // Upload
   const [uploadMsg, setUploadMsg] = useState<{ type: 'ok' | 'err'; text: string } | null>(null)
+  const [uploading, setUploading] = useState(false)
+  const [dupe, setDupe] = useState<{ matchedOn: string; count: number; rows: any[] } | null>(null)
 
   // Title chosen from the model's suggestions (only offered when we had none)
   const [chosenTitle, setChosenTitle] = useState('')
@@ -354,8 +356,10 @@ export default function AnalyzePage() {
   }
 
   // ── Upload to Supabase ──
-  async function handleUpload() {
-    if (!review) return
+  async function handleUpload(force = false) {
+    if (!review || uploading) return
+    setUploading(true)
+    if (!force) setDupe(null)
     const meta = review.meta || {}
     const fd = review._formData || {}
     const score = review.overall_score || 0
@@ -407,16 +411,33 @@ export default function AnalyzePage() {
       const res = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'upload', password: pwInput.trim(), row }),
+        body: JSON.stringify({ action: 'upload', password: pwInput.trim(), row, force }),
       })
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}))
-        throw new Error((err as any).message || `Upload failed ${res.status}`)
+      const data = await res.json().catch(() => ({}))
+
+      if (res.status === 409 && (data as any).duplicate) {
+        setDupe((data as any).duplicate)
+        setUploadMsg(null)
+        return
       }
-      setUploadMsg({ type: 'ok', text: `"${row.title}" uploaded to Supabase successfully.` })
+      if (!res.ok) {
+        throw new Error((data as any).error || `Upload failed ${res.status}`)
+      }
+
+      setDupe(null)
+      const mode = (data as any).mode
+      const also = (data as any).alsoPresent || 0
+      setUploadMsg({
+        type: 'ok',
+        text: mode === 'updated'
+          ? `"${row.title}" replaced the existing entry.${also > 0 ? ` Note: ${also} other row${also > 1 ? 's' : ''} still match and were left alone.` : ''}`
+          : `"${row.title}" uploaded to Supabase successfully.`,
+      })
       loadLibrary(true)   // keep the Library tab honest after a write
     } catch (e: any) {
       setUploadMsg({ type: 'err', text: e.message })
+    } finally {
+      setUploading(false)
     }
   }
 
@@ -964,10 +985,45 @@ export default function AnalyzePage() {
             {/* UPLOAD */}
             <div style={{ marginTop: 32, paddingTop: 24, borderTop: '0.5px solid rgba(255,255,255,0.1)' }}>
               <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', marginBottom: 12 }}>Upload to WorshipLens</div>
+              {/* Already-in-library warning. Uploading twice was how the
+                  duplicate Amazing Grace rows happened; this makes the second
+                  one a deliberate choice. */}
+              {dupe && (
+                <div style={{ background: '#2a1f00', border: '0.5px solid #fbbf24', borderRadius: 8, padding: '14px 16px', marginBottom: 12 }}>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: '#fbbf24', marginBottom: 8 }}>
+                    Already in the library - matched on {dupe.matchedOn === 'ccli_number' ? 'CCLI number' : 'slug'}
+                    {dupe.count > 1 ? ` (${dupe.count} existing rows)` : ''}
+                  </div>
+                  {dupe.rows.map((r: any) => (
+                    <div key={r.id} style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', marginBottom: 4 }}>
+                      {r.title || 'Untitled'} - {r.artist || 'Artist unknown'}
+                      {r.ccli_number ? ` · CCLI #${r.ccli_number}` : ''}
+                      {typeof r.overall_score === 'number' ? ` · ${r.overall_score.toFixed(1)}` : ''}
+                      {r.created_at ? ` · added ${new Date(r.created_at).toLocaleDateString()}` : ''}
+                    </div>
+                  ))}
+                  <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+                    <button className="az-upload-btn" disabled={uploading} onClick={() => handleUpload(true)}
+                      style={{ background: '#2a1f00', border: '0.5px solid #fbbf24', color: '#fbbf24', flex: 'none', padding: '8px 14px' }}>
+                      {uploading ? 'Replacing...' : 'Replace existing'}
+                    </button>
+                    <button className="az-upload-btn" onClick={() => setDupe(null)}
+                      style={{ background: 'none', border: '0.5px solid rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.5)', flex: 'none', padding: '8px 14px' }}>
+                      Cancel
+                    </button>
+                  </div>
+                  {dupe.count > 1 && (
+                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 10, lineHeight: 1.6 }}>
+                      Replacing updates the newest row only. The older duplicates stay until you remove them in Supabase.
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div style={{ display: 'flex', gap: 10 }}>
-                <button className="az-upload-btn" onClick={handleUpload}
+                <button className="az-upload-btn" disabled={uploading} onClick={() => handleUpload(false)}
                   style={{ background: '#052e16', border: '0.5px solid #22c55e', color: '#22c55e' }}>
-                  Upload to Supabase
+                  {uploading && !dupe ? 'Uploading...' : 'Upload to Supabase'}
                 </button>
                 <button className="az-upload-btn" onClick={() => { const c = { ...review }; delete c._formData; navigator.clipboard.writeText(JSON.stringify(c, null, 2)).then(() => setUploadMsg({ type: 'ok', text: 'JSON copied to clipboard.' })) }}
                   style={{ background: 'rgba(255,255,255,0.05)', border: '0.5px solid rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.6)' }}>
