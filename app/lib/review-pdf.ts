@@ -141,11 +141,39 @@ export async function buildReviewPdf(review: any, displayTitle: string) {
     write(review.overall_verdict, { size: 11, style: 'italic', color: [70, 80, 95], gap: 10 })
   }
 
+  if (meta.scoring_mode === 'lyrics_only') {
+    write(
+      'Lyrics-only review. This score reflects four lenses. Congregational Singability is a melodic judgement and is not applied to a lyric sheet, so it is excluded from the average rather than scored on assumptions.',
+      { size: 8.5, color: MUTED, lead: 1.4, gap: 8 },
+    )
+  }
+
   // ---- Lens scores --------------------------------------------------------
   heading('Scores')
   for (const l of LENSES) {
     const d = review?.lenses?.[l.key]
     if (!d) continue
+
+    // A lyrics-only review has no melody to judge, so this lens prints as not
+    // scored rather than carrying a number that was never earned.
+    const excluded = d.excluded === true || d.score === null || d.score === undefined
+    if (excluded) {
+      room(48)
+      doc.setFont('helvetica', 'bold')
+      doc.setFontSize(11)
+      doc.setTextColor(MUTED[0], MUTED[1], MUTED[2])
+      doc.text(l.label, M, y)
+      doc.setFont('helvetica', 'bold')
+      doc.setFontSize(8)
+      doc.text('NOT SCORED', PW - M, y, { align: 'right' })
+      y += 15
+      write(
+        d.summary || 'Melodic criteria are not evaluated in a lyrics-only review.',
+        { size: 9.5, style: 'italic', color: MUTED, gap: 12 },
+      )
+      continue
+    }
+
     room(56)
     const ls = Number(d.score || 0)
     const lc = scoreRgb(ls)

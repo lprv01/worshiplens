@@ -111,7 +111,7 @@ export default function GuestAnalyzePage() {
       const r = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'analyze', password: pwInput.trim(), songData: d }),
+        body: JSON.stringify({ action: 'analyze', password: pwInput.trim(), songData: d, mode: 'lyrics_only' }),
       })
       clearInterval(interval)
       const data = await r.json().catch(() => ({}))
@@ -142,9 +142,54 @@ export default function GuestAnalyzePage() {
     }
   }
 
+  // Sharing to the library. Consent is the gate: without the box ticked the
+  // lyrics never leave the browser, and the API refuses the request anyway.
+  const [consent, setConsent] = useState(false)
+  const [submitterName, setSubmitterName] = useState('')
+  const [submitterEmail, setSubmitterEmail] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [submitMsg, setSubmitMsg] = useState<{ type: 'ok' | 'err'; text: string } | null>(null)
+
+  async function handleSubmitToLibrary() {
+    if (!review || !consent || submitting) return
+    setSubmitting(true); setSubmitMsg(null)
+    const d = getSongData()
+    try {
+      const r = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'submit',
+          password: pwInput.trim(),
+          submission: {
+            consent: true,
+            title: displayTitle,
+            artist: d.artist || review.meta?.artist || '',
+            lyrics: d.lyrics,
+            themes: d.themes,
+            key: d.key,
+            timeSignature: d.timeSignature || review.meta?.time_signature || '',
+            overall_score: review.overall_score,
+            review,
+            submitterName: submitterName.trim(),
+            submitterEmail: submitterEmail.trim(),
+          },
+        }),
+      })
+      const data = await r.json().catch(() => ({}))
+      if (!r.ok) throw new Error((data as any)?.error || `Submission failed (${r.status})`)
+      setSubmitMsg({ type: 'ok', text: 'Thank you. Your song has been sent for review and will appear in the library once approved.' })
+    } catch (e: any) {
+      setSubmitMsg({ type: 'err', text: e.message || 'Could not submit.' })
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
   function handleReset() {
     setReview(null); setPasteRaw(''); setEdits({})
     setAnalyzeError(''); setChosenTitle(''); setPdfError('')
+    setConsent(false); setSubmitterName(''); setSubmitterEmail(''); setSubmitMsg(null)
   }
 
   const styles = `
@@ -338,6 +383,22 @@ export default function GuestAnalyzePage() {
               <div>
                 {LENS_CONFIG.map(l => {
                   const d = review.lenses?.[l.key] || {}
+                  // Singability needs a melody. On a lyrics-only review there
+                  // isn't one, so it is shown as not scored rather than guessed.
+                  const excluded = d.excluded === true || d.score === null || d.score === undefined
+                  if (excluded) {
+                    return (
+                      <div key={l.key} className="az-lens-card" style={{ background: 'rgba(255,255,255,0.03)', borderLeftColor: 'rgba(255,255,255,0.2)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4, gap: 10 }}>
+                          <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)' }}>{l.label}</span>
+                          <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', whiteSpace: 'nowrap' }}>Not scored</span>
+                        </div>
+                        <div style={{ fontSize: 12.5, color: 'rgba(255,255,255,0.4)', lineHeight: 1.65 }}>
+                          {d.summary || 'Melodic criteria are not evaluated in a lyrics-only review. Singability depends on melody, range and key, none of which a lyric sheet provides, so this lens is left out of the score rather than guessed at.'}
+                        </div>
+                      </div>
+                    )
+                  }
                   return (
                     <div key={l.key} className="az-lens-card" style={{ background: l.bg, borderLeftColor: l.color }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
@@ -349,6 +410,10 @@ export default function GuestAnalyzePage() {
                     </div>
                   )
                 })}
+
+                <div style={{ marginTop: 14, padding: '12px 14px', borderRadius: 8, background: 'rgba(255,255,255,0.03)', border: '0.5px solid rgba(255,255,255,0.08)', fontSize: 11.5, color: 'rgba(255,255,255,0.38)', lineHeight: 1.7 }}>
+                  This score reflects four lenses. Congregational Singability is a melodic judgement and is not applied to a lyrics-only review, so it is excluded from the average rather than scored on assumptions.
+                </div>
                 {review.technical?.themes?.length > 0 && (
                   <>
                     <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', marginTop: 20, marginBottom: 8 }}>Themes</div>
@@ -513,6 +578,80 @@ export default function GuestAnalyzePage() {
               {pdfError && (
                 <div style={{ marginTop: 10, padding: '8px 12px', borderRadius: 6, fontSize: 12, background: '#1a0505', border: '0.5px solid #f87171', color: '#f87171' }}>{pdfError}</div>
               )}
+            </div>
+
+            {/* SHARE TO LIBRARY */}
+            <div style={{ marginTop: 28, paddingTop: 24, borderTop: '0.5px solid rgba(255,255,255,0.1)' }}>
+              <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', marginBottom: 12 }}>
+                Share This Song <span style={{ color: 'rgba(255,255,255,0.2)' }}>- optional</span>
+              </div>
+
+              {submitMsg?.type === 'ok' ? (
+                <div style={{ padding: '14px 16px', borderRadius: 8, fontSize: 13, lineHeight: 1.7, background: '#052e16', border: '0.5px solid #22c55e', color: '#22c55e' }}>
+                  {submitMsg.text}
+                </div>
+              ) : (
+                <>
+                  <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer', marginBottom: 12 }}>
+                    <input
+                      type="checkbox"
+                      checked={consent}
+                      onChange={e => { setConsent(e.target.checked); setSubmitMsg(null) }}
+                      style={{ marginTop: 3, width: 15, height: 15, accentColor: BLUE, cursor: 'pointer', flexShrink: 0 }}
+                    />
+                    <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', lineHeight: 1.6 }}>
+                      I&rsquo;d like to share my song lyrics on the WorshipLens library
+                    </span>
+                  </label>
+
+                  {consent && (
+                    <div className="az-grid2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
+                      <div>
+                        <label style={{ display: 'block', fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>Your Name (optional)</label>
+                        <input className="az-input" placeholder="Jane Writer" value={submitterName} onChange={e => setSubmitterName(e.target.value)} />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>Your Email (optional)</label>
+                        <input className="az-input" placeholder="jane@example.com" value={submitterEmail} onChange={e => setSubmitterEmail(e.target.value)} />
+                      </div>
+                    </div>
+                  )}
+
+                  <button
+                    className="az-btn"
+                    disabled={!consent || submitting}
+                    onClick={handleSubmitToLibrary}
+                    style={{
+                      background: consent && !submitting ? '#052e16' : 'rgba(255,255,255,0.05)',
+                      border: `0.5px solid ${consent && !submitting ? '#22c55e' : 'rgba(255,255,255,0.12)'}`,
+                      color: consent && !submitting ? '#22c55e' : 'rgba(255,255,255,0.25)',
+                    }}
+                  >
+                    {submitting ? 'Sending...' : 'Post my song on the WorshipLens library'}
+                  </button>
+
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.28)', marginTop: 10, lineHeight: 1.65 }}>
+                    Your song lyrics are never stored or posted without your permission. Nothing is saved unless you tick the box above, and submitted songs are reviewed before they appear in the library.
+                  </div>
+
+                  {submitMsg?.type === 'err' && (
+                    <div style={{ marginTop: 10, padding: '8px 12px', borderRadius: 6, fontSize: 12, background: '#1a0505', border: '0.5px solid #f87171', color: '#f87171' }}>
+                      {submitMsg.text}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+
+            {/* COMING SOON */}
+            <div style={{ marginTop: 28, paddingTop: 24, borderTop: '0.5px solid rgba(255,255,255,0.1)' }}>
+              <div style={{ background: 'rgba(0,181,255,0.05)', border: '0.5px solid rgba(0,181,255,0.2)', borderRadius: 8, padding: '16px 18px' }}>
+                <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: BLUE, marginBottom: 6 }}>Coming Soon</div>
+                <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 6 }}>Song Demos Forum for Songwriters</div>
+                <div style={{ fontSize: 12.5, color: 'rgba(255,255,255,0.45)', lineHeight: 1.7 }}>
+                  Post a demo recording and get the full five-lens review, melodic analysis included. Congregational Singability needs a melody to judge - range, key, and how the tune sits in a room - so once you can submit audio, that fifth lens comes back and the score covers the whole song rather than the words alone. A place to trade feedback with other writers and workshop a song before it reaches a congregation.
+                </div>
+              </div>
             </div>
           </>
         )}

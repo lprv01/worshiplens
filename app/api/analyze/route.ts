@@ -5,10 +5,34 @@ const GUEST_PASSWORD = process.env.GUEST_PASSWORD
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
+const RESEND_API_KEY = process.env.RESEND_API_KEY
+const NOTIFY_EMAIL = process.env.NOTIFY_EMAIL
+// onboarding@resend.dev works with no domain setup but only delivers to the
+// Resend account owner. Swap to a worshiplens.com sender once verified.
+const RESEND_FROM = process.env.RESEND_FROM || 'WorshipLens <onboarding@resend.dev>'
 
-function buildPrompt(p: any): string {
+function buildPrompt(p: any, mode: 'full' | 'lyrics_only' = 'full'): string {
   const supplied = (v: any) => (v && String(v).trim() ? String(v).trim() : 'not provided')
+
+  // A songwriter submitting their own unrecorded lyrics has no melody, key or
+  // range to evaluate. Scoring singability there would be scoring an invented
+  // tune, and it would drag the overall average with it.
+  const lyricsOnlyBlock = mode === 'lyrics_only' ? `
+LYRICS-ONLY REVIEW - THIS IS IMPORTANT:
+- This submission is a lyric sheet from a writer. There is no melody, no recording, no established key, and no congregation has sung it.
+- Do NOT score congregational_singability. Set its "score" to null and its "excluded" to true.
+- In its "summary" put exactly one sentence explaining that melodic criteria are not evaluated in a lyrics-only review. Leave its deduction_line, key_original, key_recommended, range_original, range_recommended, ceiling_note and melody_accessibility as empty strings.
+- Calculate overall_score from the remaining FOUR lenses only (scriptural_fidelity, theological_clarity, poetic_lyrical_quality, defense_brief). Do not average in a zero or a placeholder for the excluded lens.
+- Leave meta.key_original, meta.key_recommended, meta.range_original, meta.range_recommended empty, and meta.tempo_bpm at 0. Do not guess a key or tempo from a lyric.
+- Set meta.scoring_mode to "lyrics_only".
+- You may still analyse meter and recommend a time signature, because those come from the prosody of the words rather than from a tune.
+- Judge poetic_lyrical_quality on the writing itself. Where line lengths are uneven, note it as something the melody will need to carry rather than as a fault in the lyric.
+` : `
+- Set meta.scoring_mode to "full".
+`
+
   return `You are WorshipLens, a theological review assistant for Baptist worship leaders in the BGCT/Texas Baptists tradition. Your tone is pastoral, equipping, and honest.
+${lyricsOnlyBlock}
 
 SONG DATA (any field marked "not provided" is genuinely unknown):
 Title: ${supplied(p.title)}
@@ -67,7 +91,7 @@ SCORING: Each lens scored 0-10. Overall 10/10 is unreachable by design. Deductio
 
 Generate a complete WorshipLens review as a single valid JSON object. No text outside the JSON. No markdown fences.
 
-{"meta":{"title":"","artist":"","identified_from_lyrics":false,"suggested_titles":[],"submitted_themes_note":"","ccli_number":"","slug":"","key_original":"","key_recommended":"","range_original":"","range_recommended":"","time_signature":"","time_signature_source":"recommended","time_signature_reasoning":"","meter_pattern":"","meter_name":"","poetic_foot":"","tempo_bpm":0,"copyright":"","release_year":"","album":"","genre":"","hymn_lineage_badge":null},"overall_score":0.0,"overall_verdict":"","recommendation":"Recommended","lenses":{"scriptural_fidelity":{"score":0.0,"deduction_line":"","summary":"","watchpoints":[],"lyric_examples":[]},"theological_clarity":{"score":0.0,"deduction_line":"","summary":"","radio_test_result":"Passes","radio_test_note":"","theological_arc":"","watchpoints":[]},"congregational_singability":{"score":0.0,"deduction_line":"","summary":"","key_original":"","key_recommended":"","range_original":"","range_recommended":"","ceiling_note":"","melody_accessibility":""},"poetic_lyrical_quality":{"score":0.0,"deduction_line":"","summary":"","repetition_ratio_pct":0,"cliche_density":"low","imagery_quality":"","voice_distribution":{"individual_pct":0,"corporate_pct":0,"flag":null,"note":""},"grammar_notes":[],"lyric_modifications":[],"watchpoints":[]},"defense_brief":{"score":0.0,"summary":"","objections":[{"objection":"","who_raises_it":"","tag":"Theological","scripture_response":"","suggested_framing":"","ccli_modification_note":"","honest_concession":""}]}},"full_analysis":{"paragraphs":["","","",""]},"scripture_map":{"primary":[{"reference":"","connection":""}],"supporting":[{"reference":"","connection":""}]},"theological_nuances":{"affirmed":[{"label":"","note":""}],"flagged":[]},"hymn_lineage":null,"story_behind_song":{"available":true,"publisher_note":null,"items":[{"text":"","source":""}]},"technical":{"themes":[],"sermon_series_fit":[],"seasonal_tags":[],"audience_fit":{"spiritual_maturity":"","age_group":"","service_type":"","visitor_friendliness":"","special_contexts":""}},"set_intelligence":{"available_at_500_songs":true,"pairs_well_with":[],"avoid_pairing_with":[],"set_arc":null},"similar_songs":{"if_you_love_this":[],"if_this_concerns_you":[]}}`
+{"meta":{"title":"","artist":"","identified_from_lyrics":false,"suggested_titles":[],"submitted_themes_note":"","scoring_mode":"full","ccli_number":"","slug":"","key_original":"","key_recommended":"","range_original":"","range_recommended":"","time_signature":"","time_signature_source":"recommended","time_signature_reasoning":"","meter_pattern":"","meter_name":"","poetic_foot":"","tempo_bpm":0,"copyright":"","release_year":"","album":"","genre":"","hymn_lineage_badge":null},"overall_score":0.0,"overall_verdict":"","recommendation":"Recommended","lenses":{"scriptural_fidelity":{"score":0.0,"deduction_line":"","summary":"","watchpoints":[],"lyric_examples":[]},"theological_clarity":{"score":0.0,"deduction_line":"","summary":"","radio_test_result":"Passes","radio_test_note":"","theological_arc":"","watchpoints":[]},"congregational_singability":{"score":0.0,"excluded":false,"deduction_line":"","summary":"","key_original":"","key_recommended":"","range_original":"","range_recommended":"","ceiling_note":"","melody_accessibility":""},"poetic_lyrical_quality":{"score":0.0,"deduction_line":"","summary":"","repetition_ratio_pct":0,"cliche_density":"low","imagery_quality":"","voice_distribution":{"individual_pct":0,"corporate_pct":0,"flag":null,"note":""},"grammar_notes":[],"lyric_modifications":[],"watchpoints":[]},"defense_brief":{"score":0.0,"summary":"","objections":[{"objection":"","who_raises_it":"","tag":"Theological","scripture_response":"","suggested_framing":"","ccli_modification_note":"","honest_concession":""}]}},"full_analysis":{"paragraphs":["","","",""]},"scripture_map":{"primary":[{"reference":"","connection":""}],"supporting":[{"reference":"","connection":""}]},"theological_nuances":{"affirmed":[{"label":"","note":""}],"flagged":[]},"hymn_lineage":null,"story_behind_song":{"available":true,"publisher_note":null,"items":[{"text":"","source":""}]},"technical":{"themes":[],"sermon_series_fit":[],"seasonal_tags":[],"audience_fit":{"spiritual_maturity":"","age_group":"","service_type":"","visitor_friendliness":"","special_contexts":""}},"set_intelligence":{"available_at_500_songs":true,"pairs_well_with":[],"avoid_pairing_with":[],"set_arc":null},"similar_songs":{"if_you_love_this":[],"if_this_concerns_you":[]}}`
 }
 
 type Role = 'admin' | 'guest'
@@ -103,7 +127,8 @@ export async function POST(req: NextRequest) {
   }
 
   if (action === 'analyze') {
-    const { songData } = body
+    const { songData, mode } = body
+    const scoringMode: 'full' | 'lyrics_only' = mode === 'lyrics_only' ? 'lyrics_only' : 'full'
     if (!ANTHROPIC_API_KEY) {
       return NextResponse.json({ error: 'ANTHROPIC_API_KEY not configured on server' }, { status: 500 })
     }
@@ -119,7 +144,7 @@ export async function POST(req: NextRequest) {
           model: 'claude-sonnet-5',
           max_tokens: 16000,
           system: 'You are WorshipLens, a theological review assistant for Baptist worship leaders. Analyze worship songs for biblical accuracy, theological clarity, congregational singability, poetic quality, and pastoral defensibility. Use lyrics for analysis only. Never reproduce full lyrics. Never use em dashes.',
-          messages: [{ role: 'user', content: buildPrompt(songData) }],
+          messages: [{ role: 'user', content: buildPrompt(songData, scoringMode) }],
         }),
       })
       if (!r.ok) {
@@ -166,6 +191,97 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ result })
     } catch (e: any) {
       return NextResponse.json({ error: e.message || 'Analysis failed' }, { status: 500 })
+    }
+  }
+
+  // A guest opting to share their song. This is the only path that stores
+  // lyrics, and it only runs when the submitter ticks the consent box.
+  if (action === 'submit') {
+    const { submission } = body
+    if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+      return NextResponse.json({ error: 'Supabase env vars not configured on server' }, { status: 500 })
+    }
+    if (!submission?.consent) {
+      return NextResponse.json({ error: 'Consent is required to store lyrics.' }, { status: 400 })
+    }
+    if (!String(submission?.lyrics || '').trim()) {
+      return NextResponse.json({ error: 'No lyrics to submit.' }, { status: 400 })
+    }
+
+    const row = {
+      title: submission.title || 'Untitled song',
+      artist: submission.artist || null,
+      lyrics: submission.lyrics,
+      themes: submission.themes || null,
+      song_key: submission.key || null,
+      time_signature: submission.timeSignature || null,
+      overall_score: typeof submission.overall_score === 'number' ? submission.overall_score : null,
+      review: submission.review || null,
+      submitter_name: submission.submitterName || null,
+      submitter_email: submission.submitterEmail || null,
+      status: 'pending',
+      submitted_by_role: role,
+    }
+
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/song_submissions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          apikey: SUPABASE_SERVICE_ROLE_KEY,
+          Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+          Prefer: 'return=representation',
+        },
+        body: JSON.stringify(row),
+      })
+      if (!res.ok) {
+        const errText = await res.text().catch(() => '')
+        return NextResponse.json({ error: errText || `Supabase error ${res.status}` }, { status: 502 })
+      }
+      const saved = await res.json().catch(() => null)
+      const savedId = Array.isArray(saved) && saved[0]?.id ? saved[0].id : null
+
+      // Notify out of band. The submitter never learns whether this worked -
+      // a mail outage must not look like a failed submission.
+      if (RESEND_API_KEY && NOTIFY_EMAIL) {
+        try {
+          const lines = [
+            `A song was submitted to the WorshipLens library.`,
+            ``,
+            `Title:   ${row.title}`,
+            `Author:  ${row.artist || 'not given'}`,
+            `Score:   ${row.overall_score ?? 'n/a'}`,
+            `Key:     ${row.song_key || 'not given'}`,
+            `Meter:   ${row.time_signature || 'not given'}`,
+            `Themes:  ${row.themes || 'not given'}`,
+            ``,
+            `From:    ${row.submitter_name || 'anonymous'}${row.submitter_email ? ` <${row.submitter_email}>` : ''}`,
+            `Status:  pending your approval`,
+            ``,
+            `--- LYRICS ---`,
+            row.lyrics,
+          ]
+          await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${RESEND_API_KEY}`,
+            },
+            body: JSON.stringify({
+              from: RESEND_FROM,
+              to: [NOTIFY_EMAIL],
+              subject: `WorshipLens submission: ${row.title}`,
+              text: lines.join('\n'),
+            }),
+          })
+        } catch (mailErr) {
+          console.error('[submit] notification email failed', mailErr)
+        }
+      }
+
+      return NextResponse.json({ ok: true, id: savedId })
+    } catch (e: any) {
+      return NextResponse.json({ error: e.message || 'Submission failed' }, { status: 500 })
     }
   }
 
