@@ -6,38 +6,46 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { NAVY, BLUE, LogoWhite } from '../../lib/review-shared'
 
-// Hidden admin queue of Song Analyzer access requests. Reached from the
-// notification email or directly. Password-gated with the admin password.
+// Stateless grant page. The requester's name/email arrive encoded in the ?g=
+// link from the notification email (no database). Granting sends the branded
+// welcome email and also shows a copy-to-send version as a fallback.
 const PW_KEY = 'wl_admin_pw'
-
-type Row = {
-  id: string
-  name: string | null
-  email: string
-  status: string
-  created_at: string
-}
+const GUEST_CODE = 'worshipguest'
 
 const styles = `
   @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   .az-input { width: 100%; background: rgba(255,255,255,0.05); border: 0.5px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 10px 14px; font-size: 13px; font-family: 'Sora', sans-serif; color: #fff; outline: none; transition: border-color 0.2s; }
-  .az-input::placeholder { color: rgba(255,255,255,0.25); }
   .az-input:focus { border-color: rgba(255,255,255,0.3); }
   .az-btn { width: 100%; padding: 13px; border: none; border-radius: 8px; font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-  .sub-row { display: grid; grid-template-columns: 1fr auto; gap: 14px; align-items: center; padding: 16px 18px; border: 0.5px solid rgba(255,255,255,0.1); border-radius: 12px; background: rgba(255,255,255,0.02); text-decoration: none; transition: border-color 0.15s, background 0.15s; margin-bottom: 10px; }
-  .sub-row:hover { border-color: rgba(0,181,255,0.4); background: rgba(0,181,255,0.04); }
+  .az-btn:disabled { opacity: 0.4; cursor: default; }
 `
 
-export default function AccessQueuePage() {
+function decodeToken(raw: string): { name: string; email: string } | null {
+  try {
+    const b64 = raw.replace(/-/g, '+').replace(/_/g, '/')
+    const json = decodeURIComponent(escape(atob(b64)))
+    const o = JSON.parse(json)
+    if (o && typeof o.e === 'string') return { name: String(o.n || ''), email: String(o.e) }
+    return null
+  } catch {
+    return null
+  }
+}
+
+export default function AccessGrantPage() {
   const [pw, setPw] = useState('')
   const [unlocked, setUnlocked] = useState(false)
   const [pwInput, setPwInput] = useState('')
   const [pwError, setPwError] = useState(false)
-  const [rows, setRows] = useState<Row[]>([])
-  const [loading, setLoading] = useState(false)
+
+  const [req, setReq] = useState<{ name: string; email: string } | null>(null)
+  const [noToken, setNoToken] = useState(false)
+
+  const [working, setWorking] = useState<'grant' | 'decline' | null>(null)
+  const [result, setResult] = useState<{ type: 'granted' | 'declined'; emailed?: boolean; emailError?: string | null } | null>(null)
   const [err, setErr] = useState('')
-  const [showAll, setShowAll] = useState(false)
+  const [copied, setCopied] = useState(false)
 
   async function verify(candidate: string, silent = false) {
     try {
@@ -62,27 +70,41 @@ export default function AccessQueuePage() {
   useEffect(() => {
     const cached = typeof window !== 'undefined' ? sessionStorage.getItem(PW_KEY) : null
     if (cached) verify(cached, true)
+    const g = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('g') : null
+    if (g) {
+      const decoded = decodeToken(g)
+      if (decoded) setReq(decoded); else setNoToken(true)
+    } else {
+      setNoToken(true)
+    }
   }, [])
 
-  async function load() {
-    setLoading(true); setErr('')
+  const welcomeText = req
+    ? `Hi ${req.name || 'there'},\n\nThank you for requesting access to the WorshipLens Song Analyzer.\n\nWhat the Church sings shapes what it believes. WorshipLens exists on a simple conviction: to understand the songs we sing through a biblical lens, so leaders and songwriters can choose and write songs that faithfully reflect the truth of Scripture.\n\nYour access code for the Song Analyzer: ${GUEST_CODE}\nOpen it here: https://www.worshiplens.com/analyze\n\n- Ludwingk Rios\nWorship Leader, Musician, Editor\nworshiplens.com`
+    : ''
+
+  async function grant() {
+    if (!req) return
+    setWorking('grant'); setErr('')
     try {
       const r = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'access_list', password: pw, status: showAll ? 'all' : 'pending' }),
+        body: JSON.stringify({ action: 'access_grant', password: pw, name: req.name, email: req.email }),
       })
       const d = await r.json().catch(() => ({}))
-      if (!r.ok) throw new Error((d as any).error || `Failed to load (${r.status})`)
-      setRows(Array.isArray((d as any).rows) ? (d as any).rows : [])
+      if (!r.ok) throw new Error((d as any).error || `Failed (${r.status})`)
+      setResult({ type: 'granted', emailed: (d as any).emailed, emailError: (d as any).emailError })
     } catch (e: any) {
-      setErr(e.message || 'Failed to load')
+      setErr(e.message || 'Failed to grant')
     } finally {
-      setLoading(false)
+      setWorking(null)
     }
   }
 
-  useEffect(() => { if (unlocked) load() }, [unlocked, showAll]) // eslint-disable-line react-hooks/exhaustive-deps
+  async function copyMsg() {
+    try { await navigator.clipboard.writeText(welcomeText); setCopied(true); setTimeout(() => setCopied(false), 1600) } catch { /* ignore */ }
+  }
 
   if (!unlocked) {
     return (
@@ -95,7 +117,7 @@ export default function AccessQueuePage() {
           <div style={{ width: '100%', maxWidth: 360 }}>
             <div style={{ textAlign: 'center', marginBottom: 32 }}>
               <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color: BLUE, marginBottom: 10 }}>Admin</div>
-              <h1 style={{ fontSize: 22, fontWeight: 600, color: '#fff', letterSpacing: '-0.03em' }}>Access Requests</h1>
+              <h1 style={{ fontSize: 22, fontWeight: 600, color: '#fff', letterSpacing: '-0.03em' }}>Access Request</h1>
               <p style={{ fontSize: 13, fontWeight: 300, color: 'rgba(255,255,255,0.35)', marginTop: 8 }}>Enter the admin password.</p>
             </div>
             <input
@@ -116,58 +138,68 @@ export default function AccessQueuePage() {
     <div style={{ fontFamily: "'Sora', sans-serif", background: NAVY, color: '#fff', minHeight: '100vh' }}>
       <style>{styles}</style>
       <nav style={{ borderBottom: '0.5px solid rgba(255,255,255,0.08)', position: 'sticky', top: 0, zIndex: 50, background: NAVY }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', height: 68, maxWidth: 820, margin: '0 auto' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', height: 68, maxWidth: 640, margin: '0 auto' }}>
           <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}><LogoWhite height={44} /></Link>
           <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: BLUE, border: `0.5px solid ${BLUE}`, padding: '3px 10px', borderRadius: 20 }}>Access</span>
         </div>
       </nav>
 
-      <div style={{ maxWidth: 820, margin: '0 auto', padding: '36px 24px 80px' }}>
-        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 16, marginBottom: 24, flexWrap: 'wrap' }}>
-          <div>
-            <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color: BLUE, marginBottom: 8 }}>Admin</div>
-            <h1 style={{ fontSize: 26, fontWeight: 600, letterSpacing: '-0.03em' }}>Access Requests</h1>
-            <p style={{ fontSize: 13, fontWeight: 300, color: 'rgba(255,255,255,0.4)', marginTop: 6 }}>People asking for Song Analyzer access. Open one to grant or decline.</p>
-          </div>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button
-              onClick={() => setShowAll(false)}
-              style={{ padding: '7px 14px', borderRadius: 20, fontFamily: "'Sora', sans-serif", fontSize: 11, fontWeight: 500, cursor: 'pointer', border: `0.5px solid ${!showAll ? BLUE : 'rgba(255,255,255,0.15)'}`, background: !showAll ? 'rgba(0,181,255,0.1)' : 'none', color: !showAll ? BLUE : 'rgba(255,255,255,0.5)' }}
-            >Pending</button>
-            <button
-              onClick={() => setShowAll(true)}
-              style={{ padding: '7px 14px', borderRadius: 20, fontFamily: "'Sora', sans-serif", fontSize: 11, fontWeight: 500, cursor: 'pointer', border: `0.5px solid ${showAll ? BLUE : 'rgba(255,255,255,0.15)'}`, background: showAll ? 'rgba(0,181,255,0.1)' : 'none', color: showAll ? BLUE : 'rgba(255,255,255,0.5)' }}
-            >All</button>
-          </div>
-        </div>
-
-        {loading && <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>Loading...</div>}
-        {err && <div style={{ padding: '10px 14px', background: '#1a0505', border: '0.5px solid #f87171', borderRadius: 8, fontSize: 12, color: '#f87171' }}>{err}</div>}
-
-        {!loading && !err && rows.length === 0 && (
-          <div style={{ padding: '40px 24px', textAlign: 'center', border: '0.5px dashed rgba(255,255,255,0.12)', borderRadius: 12, fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>
-            {showAll ? 'No access requests yet.' : 'No pending requests. You are all caught up.'}
+      <div style={{ maxWidth: 640, margin: '0 auto', padding: '32px 24px 80px' }}>
+        {noToken && !req && (
+          <div style={{ padding: '40px 24px', textAlign: 'center', border: '0.5px dashed rgba(255,255,255,0.12)', borderRadius: 12, fontSize: 13, color: 'rgba(255,255,255,0.5)', lineHeight: 1.7 }}>
+            Access requests arrive by email. Open the <b style={{ color: '#fff' }}>Grant access</b> link in the notification to review and grant a request.
           </div>
         )}
 
-        {!loading && rows.map(r => (
-          <Link key={r.id} href={`/admin/access-requests/${r.id}`} className="sub-row">
-            <div style={{ minWidth: 0 }}>
-              <div style={{ fontSize: 14, fontWeight: 500, color: '#fff' }}>{r.name || 'No name given'}</div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.email}</div>
+        {req && (
+          <>
+            <div style={{ marginBottom: 24, paddingBottom: 20, borderBottom: '0.5px solid rgba(255,255,255,0.1)' }}>
+              <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color: BLUE, marginBottom: 8 }}>Access request</div>
+              <h1 style={{ fontSize: 26, fontWeight: 600, letterSpacing: '-0.03em' }}>{req.name || 'No name given'}</h1>
+              <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', marginTop: 8 }}>
+                <a href={`mailto:${req.email}`} style={{ color: BLUE, textDecoration: 'none' }}>{req.email}</a>
+              </p>
             </div>
-            <div style={{ textAlign: 'right', flexShrink: 0 }}>
-              <span style={{
-                fontSize: 9, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', padding: '3px 8px', borderRadius: 4,
-                color: r.status === 'pending' ? BLUE : r.status === 'granted' ? '#22c55e' : 'rgba(255,255,255,0.4)',
-                background: r.status === 'pending' ? 'rgba(0,181,255,0.12)' : r.status === 'granted' ? 'rgba(34,197,94,0.12)' : 'rgba(255,255,255,0.06)',
-              }}>{r.status}</span>
-              <div style={{ fontSize: 10.5, color: 'rgba(255,255,255,0.3)', marginTop: 5 }}>
-                {r.created_at ? new Date(r.created_at).toLocaleDateString() : ''}
+
+            {err && <div style={{ marginBottom: 16, padding: '10px 14px', background: '#1a0505', border: '0.5px solid #f87171', borderRadius: 8, fontSize: 12, color: '#f87171' }}>{err}</div>}
+
+            {result?.type === 'granted' && (
+              <div style={{ marginBottom: 20, padding: '14px 16px', borderRadius: 10, fontSize: 13, lineHeight: 1.6, background: '#052e16', border: '0.5px solid #22c55e', color: '#22c55e' }}>
+                {result.emailed
+                  ? `Welcome email sent to ${req.email} with the code.`
+                  : `Marked granted, but the auto-email did not send${result.emailError ? ` (${result.emailError})` : ''}. Copy the message below and send it yourself.`}
               </div>
-            </div>
-          </Link>
-        ))}
+            )}
+            {result?.type === 'declined' && (
+              <div style={{ marginBottom: 20, padding: '14px 16px', borderRadius: 10, fontSize: 13, background: 'rgba(255,255,255,0.04)', border: '0.5px solid rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.6)' }}>
+                Declined. Nothing was sent.
+              </div>
+            )}
+
+            {!result && (
+              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 26 }}>
+                <button className="az-btn" disabled={working !== null} onClick={grant} style={{ flex: '1 1 220px', background: '#052e16', border: '0.5px solid #22c55e', color: '#22c55e' }}>
+                  {working === 'grant' ? 'Sending...' : 'Grant access & send code'}
+                </button>
+                <button className="az-btn" disabled={working !== null} onClick={() => setResult({ type: 'declined' })} style={{ flex: '1 1 140px', background: 'rgba(255,255,255,0.04)', border: '0.5px solid rgba(255,255,255,0.16)', color: 'rgba(255,255,255,0.7)' }}>
+                  Decline
+                </button>
+              </div>
+            )}
+
+            {result?.type !== 'declined' && (
+              <div style={{ border: '0.5px solid rgba(255,255,255,0.1)', borderRadius: 12, padding: '16px 18px', background: 'rgba(255,255,255,0.02)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 10 }}>
+                  <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)' }}>Or send it yourself</div>
+                  <button onClick={copyMsg} style={{ fontFamily: "'Sora', sans-serif", fontSize: 11, fontWeight: 600, color: copied ? '#4ade80' : BLUE, background: 'none', border: `0.5px solid ${copied ? '#4ade80' : 'rgba(0,181,255,0.4)'}`, borderRadius: 6, padding: '5px 12px', cursor: 'pointer' }}>
+                    {copied ? 'Copied' : 'Copy message'}
+                  </button>
+                </div>
+                <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'ui-monospace, monospace', fontSize: 12, lineHeight: 1.6, color: 'rgba(255,255,255,0.55)', margin: 0 }}>{welcomeText}</pre>
+              </div>
+            )}
+          </>
+        )}
       </div>
     </div>
   )

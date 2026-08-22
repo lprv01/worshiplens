@@ -215,61 +215,37 @@ export async function POST(req: NextRequest) {
   const body = await req.json()
   const { action, password } = body
 
-  // A visitor without a password asking for Song Analyzer access. Public, so it
-  // is handled before the password gate below. Writes a pending request and
-  // notifies the admin out of band.
+  // A visitor without a password asking for Song Analyzer access. Public and
+  // stateless: the request is encoded into a grant link emailed to the admin,
+  // so no database table is required.
   if (action === 'access_request') {
-    if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-      return NextResponse.json({ error: 'Server not configured' }, { status: 500 })
-    }
     const name = String(body?.name || '').trim()
     const email = String(body?.email || '').trim()
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return NextResponse.json({ error: 'A valid email is required.' }, { status: 400 })
     }
-    try {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/access_requests`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          apikey: SUPABASE_SERVICE_ROLE_KEY,
-          Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
-          Prefer: 'return=representation',
-        },
-        body: JSON.stringify({ name: name || null, email, status: 'pending' }),
-      })
-      if (!res.ok) {
-        const t = await res.text().catch(() => '')
-        return NextResponse.json({ error: t || `Supabase ${res.status}` }, { status: 502 })
+    if (RESEND_API_KEY && NOTIFY_EMAIL) {
+      try {
+        const token = Buffer.from(JSON.stringify({ n: name, e: email })).toString('base64url')
+        const link = `${siteOrigin(req)}/admin/access-requests?g=${encodeURIComponent(token)}`
+        const lines = [
+          'Someone requested access to the WorshipLens Song Analyzer.',
+          '',
+          `Name:  ${name || 'not given'}`,
+          `Email: ${email}`,
+          '',
+          `Grant access: ${link}`,
+        ]
+        await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${RESEND_API_KEY}` },
+          body: JSON.stringify({ from: RESEND_FROM, to: [NOTIFY_EMAIL], subject: `WorshipLens access request: ${name || email}`, text: lines.join('\n') }),
+        })
+      } catch (mailErr) {
+        console.error('[access_request] notify failed', mailErr)
       }
-      const saved = await res.json().catch(() => null)
-      const savedId = Array.isArray(saved) && saved[0]?.id ? saved[0].id : null
-
-      if (RESEND_API_KEY && NOTIFY_EMAIL) {
-        try {
-          const lines = [
-            'Someone requested access to the WorshipLens Song Analyzer.',
-            '',
-            `Name:  ${name || 'not given'}`,
-            `Email: ${email}`,
-            '',
-            savedId
-              ? `Review and grant: ${siteOrigin(req)}/admin/access-requests/${savedId}`
-              : `Open the access queue: ${siteOrigin(req)}/admin/access-requests`,
-          ]
-          await fetch('https://api.resend.com/emails', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${RESEND_API_KEY}` },
-            body: JSON.stringify({ from: RESEND_FROM, to: [NOTIFY_EMAIL], subject: `WorshipLens access request: ${name || email}`, text: lines.join('\n') }),
-          })
-        } catch (mailErr) {
-          console.error('[access_request] notify failed', mailErr)
-        }
-      }
-      return NextResponse.json({ ok: true, id: savedId })
-    } catch (e: any) {
-      return NextResponse.json({ error: e.message || 'Request failed' }, { status: 500 })
     }
+    return NextResponse.json({ ok: true })
   }
 
   const role = roleFor(password)
@@ -279,7 +255,7 @@ export async function POST(req: NextRequest) {
 
   // Anything that reads or writes the database is admin-only. A guest
   // password can analyze lyrics and nothing else.
-  const ADMIN_ONLY = ['upload', 'list', 'submission_list', 'submission_get', 'submission_approve', 'submission_decline', 'access_list', 'access_get', 'access_grant', 'access_decline']
+  const ADMIN_ONLY = ['upload', 'list', 'submission_list', 'submission_get', 'submission_approve', 'submission_decline', 'access_grant']
   if (ADMIN_ONLY.includes(action) && role !== 'admin') {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
@@ -777,82 +753,38 @@ Reply with one JSON object and nothing else:
     }
   }
 
-  // ── Access request queue (admin only) ────────────────────────────────────
-  if (action === 'access_list' || action === 'access_get' || action === 'access_grant' || action === 'access_decline') {
-    if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-      return NextResponse.json({ error: 'Server not configured' }, { status: 500 })
+  // ── Grant Song Analyzer access (admin only) ──────────────────────────────
+  // Stateless: takes the requester's name/email (decoded from the grant link)
+  // and sends the branded welcome email. No database involved.
+  if (action === 'access_grant') {
+    const name = String(body?.name || '').trim()
+    const email = String(body?.email || '').trim()
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return NextResponse.json({ error: 'A valid email is required.' }, { status: 400 })
     }
-    const sb = {
-      'Content-Type': 'application/json',
-      apikey: SUPABASE_SERVICE_ROLE_KEY,
-      Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
-    }
-    const base = `${SUPABASE_URL}/rest/v1/access_requests`
-    try {
-      if (action === 'access_list') {
-        const status = typeof body.status === 'string' && body.status ? body.status : 'pending'
-        const qs = status === 'all' ? 'select=*&order=created_at.desc' : `status=eq.${encodeURIComponent(status)}&select=*&order=created_at.desc`
-        const res = await fetch(`${base}?${qs}`, { headers: sb })
-        if (!res.ok) return NextResponse.json({ error: (await res.text().catch(() => '')) || `Supabase ${res.status}` }, { status: 502 })
-        const rows = await res.json().catch(() => [])
-        return NextResponse.json({ rows: Array.isArray(rows) ? rows : [] })
-      }
-
-      const id = String(body.id || '')
-      if (!id) return NextResponse.json({ error: 'Missing id.' }, { status: 400 })
-
-      if (action === 'access_get') {
-        const res = await fetch(`${base}?id=eq.${encodeURIComponent(id)}&limit=1`, { headers: sb })
-        if (!res.ok) return NextResponse.json({ error: (await res.text().catch(() => '')) || `Supabase ${res.status}` }, { status: 502 })
-        const rows = await res.json().catch(() => [])
-        const rec = Array.isArray(rows) && rows[0] ? rows[0] : null
-        if (!rec) return NextResponse.json({ error: 'Request not found.' }, { status: 404 })
-        return NextResponse.json({ request: rec })
-      }
-
-      if (action === 'access_decline') {
-        const res = await fetch(`${base}?id=eq.${encodeURIComponent(id)}`, {
-          method: 'PATCH', headers: { ...sb, Prefer: 'return=representation' }, body: JSON.stringify({ status: 'declined' }),
+    let emailed = false
+    let emailError: string | null = null
+    if (RESEND_API_KEY) {
+      try {
+        const r = await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${RESEND_API_KEY}` },
+          body: JSON.stringify({
+            from: RESEND_FROM,
+            to: [email],
+            subject: "You're in - WorshipLens Song Analyzer access",
+            html: accessWelcomeHtml(siteOrigin(req), name),
+          }),
         })
-        if (!res.ok) return NextResponse.json({ error: (await res.text().catch(() => '')) || `Supabase ${res.status}` }, { status: 502 })
-        return NextResponse.json({ ok: true, status: 'declined' })
+        emailed = r.ok
+        if (!r.ok) emailError = (await r.text().catch(() => '')) || `Resend ${r.status}`
+      } catch (e: any) {
+        emailError = e.message || 'send failed'
       }
-
-      // access_grant: send the branded welcome email, then mark granted.
-      const getRes = await fetch(`${base}?id=eq.${encodeURIComponent(id)}&limit=1`, { headers: sb })
-      if (!getRes.ok) return NextResponse.json({ error: (await getRes.text().catch(() => '')) || `Supabase ${getRes.status}` }, { status: 502 })
-      const found = await getRes.json().catch(() => [])
-      const rec = Array.isArray(found) && found[0] ? found[0] : null
-      if (!rec) return NextResponse.json({ error: 'Request not found.' }, { status: 404 })
-
-      let emailed = false
-      let emailError: string | null = null
-      if (RESEND_API_KEY && rec.email) {
-        try {
-          const r = await fetch('https://api.resend.com/emails', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${RESEND_API_KEY}` },
-            body: JSON.stringify({
-              from: RESEND_FROM,
-              to: [rec.email],
-              subject: "You're in - WorshipLens Song Analyzer access",
-              html: accessWelcomeHtml(siteOrigin(req), rec.name || ''),
-            }),
-          })
-          emailed = r.ok
-          if (!r.ok) emailError = (await r.text().catch(() => '')) || `Resend ${r.status}`
-        } catch (e: any) {
-          emailError = e.message || 'send failed'
-        }
-      } else {
-        emailError = 'Email not configured (RESEND_API_KEY / sender).'
-      }
-
-      await fetch(`${base}?id=eq.${encodeURIComponent(id)}`, { method: 'PATCH', headers: sb, body: JSON.stringify({ status: 'granted' }) })
-      return NextResponse.json({ ok: true, status: 'granted', emailed, emailError })
-    } catch (e: any) {
-      return NextResponse.json({ error: e.message || 'Action failed' }, { status: 500 })
+    } else {
+      emailError = 'Email not configured (RESEND_API_KEY).'
     }
+    return NextResponse.json({ ok: true, emailed, emailError })
   }
 
   return NextResponse.json({ error: 'Unknown action' }, { status: 400 })
