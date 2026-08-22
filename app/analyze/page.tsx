@@ -18,6 +18,11 @@ export default function AnalyzePage() {
   const [unlocked, setUnlocked] = useState(false)
   const [pwInput, setPwInput] = useState('')
   const [pwError, setPwError] = useState(false)
+  const [reqName, setReqName] = useState('')
+  const [reqEmail, setReqEmail] = useState('')
+  const [reqBusy, setReqBusy] = useState(false)
+  const [reqDone, setReqDone] = useState(false)
+  const [reqError, setReqError] = useState('')
 
   const [pasteRaw, setPasteRaw] = useState('')
   const [edits, setEdits] = useState<Partial<Record<MetaKey, string>>>({})
@@ -116,6 +121,26 @@ export default function AnalyzePage() {
       })
       if (r.ok) { setUnlocked(true); setPwError(false) } else { setPwError(true) }
     } catch { setPwError(true) }
+  }
+
+  async function handleRequestAccess() {
+    const email = reqEmail.trim()
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setReqError('Please enter a valid email.'); return }
+    setReqBusy(true); setReqError('')
+    try {
+      const r = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'access_request', name: reqName.trim(), email }),
+      })
+      const d = await r.json().catch(() => ({}))
+      if (!r.ok) throw new Error((d as any)?.error || `Request failed (${r.status})`)
+      setReqDone(true)
+    } catch (e: any) {
+      setReqError(e.message || 'Could not send your request.')
+    } finally {
+      setReqBusy(false)
+    }
   }
 
   async function handleAnalyze() {
@@ -271,6 +296,32 @@ export default function AnalyzePage() {
             />
             {pwError && <div style={{ fontSize: 12, color: '#f87171', textAlign: 'center', marginBottom: 10 }}>Incorrect password.</div>}
             <button className="az-btn" onClick={handleUnlock} style={{ background: BLUE, color: NAVY }}>Unlock</button>
+
+            {/* REQUEST ACCESS */}
+            <div style={{ marginTop: 28, paddingTop: 24, borderTop: '0.5px solid rgba(255,255,255,0.1)' }}>
+              {reqDone ? (
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ padding: '14px 16px', borderRadius: 8, fontSize: 13, lineHeight: 1.6, background: '#052e16', border: '0.5px solid #22c55e', color: '#22c55e', marginBottom: 14 }}>
+                    Thank you. Your request has been sent, and we&rsquo;ll email you your access code shortly.
+                  </div>
+                  <Link href="/songs" style={{ display: 'block', width: '100%', padding: '13px', borderRadius: 8, fontSize: 13, fontWeight: 600, background: 'rgba(255,255,255,0.06)', border: '0.5px solid rgba(255,255,255,0.16)', color: 'rgba(255,255,255,0.75)', textDecoration: 'none', textAlign: 'center' }}>
+                    Browse the Song Library
+                  </Link>
+                </div>
+              ) : (
+                <>
+                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', textAlign: 'center', marginBottom: 14, lineHeight: 1.6 }}>
+                    Don&rsquo;t have access? Request it and we&rsquo;ll email your code.
+                  </div>
+                  <input className="az-input" placeholder="Your name" value={reqName} onChange={e => setReqName(e.target.value)} style={{ marginBottom: 8 }} />
+                  <input className="az-input" type="email" placeholder="Your email" value={reqEmail} onChange={e => { setReqEmail(e.target.value); setReqError('') }} onKeyDown={e => e.key === 'Enter' && handleRequestAccess()} style={{ marginBottom: 10 }} />
+                  {reqError && <div style={{ fontSize: 12, color: '#f87171', textAlign: 'center', marginBottom: 10 }}>{reqError}</div>}
+                  <button className="az-btn" disabled={reqBusy} onClick={handleRequestAccess} style={{ background: 'rgba(255,255,255,0.06)', border: '0.5px solid rgba(255,255,255,0.18)', color: '#fff' }}>
+                    {reqBusy ? 'Sending...' : 'Request access to the Song Analyzer'}
+                  </button>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </div>

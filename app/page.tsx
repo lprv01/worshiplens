@@ -181,6 +181,7 @@ export default function HomePage() {
             <Link className="nav-link" href="/songs" style={{ fontSize: 13, fontWeight: 400, color: 'rgba(255,255,255,0.55)', textDecoration: 'none' }}>Songs</Link>
             <Link className="nav-link" href="/about" style={{ fontSize: 13, fontWeight: 400, color: 'rgba(255,255,255,0.55)', textDecoration: 'none' }}>About</Link>
             <Link className="nav-link" href="/scoring-philosophy" style={{ fontSize: 13, fontWeight: 400, color: 'rgba(255,255,255,0.55)', textDecoration: 'none' }}>Scoring Philosophy</Link>
+            <Link className="nav-link" href="/analyze" style={{ fontSize: 13, fontWeight: 400, color: 'rgba(255,255,255,0.55)', textDecoration: 'none' }}>Song Analyzer</Link>
             <Link className="cta-primary" href="/songs" style={{ fontSize: 12.5, fontWeight: 500, color: NAVY, background: BLUE, padding: '8px 16px', borderRadius: 8, textDecoration: 'none' }}>Browse Songs</Link>
           </div>
           <button className={`hamburger-btn${menuOpen ? ' ham-open' : ''}`} onClick={() => setMenuOpen(v => !v)} aria-label="Menu" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, background: 'none', border: 'none', cursor: 'pointer', position: 'relative', flexShrink: 0 }}>
@@ -189,7 +190,7 @@ export default function HomePage() {
         </div>
         <div className={`mobile-menu${menuOpen ? ' open' : ''}`}>
           <div style={{ padding: '8px 0 16px' }}>
-            {[{ href: '/songs', label: 'Songs' }, { href: '/about', label: 'About' }, { href: '/scoring-philosophy', label: 'Scoring Philosophy' }].map(item => (
+            {[{ href: '/songs', label: 'Songs' }, { href: '/about', label: 'About' }, { href: '/scoring-philosophy', label: 'Scoring Philosophy' }, { href: '/analyze', label: 'Song Analyzer' }].map(item => (
               <Link key={item.href} href={item.href} onClick={() => setMenuOpen(false)} style={{ display: 'block', padding: '13px 24px', fontSize: 16, fontWeight: 400, color: 'rgba(255,255,255,0.7)', textDecoration: 'none' }}>{item.label}</Link>
             ))}
           </div>
