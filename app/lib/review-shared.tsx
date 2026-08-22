@@ -222,6 +222,9 @@ export function MeterHelp() {
     <details className="az-details">
       <summary className="az-summary">How is a time signature calculated?</summary>
       <div style={{ paddingTop: 12, fontSize: 12, lineHeight: 1.75, color: 'rgba(255,255,255,0.45)' }}>
+        <p style={{ marginBottom: 12, color: 'rgba(255,255,255,0.55)' }}>
+          Leave it blank and WorshipLens recommends one from the lyric meter, with its reasoning in the Technical tab.
+        </p>
         <p style={{ marginBottom: 12 }}>
           Two things about a lyric decide how it wants to be counted: how many syllables each line has, and where the stresses fall inside them.
         </p>
@@ -313,7 +316,7 @@ export function DetailFields(props: {
 
       <div className="az-detail-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 12 }}>
         {META_FIELDS.map(f => (
-          <div key={f.key} style={{ gridColumn: `span ${f.span || 2}` }}>
+          <div key={f.key} className={`az-field az-field-${f.key}`} style={{ gridColumn: `span ${f.span || 2}` }}>
             <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: 6, minHeight: 18, flexWrap: 'wrap' }}>
               <span>{f.label}</span>
               {isAutoFilled(f.key) && <span className="az-auto-chip">Detected</span>}
@@ -379,10 +382,7 @@ export function DetailFields(props: {
         </div>
       )}
 
-      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.28)', marginTop: 12, lineHeight: 1.6 }}>
-        Leave it blank and WorshipLens recommends one from the lyric meter, with its reasoning in the Technical tab.
-      </div>
-      <div style={{ marginTop: 8 }}>
+      <div style={{ marginTop: 12 }}>
         <MeterHelp />
       </div>
     </div>

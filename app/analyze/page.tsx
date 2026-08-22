@@ -166,8 +166,10 @@ export default function AnalyzePage() {
   const [submitting, setSubmitting] = useState(false)
   const [submitMsg, setSubmitMsg] = useState<{ type: 'ok' | 'err'; text: string } | null>(null)
 
+  const submitEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fieldValue('email').trim())
+
   async function handleSubmitToLibrary() {
-    if (!review || !consent || submitting) return
+    if (!review || !consent || !submitEmailValid || submitting) return
     setSubmitting(true); setSubmitMsg(null)
     const d = getSongData()
     try {
@@ -242,6 +244,8 @@ export default function AnalyzePage() {
       .az-grid3 { grid-template-columns: 1fr 1fr !important; }
       .az-detail-grid { grid-template-columns: repeat(2, 1fr) !important; }
       .az-detail-grid > div { grid-column: span 2 !important; }
+      .az-detail-grid > .az-field-key,
+      .az-detail-grid > .az-field-timeSignature { grid-column: span 1 !important; }
     }
   `
 
@@ -606,9 +610,26 @@ export default function AnalyzePage() {
               </div>
 
               {submitMsg?.type === 'ok' ? (
-                <div style={{ padding: '14px 16px', borderRadius: 8, fontSize: 13, lineHeight: 1.7, background: '#052e16', border: '0.5px solid #22c55e', color: '#22c55e' }}>
-                  {submitMsg.text}
-                </div>
+                <>
+                  <div style={{ padding: '14px 16px', borderRadius: 8, fontSize: 13, lineHeight: 1.7, background: '#052e16', border: '0.5px solid #22c55e', color: '#22c55e' }}>
+                    {submitMsg.text}
+                  </div>
+                  <div style={{ display: 'flex', gap: 10, marginTop: 14, flexWrap: 'wrap' }}>
+                    <button
+                      type="button"
+                      onClick={() => { handleReset(); if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+                      style={{ flex: '1 1 200px', padding: '13px', border: 'none', borderRadius: 8, fontFamily: "'Sora', sans-serif", fontSize: 13, fontWeight: 600, cursor: 'pointer', background: '#fff', color: NAVY }}
+                    >
+                      Analyze more Lyrics
+                    </button>
+                    <Link
+                      href="/songs"
+                      style={{ flex: '1 1 200px', padding: '13px', borderRadius: 8, fontFamily: "'Sora', sans-serif", fontSize: 13, fontWeight: 600, cursor: 'pointer', background: 'rgba(255,255,255,0.06)', border: '0.5px solid rgba(255,255,255,0.16)', color: 'rgba(255,255,255,0.75)', textDecoration: 'none', textAlign: 'center' }}
+                    >
+                      Song Library
+                    </Link>
+                  </div>
+                </>
               ) : (
                 <>
                   <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer', marginBottom: 12 }}>
@@ -625,25 +646,35 @@ export default function AnalyzePage() {
 
                   {consent && (
                     <div style={{ marginBottom: 14 }}>
-                      <label style={{ display: 'block', fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>Your Name (optional)</label>
-                      <input className="az-input" placeholder="Jane Writer" value={submitterName} onChange={e => setSubmitterName(e.target.value)} />
+                      <label style={{ display: 'block', fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>
+                        Email <span style={{ color: '#f87171', textTransform: 'none', letterSpacing: 0 }}>(required to submit for approval)</span>
+                      </label>
+                      <input
+                        className="az-input"
+                        type="email"
+                        placeholder="you@example.com"
+                        value={fieldValue('email')}
+                        onChange={e => setField('email', e.target.value)}
+                        style={fieldValue('email').trim() && !submitEmailValid ? { borderColor: 'rgba(248,113,113,0.6)' } : undefined}
+                      />
                       <div style={{ fontSize: 10.5, color: 'rgba(255,255,255,0.28)', marginTop: 5 }}>
-                        Your email is taken from the Details section above, if you entered one.
+                        We only use this to reach you about your song. Never shared or published.
                       </div>
                     </div>
                   )}
 
                   <button
                     className="az-btn"
-                    disabled={!consent || submitting}
+                    disabled={!consent || !submitEmailValid || submitting}
                     onClick={handleSubmitToLibrary}
+                    title={consent && !submitEmailValid ? 'Enter your email above to submit' : undefined}
                     style={{
-                      background: consent && !submitting ? '#052e16' : 'rgba(255,255,255,0.05)',
-                      border: `0.5px solid ${consent && !submitting ? '#22c55e' : 'rgba(255,255,255,0.12)'}`,
-                      color: consent && !submitting ? '#22c55e' : 'rgba(255,255,255,0.25)',
+                      background: consent && submitEmailValid && !submitting ? '#052e16' : 'rgba(255,255,255,0.05)',
+                      border: `0.5px solid ${consent && submitEmailValid && !submitting ? '#22c55e' : 'rgba(255,255,255,0.12)'}`,
+                      color: consent && submitEmailValid && !submitting ? '#22c55e' : 'rgba(255,255,255,0.25)',
                     }}
                   >
-                    {submitting ? 'Sending...' : 'Post my song on the WorshipLens library'}
+                    {submitting ? 'Sending...' : 'Submit my song for approval in the library'}
                   </button>
 
                   <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.28)', marginTop: 10, lineHeight: 1.65 }}>
@@ -673,8 +704,8 @@ export default function AnalyzePage() {
         )}
       </div>
 
-      <footer style={{ borderTop: '0.5px solid rgba(255,255,255,0.08)', padding: '40px 24px' }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+      <footer style={{ borderTop: '0.5px solid rgba(255,255,255,0.08)', padding: '40px 0' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
             <LogoWhite height={44} />
             <div style={{ display: 'flex', gap: 20 }}>
@@ -685,7 +716,7 @@ export default function AnalyzePage() {
 
           {/* Same wording as the PDF notice block, so guests see the terms
               before they download rather than only after. */}
-          <div style={{ marginTop: 24, paddingTop: 16, borderTop: '0.5px solid rgba(255,255,255,0.06)', maxWidth: 760, fontSize: 9, lineHeight: 1.6, color: 'rgba(255,255,255,0.24)' }}>
+          <div style={{ marginTop: 24, paddingTop: 16, borderTop: '0.5px solid rgba(255,255,255,0.06)', fontSize: 9, lineHeight: 1.6, color: 'rgba(255,255,255,0.24)' }}>
             <p style={{ fontWeight: 600, color: 'rgba(255,255,255,0.34)', marginBottom: 6 }}>
               Analysis by WorshipLens - worshiplens.com
             </p>
