@@ -4,37 +4,122 @@ import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import {
   NAVY, BLUE,
-  LogoWhite, smartParse, scoreColor,
+  LogoWhite, smartParse, scoreColor, makeSlug,
   LENS_CONFIG, PROGRESS_STEPS, DetailFields,
   type ParsedSong, type MetaKey, type ReviewResult, type TabKey,
 } from '../lib/review-shared'
 
-// Public-facing analyzer at /analyze. Same analysis as the admin page at
-// /admin, but it never touches Supabase:
-// no Library, no upload, no JSON export. Guests take their review away as a
-// PDF instead. The API enforces this too - a guest password is rejected for
-// the list and upload actions regardless of what this page requests.
-export default function AnalyzePage() {
+// Library rows are specific to the admin page; everything else the two
+// analyzers share lives in ../lib/review-shared.
+type LibrarySong = {
+  id: string
+  slug: string
+  title: string
+  artist: string
+  ccli_number: string | null
+  overall_score: number | null
+  recommendation: string | null
+  created_at: string
+}
+
+// ── Main page ────────────────────────────────────────────────────────────────
+export default function AdminPage() {
+  // Auth
   const [unlocked, setUnlocked] = useState(false)
   const [pwInput, setPwInput] = useState('')
-  const [pwError, setPwError] = useState(false)
+  const [pwError, setPwError] = useState('')
 
+  // Single input: one paste box, plus optional detail overrides.
+  // Anything the parser finds pre-fills a detail field; typing in a field
+  // pins it so a later re-parse cannot overwrite what you entered.
   const [pasteRaw, setPasteRaw] = useState('')
   const [edits, setEdits] = useState<Partial<Record<MetaKey, string>>>({})
 
+  const auto = useMemo(() => smartParse(pasteRaw), [pasteRaw])
+
+  const fieldValue = (k: MetaKey) => (edits[k] !== undefined ? edits[k]! : auto[k])
+  const isAutoFilled = (k: MetaKey) => edits[k] === undefined && !!auto[k]
+  const setField = (k: MetaKey, v: string) => setEdits(e => ({ ...e, [k]: v }))
+
+  // Analysis
   const [analyzing, setAnalyzing] = useState(false)
   const [progressIdx, setProgressIdx] = useState(0)
   const [review, setReview] = useState<ReviewResult | null>(null)
   const [analyzeError, setAnalyzeError] = useState('')
   const [activeTab, setActiveTab] = useState<TabKey>('scores')
-  const [chosenTitle, setChosenTitle] = useState('')
-  const [pdfBusy, setPdfBusy] = useState(false)
-  const [pdfError, setPdfError] = useState('')
 
-  const auto = useMemo(() => smartParse(pasteRaw), [pasteRaw])
-  const fieldValue = (k: MetaKey) => (edits[k] !== undefined ? edits[k]! : auto[k])
-  const isAutoFilled = (k: MetaKey) => edits[k] === undefined && !!auto[k]
-  const setField = (k: MetaKey, v: string) => setEdits(e => ({ ...e, [k]: v }))
+  // Upload
+  const [uploadMsg, setUploadMsg] = useState<{ type: 'ok' | 'err'; text: string } | null>(null)
+  const [uploading, setUploading] = useState(false)
+  const [dupe, setDupe] = useState<{ matchedOn: string; count: number; rows: any[] } | null>(null)
+
+  // Title chosen from the model's suggestions (only offered when we had none)
+  const [chosenTitle, setChosenTitle] = useState('')
+
+  // Library
+  const [view, setView] = useState<'analyze' | 'library'>('analyze')
+  const [libRows, setLibRows] = useState<LibrarySong[] | null>(null)
+  const [libLoading, setLibLoading] = useState(false)
+  const [libError, setLibError] = useState('')
+  const [libQuery, setLibQuery] = useState('')
+  const [libTotal, setLibTotal] = useState<number | null>(null)
+
+  async function loadLibrary(force = false) {
+    if (libLoading) return
+    if (libRows && !force) return
+    setLibLoading(true)
+    setLibError('')
+    try {
+      const r = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'list', password: pwInput.trim() }),
+      })
+      const data = await r.json().catch(() => ({}))
+      if (!r.ok) throw new Error((data as any)?.error || `Failed to load library (${r.status})`)
+      setLibRows((data as any).rows || [])
+      setLibTotal(typeof (data as any).total === 'number' ? (data as any).total : null)
+    } catch (e: any) {
+      setLibError(e.message || 'Failed to load library')
+    } finally {
+      setLibLoading(false)
+    }
+  }
+
+  const filteredLib = useMemo(() => {
+    if (!libRows) return []
+    const q = libQuery.trim().toLowerCase()
+    if (!q) return libRows
+    return libRows.filter(s =>
+      (s.title || '').toLowerCase().includes(q) ||
+      (s.artist || '').toLowerCase().includes(q) ||
+      (s.ccli_number || '').toString().includes(q)
+    )
+  }, [libRows, libQuery])
+
+  // ── Password gate ──
+  // The API already refuses guest passwords for list and upload, but the admin
+  // page itself must not open either - a guest getting this far saw the
+  // Library tab and a Forbidden error instead of a closed door.
+  async function handleUnlock() {
+    try {
+      const r = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'verify', password: pwInput.trim() }),
+      })
+      const data = await r.json().catch(() => ({}))
+      if (!r.ok) { setPwError('Incorrect password.'); return }
+      if ((data as any).role !== 'admin') {
+        setPwError('guest')
+        return
+      }
+      setUnlocked(true)
+      setPwError('')
+    } catch {
+      setPwError('Could not reach the server.')
+    }
+  }
 
 
   // Generate helpers (title / meter) - callable before the full analysis
@@ -74,6 +159,9 @@ export default function AnalyzePage() {
     }
   }
 
+  // ── Get active song data ──
+  // Lyrics are the only requirement. Everything else is a hint: supplied by
+  // you, recovered by the parser, or left for the model to infer.
   function getSongData(): ParsedSong {
     return {
       title: fieldValue('title').trim(),
@@ -86,37 +174,42 @@ export default function AnalyzePage() {
       lyrics: auto.lyrics,
     }
   }
-  const canAnalyze = () => !!getSongData().lyrics
 
-  const displayTitle =
-    chosenTitle || review?.meta?.title || review?._formData?.title || 'Untitled song'
-
-  async function handleUnlock() {
-    try {
-      const r = await fetch('/api/analyze', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'verify', password: pwInput.trim() }),
-      })
-      if (r.ok) { setUnlocked(true); setPwError(false) } else { setPwError(true) }
-    } catch { setPwError(true) }
+  function canAnalyze() {
+    return !!getSongData().lyrics
   }
 
+  // ── Analyze ──
   async function handleAnalyze() {
     const d = getSongData()
-    setAnalyzing(true); setAnalyzeError(''); setReview(null); setProgressIdx(0)
+
+    setAnalyzing(true)
+    setAnalyzeError('')
+    setReview(null)
+    setProgressIdx(0)
+
     const interval = setInterval(() => {
       setProgressIdx(i => Math.min(i + 1, PROGRESS_STEPS.length - 1))
     }, 3500)
+
     try {
       const r = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'analyze', password: pwInput.trim(), songData: d, mode: 'lyrics_only' }),
+        body: JSON.stringify({ action: 'analyze', password: pwInput.trim(), songData: d }),
       })
+
       clearInterval(interval)
       const data = await r.json().catch(() => ({}))
-      if (!r.ok) throw new Error((data as any)?.error || `API error ${r.status}`)
+      if (!r.ok) {
+        const dbg = (data as any)?.debug
+        if (dbg) console.error('[analyze] server debug', dbg)
+        const detail = dbg
+          ? ` | stop_reason=${dbg.stop_reason} tokens=${dbg.output_tokens} len=${dbg.text_length} pos=${dbg.position}\n...${dbg.snippet}...`
+          : ''
+        throw new Error(((data as any)?.error || `API error ${r.status}`) + detail)
+      }
+
       const result = data.result
       result._formData = d
       setReview(result)
@@ -129,82 +222,111 @@ export default function AnalyzePage() {
     }
   }
 
-  async function handleDownloadPdf() {
-    if (!review) return
-    setPdfBusy(true); setPdfError('')
-    try {
-      const { buildReviewPdf, pdfFilename } = await import('../lib/review-pdf')
-      const doc = await buildReviewPdf(review, displayTitle)
-      doc.save(pdfFilename(displayTitle))
-    } catch (e: any) {
-      setPdfError(e?.message || 'Could not build the PDF.')
-    } finally {
-      setPdfBusy(false)
+  // ── Upload to Supabase ──
+  async function handleUpload(force = false) {
+    if (!review || uploading) return
+    setUploading(true)
+    if (!force) setDupe(null)
+    const meta = review.meta || {}
+    const fd = review._formData || {}
+    const score = review.overall_score || 0
+    const lenses = review.lenses || {}
+    const lens_scores = {
+      scriptural_fidelity: lenses.scriptural_fidelity?.score || 0,
+      theological_clarity: lenses.theological_clarity?.score || 0,
+      congregational_singability: lenses.congregational_singability?.score || 0,
+      poetic_lyrical_quality: lenses.poetic_lyrical_quality?.score || 0,
+      defense_brief: lenses.defense_brief?.score || 0,
     }
-  }
+    const colorStr = score >= 8 ? 'green' : score >= 6.5 ? 'amber' : score >= 5 ? 'orange' : 'red'
+    const effectiveTitle = chosenTitle || meta.title || fd.title || ''
+    const slug = makeSlug(effectiveTitle) || meta.slug || `untitled-${(review.overall_score || 0).toFixed(1).replace('.', '')}`
 
-  // Sharing to the library. Consent is the gate: without the box ticked the
-  // lyrics never leave the browser, and the API refuses the request anyway.
-  const [consent, setConsent] = useState(false)
-  const [submitterName, setSubmitterName] = useState('')
-  const [submitterEmail, setSubmitterEmail] = useState('')
-  const [submitting, setSubmitting] = useState(false)
-  const [submitMsg, setSubmitMsg] = useState<{ type: 'ok' | 'err'; text: string } | null>(null)
+    const row = {
+      title: effectiveTitle || 'Untitled song',
+      artist: meta.artist || fd.artist || 'Unknown',
+      ccli_number: meta.ccli_number || fd.ccli || null,
+      slug,
+      overall_score: score,
+      score_color: colorStr,
+      recommendation: review.recommendation || '',
+      overall_verdict: review.overall_verdict || '',
+      lens_scores,
+      key_original: fd.key || meta.key_original || '',
+      key_recommended: meta.key_recommended || '',
+      time_signature: fd.timeSignature || meta.time_signature || '',
+      tempo_bpm: meta.tempo_bpm || null,
+      copyright: meta.copyright || '',
+      release_year: meta.release_year || '',
+      album: meta.album || fd.album || '',
+      genre: meta.genre || '',
+      hymn_lineage_badge: meta.hymn_lineage_badge || null,
+      lenses: review.lenses || {},
+      full_analysis: review.full_analysis || {},
+      scripture_map: review.scripture_map || {},
+      theological_nuances: review.theological_nuances || {},
+      hymn_lineage: review.hymn_lineage || null,
+      story_behind_song: review.story_behind_song || {},
+      technical: review.technical || {},
+      set_intelligence: review.set_intelligence || {},
+      similar_songs: review.similar_songs || {},
+      themes: review.technical?.themes || [],
+      seasonal_tags: review.technical?.seasonal_tags || [],
+    }
 
-  async function handleSubmitToLibrary() {
-    if (!review || !consent || submitting) return
-    setSubmitting(true); setSubmitMsg(null)
-    const d = getSongData()
     try {
-      const r = await fetch('/api/analyze', {
+      const res = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'submit',
-          password: pwInput.trim(),
-          submission: {
-            consent: true,
-            title: displayTitle,
-            artist: d.artist || review.meta?.artist || '',
-            lyrics: d.lyrics,
-            themes: d.themes,
-            key: d.key,
-            timeSignature: d.timeSignature || review.meta?.time_signature || '',
-            overall_score: review.overall_score,
-            review,
-            submitterName: submitterName.trim(),
-            submitterEmail: submitterEmail.trim(),
-          },
-        }),
+        body: JSON.stringify({ action: 'upload', password: pwInput.trim(), row, force }),
       })
-      const data = await r.json().catch(() => ({}))
-      if (!r.ok) throw new Error((data as any)?.error || `Submission failed (${r.status})`)
-      setSubmitMsg({ type: 'ok', text: 'Thank you. Your song has been sent for review and will appear in the library once approved.' })
+      const data = await res.json().catch(() => ({}))
+
+      if (res.status === 409 && (data as any).duplicate) {
+        setDupe((data as any).duplicate)
+        setUploadMsg(null)
+        return
+      }
+      if (!res.ok) {
+        throw new Error((data as any).error || `Upload failed ${res.status}`)
+      }
+
+      setDupe(null)
+      const mode = (data as any).mode
+      const also = (data as any).alsoPresent || 0
+      setUploadMsg({
+        type: 'ok',
+        text: mode === 'updated'
+          ? `"${row.title}" replaced the existing entry.${also > 0 ? ` Note: ${also} other row${also > 1 ? 's' : ''} still match and were left alone.` : ''}`
+          : `"${row.title}" uploaded to Supabase successfully.`,
+      })
+      loadLibrary(true)   // keep the Library tab honest after a write
     } catch (e: any) {
-      setSubmitMsg({ type: 'err', text: e.message || 'Could not submit.' })
+      setUploadMsg({ type: 'err', text: e.message })
     } finally {
-      setSubmitting(false)
+      setUploading(false)
     }
   }
 
   function handleReset() {
-    setReview(null); setPasteRaw(''); setEdits({})
-    setAnalyzeError(''); setChosenTitle(''); setPdfError('')
-    setConsent(false); setSubmitterName(''); setSubmitterEmail(''); setSubmitMsg(null)
+    setReview(null)
+    setPasteRaw('')
+    setEdits({})
+    setAnalyzeError('')
+    setUploadMsg(null)
+    setChosenTitle('')
   }
 
   const styles = `
     @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&display=swap');
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    .ham-line { display: block; width: 22px; height: 1.5px; background: #fff; border-radius: 2px; position: absolute; transition: transform 0.3s cubic-bezier(0.4,0,0.2,1), opacity 0.2s ease; }
+    .ham-line-1 { transform: translateY(-5px); }
+    .ham-line-3 { transform: translateY(5px); }
     .az-tab { padding: 9px 16px; background: none; border: none; border-bottom: 2px solid transparent; font-family: 'Sora', sans-serif; font-size: 11px; font-weight: 500; letter-spacing: 0.04em; color: rgba(255,255,255,0.35); cursor: pointer; transition: all 0.15s; white-space: nowrap; }
     .az-tab:hover { color: rgba(255,255,255,0.6); }
     .az-tab.active { border-bottom-color: ${BLUE}; color: #fff; }
     .az-lens-card { border-radius: 8px; padding: 14px 16px; margin-bottom: 8px; border-left: 3px solid; }
-    .az-input { width: 100%; background: rgba(255,255,255,0.05); border: 0.5px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 10px 14px; font-size: 13px; font-family: 'Sora', sans-serif; color: #fff; outline: none; transition: border-color 0.2s; }
-    .az-input::placeholder { color: rgba(255,255,255,0.25); }
-    .az-input:focus { border-color: rgba(255,255,255,0.3); }
-    .az-btn { width: 100%; padding: 13px; border: none; border-radius: 8px; font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-    .az-btn:disabled { opacity: 0.35; cursor: default; }
     .az-gen-btn { font-family: 'Sora', sans-serif; font-size: 9px; font-weight: 600; letter-spacing: 0.03em; text-transform: none; padding: 3px 9px; border-radius: 20px; border: 0.5px solid rgba(0,181,255,0.35); background: rgba(0,181,255,0.08); color: ${BLUE}; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
     .az-gen-btn:hover:not(:disabled) { background: rgba(0,181,255,0.18); border-color: ${BLUE}; }
     .az-gen-btn:disabled { opacity: 0.35; cursor: default; }
@@ -216,7 +338,15 @@ export default function AnalyzePage() {
     .az-title-chip { font-family: 'Sora', sans-serif; font-size: 12px; font-weight: 500; padding: 5px 12px; border-radius: 20px; border: 0.5px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.65); cursor: pointer; transition: all 0.15s; }
     .az-title-chip:hover { border-color: rgba(0,181,255,0.5); color: #fff; }
     .az-title-chip.active { background: ${BLUE}; border-color: ${BLUE}; color: ${NAVY}; font-weight: 600; }
+    .az-lib-row { display: flex; align-items: center; padding: 12px 14px; margin-bottom: 6px; border-radius: 8px; background: rgba(255,255,255,0.04); border: 0.5px solid rgba(255,255,255,0.08); text-decoration: none; transition: all 0.15s; }
+    .az-lib-row:hover { background: rgba(255,255,255,0.07); border-color: rgba(0,181,255,0.35); }
     .az-auto-chip { font-size: 8px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: ${BLUE}; background: rgba(0,181,255,0.12); border: 0.5px solid rgba(0,181,255,0.3); border-radius: 3px; padding: 1px 5px; }
+    .az-input { width: 100%; background: rgba(255,255,255,0.05); border: 0.5px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 10px 14px; font-size: 13px; font-family: 'Sora', sans-serif; color: #fff; outline: none; transition: border-color 0.2s; }
+    .az-input::placeholder { color: rgba(255,255,255,0.25); }
+    .az-input:focus { border-color: rgba(255,255,255,0.3); }
+    .az-btn { width: 100%; padding: 13px; border: none; border-radius: 8px; font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .az-btn:disabled { opacity: 0.35; cursor: default; }
+    .az-upload-btn { flex: 1; padding: 11px; border-radius: 8px; font-family: 'Sora', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
     .scripture-row { display: flex; gap: 12px; padding: 10px 0; border-bottom: 0.5px solid rgba(255,255,255,0.08); font-size: 13px; }
     .story-item { padding: 14px 0; border-bottom: 0.5px solid rgba(255,255,255,0.08); }
     @media (max-width: 680px) {
@@ -228,6 +358,7 @@ export default function AnalyzePage() {
     }
   `
 
+  // ── Password gate ──────────────────────────────────────────────────────────
   if (!unlocked) {
     return (
       <div style={{ fontFamily: "'Sora', sans-serif", background: NAVY, minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -238,55 +369,160 @@ export default function AnalyzePage() {
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 24px' }}>
           <div style={{ width: '100%', maxWidth: 360 }}>
             <div style={{ textAlign: 'center', marginBottom: 32 }}>
-              <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color: BLUE, marginBottom: 10 }}>Songwriter Access</div>
+              <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color: BLUE, marginBottom: 10 }}>Internal Tool</div>
               <h1 style={{ fontSize: 22, fontWeight: 600, color: '#fff', letterSpacing: '-0.03em' }}>Song Analyzer</h1>
-              <p style={{ fontSize: 13, fontWeight: 300, color: 'rgba(255,255,255,0.35)', marginTop: 8 }}>Enter the access password you were given.</p>
+              <p style={{ fontSize: 13, fontWeight: 300, color: 'rgba(255,255,255,0.35)', marginTop: 8 }}>Enter the access password to continue.</p>
             </div>
             <input
-              type="password" className="az-input" placeholder="Password"
-              value={pwInput} onChange={e => setPwInput(e.target.value)}
+              type="password"
+              className="az-input"
+              placeholder="Password"
+              value={pwInput}
+              onChange={e => setPwInput(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleUnlock()}
               style={{ marginBottom: 10, textAlign: 'center', fontSize: 16, letterSpacing: '0.1em' }}
             />
-            {pwError && <div style={{ fontSize: 12, color: '#f87171', textAlign: 'center', marginBottom: 10 }}>Incorrect password.</div>}
-            <button className="az-btn" onClick={handleUnlock} style={{ background: BLUE, color: NAVY }}>Unlock</button>
+            {pwError === 'guest' ? (
+              <div style={{ fontSize: 12, color: '#fbbf24', textAlign: 'center', marginBottom: 10, lineHeight: 1.6 }}>
+                That is the songwriter password. It belongs on{' '}
+                <Link href="/analyze" style={{ color: BLUE }}>the song analyzer</Link>.
+              </div>
+            ) : pwError ? (
+              <div style={{ fontSize: 12, color: '#f87171', textAlign: 'center', marginBottom: 10 }}>{pwError}</div>
+            ) : null}
+            <button className="az-btn" onClick={handleUnlock} style={{ background: BLUE, color: NAVY }}>
+              Unlock
+            </button>
           </div>
         </div>
       </div>
     )
   }
 
+  // ── Main analyzer ──────────────────────────────────────────────────────────
   return (
     <div style={{ fontFamily: "'Sora', sans-serif", background: NAVY, color: '#fff', minHeight: '100vh' }}>
       <style>{styles}</style>
 
+      {/* NAV */}
       <nav style={{ borderBottom: '0.5px solid rgba(255,255,255,0.08)', position: 'sticky', top: 0, zIndex: 50, background: NAVY }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', height: 68, maxWidth: 1100, margin: '0 auto' }}>
-          <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}><LogoWhite height={44} /></Link>
+          <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+            <LogoWhite height={44} />
+          </Link>
           <div className="desktop-nav-links" style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
             <Link href="/songs" style={{ fontSize: 13, fontWeight: 400, color: 'rgba(255,255,255,0.45)', textDecoration: 'none' }}>Songs</Link>
             <Link href="/about" style={{ fontSize: 13, fontWeight: 400, color: 'rgba(255,255,255,0.45)', textDecoration: 'none' }}>About</Link>
-            <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: BLUE, border: `0.5px solid ${BLUE}`, padding: '3px 10px', borderRadius: 20 }}>Analyzer</span>
+            <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: BLUE, border: `0.5px solid ${BLUE}`, padding: '3px 10px', borderRadius: 20 }}>Admin</span>
           </div>
         </div>
       </nav>
 
       <div style={{ maxWidth: 760, margin: '0 auto', padding: '36px 24px 80px' }}>
 
-        {!review && (
-          <>
-            <div style={{ marginBottom: 28 }}>
-              <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color: BLUE, marginBottom: 8 }}>Songwriter Access</div>
-              <h1 style={{ fontSize: 26, fontWeight: 600, letterSpacing: '-0.03em' }}>Song Analyzer</h1>
-              <p style={{ fontSize: 13, fontWeight: 300, color: 'rgba(255,255,255,0.4)', marginTop: 6 }}>Paste a song export or just the lyrics. Everything else is optional - anything you leave blank gets detected or inferred. Download the finished review as a PDF.</p>
+        {/* VIEW TOGGLE */}
+        <div style={{ display: 'flex', gap: 4, marginBottom: 24, borderBottom: '0.5px solid rgba(255,255,255,0.1)' }}>
+          {([['analyze', 'Analyzer'], ['library', 'Library']] as const).map(([v, label]) => (
+            <button
+              key={v}
+              className={`az-tab${view === v ? ' active' : ''}`}
+              onClick={() => { setView(v); if (v === 'library') loadLibrary() }}
+            >
+              {label}
+              {v === 'library' && libRows && (
+                <span style={{ marginLeft: 6, opacity: 0.5 }}>{libTotal ?? libRows.length}</span>
+              )}
+            </button>
+          ))}
+        </div>
+
+        {/* LIBRARY */}
+        {view === 'library' && (
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+              <input
+                className="az-input"
+                placeholder="Search by title, artist, or CCLI #"
+                value={libQuery}
+                onChange={e => setLibQuery(e.target.value)}
+                style={{ flex: 1 }}
+              />
+              <button
+                onClick={() => loadLibrary(true)}
+                disabled={libLoading}
+                style={{ padding: '10px 16px', borderRadius: 8, border: '0.5px solid rgba(255,255,255,0.15)', background: 'none', color: 'rgba(255,255,255,0.6)', fontSize: 12, cursor: 'pointer', fontFamily: "'Sora', sans-serif", whiteSpace: 'nowrap' }}
+              >
+                {libLoading ? 'Loading...' : 'Refresh'}
+              </button>
             </div>
 
+            {libError && (
+              <div style={{ padding: '10px 14px', background: '#1a0505', border: '0.5px solid #f87171', borderRadius: 8, fontSize: 12, color: '#f87171', marginBottom: 12 }}>
+                {libError}
+              </div>
+            )}
+
+            {libLoading && !libRows && (
+              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)', padding: '20px 0' }}>Loading uploaded songs...</div>
+            )}
+
+            {libRows && filteredLib.length === 0 && (
+              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)', padding: '20px 0' }}>
+                {libQuery ? `No songs match "${libQuery}".` : 'No songs uploaded yet.'}
+              </div>
+            )}
+
+            {filteredLib.length > 0 && (
+              <>
+                <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', marginBottom: 4 }}>
+                  {libQuery
+                    ? `${filteredLib.length} of ${libRows!.length} loaded`
+                    : `${libRows!.length} songs${libTotal && libTotal > libRows!.length ? ` of ${libTotal}` : ''}`}
+                </div>
+                {filteredLib.map(s => (
+                  <Link key={s.id} href={`/songs/${s.slug}`} className="az-lib-row">
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.title || 'Untitled song'}</div>
+                      <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {s.artist || 'Artist unknown'}
+                        {s.ccli_number ? ` · CCLI #${s.ccli_number}` : ''}
+                      </div>
+                    </div>
+                    <div style={{ textAlign: 'right', flexShrink: 0, marginLeft: 14 }}>
+                      <div style={{ fontSize: 18, fontWeight: 600, color: scoreColor(s.overall_score || 0) }}>
+                        {(s.overall_score ?? 0).toFixed(1)}
+                      </div>
+                      <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                        {s.created_at ? new Date(s.created_at).toLocaleDateString() : ''}
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </>
+            )}
+          </div>
+        )}
+
+        {/* INPUT FORM */}
+        {view === 'analyze' && !review && (
+          <>
+            <div style={{ marginBottom: 28 }}>
+              <div style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color: BLUE, marginBottom: 8 }}>Internal Tool</div>
+              <h1 style={{ fontSize: 26, fontWeight: 600, letterSpacing: '-0.03em' }}>Song Analyzer</h1>
+              <p style={{ fontSize: 13, fontWeight: 300, color: 'rgba(255,255,255,0.4)', marginTop: 6 }}>Paste a song export or just the lyrics. Everything else is optional - anything you leave blank gets detected or inferred.</p>
+            </div>
+
+            {/* PASTE BOX */}
             <div style={{ marginBottom: 20 }}>
-              <label style={{ display: 'block', fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: 8 }}>Add Song Lyrics *</label>
+              <label style={{ display: 'block', fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: 8 }}>
+                Add Song Lyrics *
+              </label>
               <textarea
-                className="az-input" rows={14}
+                className="az-input"
+                rows={14}
                 placeholder={'Paste anything here - a SongSelect export, a WorshipTools dump, or just the raw lyrics.\n\nFor example:\n\nTurn Your Eyes\n\nAuthors\nAndrew Holt | Bernie Herms\n\nDefault Key\nC\n\nVerse 1\nO soul are you weary...\n\nCCLI Song # 7158162'}
-                value={pasteRaw} onChange={e => setPasteRaw(e.target.value)}
+                value={pasteRaw}
+                onChange={e => setPasteRaw(e.target.value)}
                 style={{ resize: 'vertical' }}
               />
               <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', marginTop: 4 }}>Lyrics are used for analysis only. Never stored or displayed.</div>
@@ -318,6 +554,7 @@ export default function AnalyzePage() {
               </div>
             )}
 
+            {/* ANALYZE BUTTON */}
             <button className="az-btn" disabled={!canAnalyze() || analyzing} onClick={handleAnalyze}
               style={{ background: canAnalyze() && !analyzing ? '#fff' : 'rgba(255,255,255,0.08)', color: canAnalyze() && !analyzing ? NAVY : 'rgba(255,255,255,0.25)', marginBottom: 12 }}>
               {analyzing ? PROGRESS_STEPS[progressIdx] : 'Analyze Song'}
@@ -330,24 +567,32 @@ export default function AnalyzePage() {
             )}
 
             {analyzeError && (
-              <div style={{ padding: '10px 14px', background: '#1a0505', border: '0.5px solid #f87171', borderRadius: 8, fontSize: 12, color: '#f87171' }}>{analyzeError}</div>
+              <div style={{ padding: '10px 14px', background: '#1a0505', border: '0.5px solid #f87171', borderRadius: 8, fontSize: 12, color: '#f87171' }}>
+                {analyzeError}
+              </div>
             )}
           </>
         )}
 
-        {review && (
+        {/* RESULTS */}
+        {view === 'analyze' && review && (
           <>
+            {/* RESULT HEADER */}
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 28, paddingBottom: 20, borderBottom: '0.5px solid rgba(255,255,255,0.1)' }}>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 24, fontWeight: 600, letterSpacing: '-0.03em', marginBottom: 4 }}>{displayTitle}</div>
+                <div style={{ fontSize: 24, fontWeight: 600, letterSpacing: '-0.03em', marginBottom: 4, color: chosenTitle ? '#fff' : undefined }}>
+                  {chosenTitle || review.meta?.title || review._formData?.title || 'Untitled song'}
+                </div>
                 <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)' }}>
                   {review.meta?.artist || review._formData?.artist || 'Artist unknown'}
-                  {review.meta?.identified_from_lyrics && <span className="az-auto-chip" style={{ marginLeft: 8 }}>Identified from lyrics</span>}
+                  {review.meta?.identified_from_lyrics && (
+                    <span className="az-auto-chip" style={{ marginLeft: 8 }}>Identified from lyrics</span>
+                  )}
                 </div>
                 {(review.meta?.ccli_number || review._formData?.ccli) && (
                   <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', marginTop: 2 }}>CCLI #{review.meta?.ccli_number || review._formData?.ccli}</div>
                 )}
-
+                {/* TITLE SUGGESTIONS - only offered when we arrived with no title */}
                 {(review.meta?.suggested_titles || []).length > 0 && (
                   <div style={{ marginTop: 12, maxWidth: 480 }}>
                     <div style={{ fontSize: 9, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', marginBottom: 7 }}>
@@ -355,7 +600,13 @@ export default function AnalyzePage() {
                     </div>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
                       {review.meta.suggested_titles.map((t: string) => (
-                        <button key={t} onClick={() => setChosenTitle(chosenTitle === t ? '' : t)} className={`az-title-chip${chosenTitle === t ? ' active' : ''}`}>{t}</button>
+                        <button
+                          key={t}
+                          onClick={() => setChosenTitle(chosenTitle === t ? '' : t)}
+                          className={`az-title-chip${chosenTitle === t ? ' active' : ''}`}
+                        >
+                          {t}
+                        </button>
                       ))}
                     </div>
                   </div>
@@ -372,34 +623,20 @@ export default function AnalyzePage() {
               </div>
             </div>
 
+            {/* TABS */}
             <div style={{ display: 'flex', borderBottom: '0.5px solid rgba(255,255,255,0.1)', marginBottom: 24, overflowX: 'auto' }}>
-              {(['scores', 'review', 'defense', 'technical', 'story'] as TabKey[]).map(t => (
+              {(['scores', 'review', 'defense', 'technical', 'story', 'similar'] as TabKey[]).map(t => (
                 <button key={t} className={`az-tab${activeTab === t ? ' active' : ''}`} onClick={() => setActiveTab(t)}>
                   {t.charAt(0).toUpperCase() + t.slice(1)}
                 </button>
               ))}
             </div>
 
+            {/* SCORES TAB */}
             {activeTab === 'scores' && (
               <div>
                 {LENS_CONFIG.map(l => {
                   const d = review.lenses?.[l.key] || {}
-                  // Singability needs a melody. On a lyrics-only review there
-                  // isn't one, so it is shown as not scored rather than guessed.
-                  const excluded = d.excluded === true || d.score === null || d.score === undefined
-                  if (excluded) {
-                    return (
-                      <div key={l.key} className="az-lens-card" style={{ background: 'rgba(255,255,255,0.03)', borderLeftColor: 'rgba(255,255,255,0.2)' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4, gap: 10 }}>
-                          <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)' }}>{l.label}</span>
-                          <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', whiteSpace: 'nowrap' }}>Not scored</span>
-                        </div>
-                        <div style={{ fontSize: 12.5, color: 'rgba(255,255,255,0.4)', lineHeight: 1.65 }}>
-                          {d.summary || 'Melodic criteria are not evaluated in a lyrics-only review. Singability depends on melody, range and key, none of which a lyric sheet provides, so this lens is left out of the score rather than guessed at.'}
-                        </div>
-                      </div>
-                    )
-                  }
                   return (
                     <div key={l.key} className="az-lens-card" style={{ background: l.bg, borderLeftColor: l.color }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
@@ -411,10 +648,7 @@ export default function AnalyzePage() {
                     </div>
                   )
                 })}
-
-                <div style={{ marginTop: 14, padding: '12px 14px', borderRadius: 8, background: 'rgba(255,255,255,0.03)', border: '0.5px solid rgba(255,255,255,0.08)', fontSize: 11.5, color: 'rgba(255,255,255,0.38)', lineHeight: 1.7 }}>
-                  This score reflects four lenses. Congregational Singability is a melodic judgement and is not applied to a lyrics-only review, so it is excluded from the average rather than scored on assumptions.
-                </div>
+                {/* Tags */}
                 {review.technical?.themes?.length > 0 && (
                   <>
                     <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', marginTop: 20, marginBottom: 8 }}>Themes</div>
@@ -423,6 +657,7 @@ export default function AnalyzePage() {
                     </div>
                   </>
                 )}
+                {/* Scripture */}
                 {[...(review.scripture_map?.primary || []), ...(review.scripture_map?.supporting || [])].length > 0 && (
                   <>
                     <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', marginTop: 20, marginBottom: 8 }}>Scripture Map</div>
@@ -437,6 +672,7 @@ export default function AnalyzePage() {
               </div>
             )}
 
+            {/* REVIEW TAB */}
             {activeTab === 'review' && (
               <div>
                 <div style={{ lineHeight: 1.85 }}>
@@ -464,6 +700,7 @@ export default function AnalyzePage() {
               </div>
             )}
 
+            {/* DEFENSE TAB */}
             {activeTab === 'defense' && (
               <div>
                 {review.lenses?.defense_brief?.summary && (
@@ -484,6 +721,7 @@ export default function AnalyzePage() {
               </div>
             )}
 
+            {/* TECHNICAL TAB */}
             {activeTab === 'technical' && (
               <div>
                 <div className="az-grid3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 16 }}>
@@ -505,12 +743,14 @@ export default function AnalyzePage() {
                     </div>
                   ))}
                 </div>
-
+                {/* METER / TIME SIGNATURE REASONING */}
                 {(review.meta?.time_signature_reasoning || review.meta?.meter_pattern || review.meta?.meter_name) && (
                   <div style={{ background: 'rgba(0,181,255,0.05)', border: '0.5px solid rgba(0,181,255,0.25)', borderRadius: 8, padding: '14px 16px', marginBottom: 16 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
                       <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: BLUE }}>Meter Analysis</span>
-                      <span className="az-auto-chip">{review.meta?.time_signature_source === 'provided' ? 'You supplied this' : 'Recommended'}</span>
+                      <span className="az-auto-chip">
+                        {review.meta?.time_signature_source === 'provided' ? 'You supplied this' : 'Recommended'}
+                      </span>
                     </div>
                     <div className="az-grid3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 12 }}>
                       {[
@@ -544,9 +784,25 @@ export default function AnalyzePage() {
                     </div>
                   </>
                 )}
+                {review.lenses?.poetic_lyrical_quality?.voice_distribution && (
+                  <>
+                    <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', marginTop: 16, marginBottom: 10 }}>Voice Distribution</div>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <div style={{ flex: 1, background: 'rgba(255,255,255,0.05)', border: '0.5px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '10px 14px' }}>
+                        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>Individual</div>
+                        <div style={{ fontSize: 18, fontWeight: 600 }}>{review.lenses.poetic_lyrical_quality.voice_distribution.individual_pct}%</div>
+                      </div>
+                      <div style={{ flex: 1, background: 'rgba(255,255,255,0.05)', border: '0.5px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '10px 14px' }}>
+                        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>Corporate</div>
+                        <div style={{ fontSize: 18, fontWeight: 600 }}>{review.lenses.poetic_lyrical_quality.voice_distribution.corporate_pct}%</div>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             )}
 
+            {/* STORY TAB */}
             {activeTab === 'story' && (
               <div>
                 {review.story_behind_song?.publisher_note && (
@@ -560,129 +816,98 @@ export default function AnalyzePage() {
                     {item.source && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', fontStyle: 'italic', marginTop: 4 }}>Source: {item.source}</div>}
                   </div>
                 ))}
-                {!(review.story_behind_song?.items || []).some((i: any) => i.text) && (
-                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>No verified background is available for this song.</div>
-                )}
               </div>
             )}
 
-            {/* SAVE - guests take the review with them, nothing is written back */}
-            <div style={{ marginTop: 32, paddingTop: 24, borderTop: '0.5px solid rgba(255,255,255,0.1)' }}>
-              <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', marginBottom: 12 }}>Save This Analysis</div>
-              <button className="az-btn" onClick={handleDownloadPdf} disabled={pdfBusy}
-                style={{ background: pdfBusy ? 'rgba(255,255,255,0.08)' : BLUE, color: pdfBusy ? 'rgba(255,255,255,0.35)' : NAVY }}>
-                {pdfBusy ? 'Building PDF...' : 'Download Song Analysis (PDF)'}
-              </button>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.25)', marginTop: 8, textAlign: 'center' }}>
-                Saves the full review - scores, Scripture map, defense brief, and technical notes.
-              </div>
-              {pdfError && (
-                <div style={{ marginTop: 10, padding: '8px 12px', borderRadius: 6, fontSize: 12, background: '#1a0505', border: '0.5px solid #f87171', color: '#f87171' }}>{pdfError}</div>
-              )}
-            </div>
-
-            {/* SHARE TO LIBRARY */}
-            <div style={{ marginTop: 28, paddingTop: 24, borderTop: '0.5px solid rgba(255,255,255,0.1)' }}>
-              <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', marginBottom: 12 }}>
-                Share This Song <span style={{ color: 'rgba(255,255,255,0.2)' }}>- optional</span>
-              </div>
-
-              {submitMsg?.type === 'ok' ? (
-                <div style={{ padding: '14px 16px', borderRadius: 8, fontSize: 13, lineHeight: 1.7, background: '#052e16', border: '0.5px solid #22c55e', color: '#22c55e' }}>
-                  {submitMsg.text}
-                </div>
-              ) : (
-                <>
-                  <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer', marginBottom: 12 }}>
-                    <input
-                      type="checkbox"
-                      checked={consent}
-                      onChange={e => { setConsent(e.target.checked); setSubmitMsg(null) }}
-                      style={{ marginTop: 3, width: 15, height: 15, accentColor: BLUE, cursor: 'pointer', flexShrink: 0 }}
-                    />
-                    <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', lineHeight: 1.6 }}>
-                      I&rsquo;d like to share my song lyrics on the WorshipLens library
-                    </span>
-                  </label>
-
-                  {consent && (
-                    <div className="az-grid2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
-                      <div>
-                        <label style={{ display: 'block', fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>Your Name (optional)</label>
-                        <input className="az-input" placeholder="Jane Writer" value={submitterName} onChange={e => setSubmitterName(e.target.value)} />
-                      </div>
-                      <div>
-                        <label style={{ display: 'block', fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>Your Email (optional)</label>
-                        <input className="az-input" placeholder="jane@example.com" value={submitterEmail} onChange={e => setSubmitterEmail(e.target.value)} />
-                      </div>
-                    </div>
-                  )}
-
-                  <button
-                    className="az-btn"
-                    disabled={!consent || submitting}
-                    onClick={handleSubmitToLibrary}
-                    style={{
-                      background: consent && !submitting ? '#052e16' : 'rgba(255,255,255,0.05)',
-                      border: `0.5px solid ${consent && !submitting ? '#22c55e' : 'rgba(255,255,255,0.12)'}`,
-                      color: consent && !submitting ? '#22c55e' : 'rgba(255,255,255,0.25)',
-                    }}
-                  >
-                    {submitting ? 'Sending...' : 'Post my song on the WorshipLens library'}
-                  </button>
-
-                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.28)', marginTop: 10, lineHeight: 1.65 }}>
-                    Your song lyrics are never stored or posted without your permission. Nothing is saved unless you tick the box above, and submitted songs are reviewed before they appear in the library.
+            {/* SIMILAR TAB */}
+            {activeTab === 'similar' && (
+              <div style={{ display: 'flex', gap: 20 }}>
+                {[['if_you_love_this', 'If You Love This Song', BLUE], ['if_this_concerns_you', 'If This Concerns You', '#fbbf24']].map(([field, label, color]) => (
+                  <div key={field as string} style={{ flex: 1 }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: color as string, paddingBottom: 8, marginBottom: 10, borderBottom: `2px solid ${color}` }}>{label}</div>
+                    {(review.similar_songs?.[field as string] || []).length > 0
+                      ? (review.similar_songs[field as string]).map((s: any, i: number) => (
+                        <div key={i} style={{ padding: '10px 0', borderBottom: '0.5px solid rgba(255,255,255,0.08)' }}>
+                          <div style={{ fontSize: 13, fontWeight: 600 }}>{s.title}</div>
+                          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>{s.artist}</div>
+                          {s.reason && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', fontStyle: 'italic', marginTop: 3 }}>{s.reason}</div>}
+                        </div>
+                      ))
+                      : <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.25)', paddingTop: 8 }}>Run similarity backfill to populate.</div>
+                    }
                   </div>
+                ))}
+              </div>
+            )}
 
-                  {submitMsg?.type === 'err' && (
-                    <div style={{ marginTop: 10, padding: '8px 12px', borderRadius: 6, fontSize: 12, background: '#1a0505', border: '0.5px solid #f87171', color: '#f87171' }}>
-                      {submitMsg.text}
+            {/* UPLOAD */}
+            <div style={{ marginTop: 32, paddingTop: 24, borderTop: '0.5px solid rgba(255,255,255,0.1)' }}>
+              <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', marginBottom: 12 }}>Upload to WorshipLens</div>
+              {/* Already-in-library warning. Uploading twice was how the
+                  duplicate Amazing Grace rows happened; this makes the second
+                  one a deliberate choice. */}
+              {dupe && (
+                <div style={{ background: '#2a1f00', border: '0.5px solid #fbbf24', borderRadius: 8, padding: '14px 16px', marginBottom: 12 }}>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: '#fbbf24', marginBottom: 8 }}>
+                    Already in the library - matched on {dupe.matchedOn === 'ccli_number' ? 'CCLI number' : 'slug'}
+                    {dupe.count > 1 ? ` (${dupe.count} existing rows)` : ''}
+                  </div>
+                  {dupe.rows.map((r: any) => (
+                    <div key={r.id} style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)', marginBottom: 4 }}>
+                      {r.title || 'Untitled'} - {r.artist || 'Artist unknown'}
+                      {r.ccli_number ? ` · CCLI #${r.ccli_number}` : ''}
+                      {typeof r.overall_score === 'number' ? ` · ${r.overall_score.toFixed(1)}` : ''}
+                      {r.created_at ? ` · added ${new Date(r.created_at).toLocaleDateString()}` : ''}
+                    </div>
+                  ))}
+                  <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+                    <button className="az-upload-btn" disabled={uploading} onClick={() => handleUpload(true)}
+                      style={{ background: '#2a1f00', border: '0.5px solid #fbbf24', color: '#fbbf24', flex: 'none', padding: '8px 14px' }}>
+                      {uploading ? 'Replacing...' : 'Replace existing'}
+                    </button>
+                    <button className="az-upload-btn" onClick={() => setDupe(null)}
+                      style={{ background: 'none', border: '0.5px solid rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.5)', flex: 'none', padding: '8px 14px' }}>
+                      Cancel
+                    </button>
+                  </div>
+                  {dupe.count > 1 && (
+                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 10, lineHeight: 1.6 }}>
+                      Replacing updates the newest row only. The older duplicates stay until you remove them in Supabase.
                     </div>
                   )}
-                </>
-              )}
-            </div>
-
-            {/* COMING SOON */}
-            <div style={{ marginTop: 28, paddingTop: 24, borderTop: '0.5px solid rgba(255,255,255,0.1)' }}>
-              <div style={{ background: 'rgba(0,181,255,0.05)', border: '0.5px solid rgba(0,181,255,0.2)', borderRadius: 8, padding: '16px 18px' }}>
-                <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: BLUE, marginBottom: 6 }}>Coming Soon</div>
-                <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 6 }}>Song Demos Forum for Songwriters</div>
-                <div style={{ fontSize: 12.5, color: 'rgba(255,255,255,0.45)', lineHeight: 1.7 }}>
-                  Post a demo recording and get the full five-lens review, melodic analysis included. Congregational Singability needs a melody to judge - range, key, and how the tune sits in a room - so once you can submit audio, that fifth lens comes back and the score covers the whole song rather than the words alone. A place to trade feedback with other writers and workshop a song before it reaches a congregation.
                 </div>
+              )}
+
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button className="az-upload-btn" disabled={uploading} onClick={() => handleUpload(false)}
+                  style={{ background: '#052e16', border: '0.5px solid #22c55e', color: '#22c55e' }}>
+                  {uploading && !dupe ? 'Uploading...' : 'Upload to Supabase'}
+                </button>
+                <button className="az-upload-btn" onClick={() => { const c = { ...review }; delete c._formData; navigator.clipboard.writeText(JSON.stringify(c, null, 2)).then(() => setUploadMsg({ type: 'ok', text: 'JSON copied to clipboard.' })) }}
+                  style={{ background: 'rgba(255,255,255,0.05)', border: '0.5px solid rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.6)' }}>
+                  Copy JSON
+                </button>
               </div>
+              {uploadMsg && (
+                <div style={{ marginTop: 10, padding: '8px 12px', borderRadius: 6, fontSize: 12,
+                  background: uploadMsg.type === 'ok' ? '#052e16' : '#1a0505',
+                  border: `0.5px solid ${uploadMsg.type === 'ok' ? '#22c55e' : '#f87171'}`,
+                  color: uploadMsg.type === 'ok' ? '#22c55e' : '#f87171' }}>
+                  {uploadMsg.text}
+                </div>
+              )}
             </div>
           </>
         )}
       </div>
 
+      {/* FOOTER */}
       <footer style={{ borderTop: '0.5px solid rgba(255,255,255,0.08)', padding: '40px 24px' }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
-            <LogoWhite height={44} />
-            <div style={{ display: 'flex', gap: 20 }}>
-              <Link href="/songs" style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', textDecoration: 'none' }}>Songs</Link>
-              <Link href="/about" style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', textDecoration: 'none' }}>About</Link>
-            </div>
-          </div>
-
-          {/* Same wording as the PDF notice block, so guests see the terms
-              before they download rather than only after. */}
-          <div style={{ marginTop: 24, paddingTop: 16, borderTop: '0.5px solid rgba(255,255,255,0.06)', maxWidth: 760, fontSize: 9, lineHeight: 1.6, color: 'rgba(255,255,255,0.24)' }}>
-            <p style={{ fontWeight: 600, color: 'rgba(255,255,255,0.34)', marginBottom: 6 }}>
-              Analysis by WorshipLens - worshiplens.com
-            </p>
-            <p style={{ marginBottom: 7 }}>
-              The WorshipLens five-lens review framework, scoring criteria, and evaluative language were created and written by Ludwingk Rios. Copyright 2026 Ludwingk Rios. All rights reserved.
-            </p>
-            <p style={{ marginBottom: 7 }}>
-              Song lyrics are not reproduced in this report. Brief excerpts appear only as needed for commentary and criticism. All songs remain the property of their respective copyright holders; reproducing or projecting lyrics requires a valid CCLI or publisher license.
-            </p>
-            <p>
-              Scores and commentary are editorial opinion offered to support pastoral discernment, not statements of fact about any songwriter, publisher, or congregation.
-            </p>
+        <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+          <LogoWhite height={44} />
+          <div style={{ display: 'flex', gap: 20 }}>
+            <Link href="/songs" style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', textDecoration: 'none' }}>Songs</Link>
+            <Link href="/about" style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', textDecoration: 'none' }}>About</Link>
           </div>
         </div>
       </footer>
