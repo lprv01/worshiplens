@@ -11,6 +11,71 @@ const NOTIFY_EMAIL = process.env.NOTIFY_EMAIL
 // Resend account owner. Swap to a worshiplens.com sender once verified.
 const RESEND_FROM = process.env.RESEND_FROM || 'WorshipLens <onboarding@resend.dev>'
 
+// The public site origin, resolved from the incoming request. On Vercel the
+// browser fetch carries an Origin header; fall back to the forwarded host.
+function siteOrigin(req: NextRequest): string {
+  const origin = req.headers.get('origin')
+  if (origin) return origin
+  const proto = req.headers.get('x-forwarded-proto') || 'https'
+  const host = req.headers.get('x-forwarded-host') || req.headers.get('host')
+  if (host) return `${proto}://${host}`
+  try { return new URL(req.url).origin } catch { return '' }
+}
+
+function makeSlug(title: string): string {
+  return String(title || '').toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-').trim()
+}
+
+// Rebuilds the public `songs` row from a stored submission review. Mirrors the
+// admin analyzer's upload row exactly so an approved submission lands in the
+// library identical to an admin-uploaded song.
+function buildSongRowFromReview(review: any): any {
+  const meta = review?.meta || {}
+  const score = review?.overall_score || 0
+  const lenses = review?.lenses || {}
+  const lens_scores = {
+    scriptural_fidelity: lenses.scriptural_fidelity?.score || 0,
+    theological_clarity: lenses.theological_clarity?.score || 0,
+    congregational_singability: lenses.congregational_singability?.score || 0,
+    poetic_lyrical_quality: lenses.poetic_lyrical_quality?.score || 0,
+    defense_brief: lenses.defense_brief?.score || 0,
+  }
+  const colorStr = score >= 8 ? 'green' : score >= 6.5 ? 'amber' : score >= 5 ? 'orange' : 'red'
+  const effectiveTitle = meta.title || ''
+  const slug = makeSlug(effectiveTitle) || meta.slug || `untitled-${score.toFixed(1).replace('.', '')}`
+  return {
+    title: effectiveTitle || 'Untitled song',
+    artist: meta.artist || 'Unknown',
+    ccli_number: meta.ccli_number || null,
+    slug,
+    overall_score: score,
+    score_color: colorStr,
+    recommendation: review?.recommendation || '',
+    overall_verdict: review?.overall_verdict || '',
+    lens_scores,
+    key_original: meta.key_original || '',
+    key_recommended: meta.key_recommended || '',
+    time_signature: meta.time_signature || '',
+    tempo_bpm: meta.tempo_bpm || null,
+    copyright: meta.copyright || '',
+    release_year: meta.release_year || '',
+    album: meta.album || '',
+    genre: meta.genre || '',
+    hymn_lineage_badge: meta.hymn_lineage_badge || null,
+    lenses: review?.lenses || {},
+    full_analysis: review?.full_analysis || {},
+    scripture_map: review?.scripture_map || {},
+    theological_nuances: review?.theological_nuances || {},
+    hymn_lineage: review?.hymn_lineage || null,
+    story_behind_song: review?.story_behind_song || {},
+    technical: review?.technical || {},
+    set_intelligence: review?.set_intelligence || {},
+    similar_songs: review?.similar_songs || {},
+    themes: review?.technical?.themes || [],
+    seasonal_tags: review?.technical?.seasonal_tags || [],
+  }
+}
+
 function buildPrompt(p: any, mode: 'full' | 'lyrics_only' = 'full'): string {
   const supplied = (v: any) => (v && String(v).trim() ? String(v).trim() : 'not provided')
 
@@ -118,7 +183,8 @@ export async function POST(req: NextRequest) {
 
   // Anything that reads or writes the database is admin-only. A guest
   // password can analyze lyrics and nothing else.
-  if ((action === 'upload' || action === 'list') && role !== 'admin') {
+  const ADMIN_ONLY = ['upload', 'list', 'submission_list', 'submission_get', 'submission_approve', 'submission_decline']
+  if (ADMIN_ONLY.includes(action) && role !== 'admin') {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
@@ -257,6 +323,10 @@ export async function POST(req: NextRequest) {
             ``,
             `From:    ${row.submitter_name || 'anonymous'}${row.submitter_email ? ` <${row.submitter_email}>` : ''}`,
             `Status:  pending your approval`,
+            ``,
+            savedId
+              ? `Review and approve: ${siteOrigin(req)}/admin/submissions/${savedId}`
+              : `Review it in the submissions queue: ${siteOrigin(req)}/admin/submissions`,
             ``,
             `--- LYRICS ---`,
             row.lyrics,
@@ -514,6 +584,100 @@ Reply with one JSON object and nothing else:
       return NextResponse.json({ ok: true, mode: 'inserted' })
     } catch (e: any) {
       return NextResponse.json({ error: e.message || 'Upload failed' }, { status: 500 })
+    }
+  }
+
+  // ── Submission approval queue (admin only) ───────────────────────────────
+  if (action === 'submission_list' || action === 'submission_get' || action === 'submission_approve' || action === 'submission_decline') {
+    if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+      return NextResponse.json({ error: 'Supabase env vars not configured on server' }, { status: 500 })
+    }
+    const sb = {
+      'Content-Type': 'application/json',
+      apikey: SUPABASE_SERVICE_ROLE_KEY,
+      Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+    }
+    const base = `${SUPABASE_URL}/rest/v1/song_submissions`
+    const listCols = 'id,title,artist,overall_score,submitter_name,submitter_email,status,created_at'
+
+    try {
+      if (action === 'submission_list') {
+        const status = typeof body.status === 'string' && body.status ? body.status : 'pending'
+        const qs = status === 'all'
+          ? `select=${listCols}&order=created_at.desc`
+          : `status=eq.${encodeURIComponent(status)}&select=${listCols}&order=created_at.desc`
+        const res = await fetch(`${base}?${qs}`, { headers: sb })
+        if (!res.ok) return NextResponse.json({ error: (await res.text().catch(() => '')) || `Supabase ${res.status}` }, { status: 502 })
+        const rows = await res.json().catch(() => [])
+        return NextResponse.json({ rows: Array.isArray(rows) ? rows : [] })
+      }
+
+      const id = String(body.id || '')
+      if (!id) return NextResponse.json({ error: 'Missing submission id.' }, { status: 400 })
+
+      if (action === 'submission_get') {
+        const res = await fetch(`${base}?id=eq.${encodeURIComponent(id)}&limit=1`, { headers: sb })
+        if (!res.ok) return NextResponse.json({ error: (await res.text().catch(() => '')) || `Supabase ${res.status}` }, { status: 502 })
+        const rows = await res.json().catch(() => [])
+        const sub = Array.isArray(rows) && rows[0] ? rows[0] : null
+        if (!sub) return NextResponse.json({ error: 'Submission not found.' }, { status: 404 })
+        return NextResponse.json({ submission: sub })
+      }
+
+      if (action === 'submission_decline') {
+        const res = await fetch(`${base}?id=eq.${encodeURIComponent(id)}`, {
+          method: 'PATCH',
+          headers: { ...sb, Prefer: 'return=representation' },
+          body: JSON.stringify({ status: 'declined' }),
+        })
+        if (!res.ok) return NextResponse.json({ error: (await res.text().catch(() => '')) || `Supabase ${res.status}` }, { status: 502 })
+        return NextResponse.json({ ok: true, status: 'declined' })
+      }
+
+      // submission_approve: rebuild the songs row from the stored review, insert
+      // it into the library, then mark the submission approved.
+      const getRes = await fetch(`${base}?id=eq.${encodeURIComponent(id)}&limit=1`, { headers: sb })
+      if (!getRes.ok) return NextResponse.json({ error: (await getRes.text().catch(() => '')) || `Supabase ${getRes.status}` }, { status: 502 })
+      const found = await getRes.json().catch(() => [])
+      const sub = Array.isArray(found) && found[0] ? found[0] : null
+      if (!sub) return NextResponse.json({ error: 'Submission not found.' }, { status: 404 })
+      if (sub.status === 'approved') return NextResponse.json({ error: 'This submission is already approved.' }, { status: 409 })
+      if (!sub.review) return NextResponse.json({ error: 'This submission has no stored analysis to publish.' }, { status: 422 })
+
+      const row = buildSongRowFromReview(sub.review)
+
+      // Never publish a duplicate. Match on CCLI number when present, else slug.
+      const dupFilter = row.ccli_number
+        ? `ccli_number=eq.${encodeURIComponent(String(row.ccli_number))}`
+        : `slug=eq.${encodeURIComponent(String(row.slug || ''))}`
+      if (row.ccli_number || row.slug) {
+        const look = await fetch(`${SUPABASE_URL}/rest/v1/songs?${dupFilter}&select=id,title&limit=1`, { headers: sb })
+        if (look.ok) {
+          const ex = await look.json().catch(() => [])
+          if (Array.isArray(ex) && ex.length > 0) {
+            return NextResponse.json({ error: 'A song with this identity is already in the library.', duplicate: true }, { status: 409 })
+          }
+        }
+      }
+
+      const ins = await fetch(`${SUPABASE_URL}/rest/v1/songs`, {
+        method: 'POST',
+        headers: { ...sb, Prefer: 'return=representation' },
+        body: JSON.stringify(row),
+      })
+      if (!ins.ok) return NextResponse.json({ error: (await ins.text().catch(() => '')) || `Supabase ${ins.status}` }, { status: 502 })
+      const inserted = await ins.json().catch(() => null)
+      const songId = Array.isArray(inserted) && inserted[0]?.id ? inserted[0].id : null
+
+      await fetch(`${base}?id=eq.${encodeURIComponent(id)}`, {
+        method: 'PATCH',
+        headers: sb,
+        body: JSON.stringify({ status: 'approved' }),
+      })
+
+      return NextResponse.json({ ok: true, status: 'approved', songId, slug: row.slug })
+    } catch (e: any) {
+      return NextResponse.json({ error: e.message || 'Submission action failed' }, { status: 500 })
     }
   }
 
