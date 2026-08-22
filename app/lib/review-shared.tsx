@@ -37,8 +37,8 @@ export const META_FIELDS: {
   { key: 'artist', label: 'Name or Author(s)', placeholder: 'Bethel Music, Jenn Johnson', span: 3 },
   { key: 'key', label: 'Key (optional)', placeholder: 'Eb', span: 3 },
   { key: 'timeSignature', label: 'Time Signature (optional)', placeholder: 'Leave blank to recommend', span: 3, generate: 'meter' },
-  { key: 'themes', label: 'Key Themes / Scriptures (optional)', placeholder: 'Matthew 5:6, mercy, hunger for righteousness', span: 3, generate: 'themes' },
-  { key: 'email', label: 'Your Email (optional)', placeholder: 'you@example.com', span: 3, note: 'Never shared or published. Used only to reach you about your song.' },
+  { key: 'themes', label: 'Key Themes / Scriptures (optional)', placeholder: 'Matthew 5:6, mercy, hunger for righteousness', span: 6, generate: 'themes' },
+  { key: 'email', label: 'Your Email (optional)', placeholder: 'you@example.com', span: 6, note: 'Never shared or published. Used only to reach you about your song.' },
 ]
 
 export const LENS_CONFIG = [
@@ -314,7 +314,7 @@ export function DetailFields(props: {
       <div className="az-detail-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 12 }}>
         {META_FIELDS.map(f => (
           <div key={f.key} style={{ gridColumn: `span ${f.span || 2}` }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: 6, minHeight: 18 }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: 6, minHeight: 18, flexWrap: 'wrap' }}>
               <span>{f.label}</span>
               {isAutoFilled(f.key) && <span className="az-auto-chip">Detected</span>}
               {f.generate && (
