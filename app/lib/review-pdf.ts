@@ -1,4 +1,5 @@
 import type { jsPDF as JsPDFType } from 'jspdf'
+import { WORDMARK_PNG, WORDMARK_ASPECT, MARK_PNG } from './logo-data'
 
 type RGB = [number, number, number]
 
@@ -15,11 +16,32 @@ const LENSES = [
   { key: 'defense_brief', label: 'Defense Brief' },
 ]
 
+const BLUE: RGB = [0, 181, 255]
+const TRACK: RGB = [226, 232, 240]
+const CARD_BG: RGB = [244, 247, 251]
+
 function scoreRgb(s: number): RGB {
   if (s >= 8.0) return [42, 96, 16]
   if (s >= 6.5) return [122, 80, 16]
   if (s >= 5.0) return [139, 48, 16]
   return [139, 16, 16]
+}
+
+// Brighter fills for the score meters, matching the site's bar colors. Kept
+// separate from scoreRgb, which stays dark so printed numerals read cleanly.
+function barRgb(s: number): RGB {
+  if (s >= 8.0) return [74, 139, 42]
+  if (s >= 6.5) return [196, 123, 14]
+  if (s >= 5.0) return [196, 80, 32]
+  return [196, 32, 32]
+}
+
+const SHORT_LABEL: Record<string, string> = {
+  scriptural_fidelity: 'Scriptural fidelity',
+  theological_clarity: 'Theological clarity',
+  congregational_singability: 'Singability',
+  poetic_lyrical_quality: 'Poetic quality',
+  defense_brief: 'Defense brief',
 }
 
 /**
@@ -29,7 +51,7 @@ function scoreRgb(s: number): RGB {
  */
 export async function buildReviewPdf(review: any, displayTitle: string) {
   const { jsPDF } = await import('jspdf')
-  const doc: JsPDFType = new jsPDF({ unit: 'pt', format: 'letter' })
+  const doc: JsPDFType = new jsPDF({ unit: 'pt', format: 'letter', compress: true })
 
   const PW = doc.internal.pageSize.getWidth()
   const PH = doc.internal.pageSize.getHeight()
@@ -99,41 +121,101 @@ export async function buildReviewPdf(review: any, displayTitle: string) {
     y += 18
   }
 
-  // ---- Header -------------------------------------------------------------
-  doc.setFont('helvetica', 'bold')
-  doc.setFontSize(9)
-  doc.setTextColor(ACCENT[0], ACCENT[1], ACCENT[2])
-  doc.text('WORSHIPLENS REVIEW', M, y)
-  y += 26
+  // ---- Branded header -----------------------------------------------------
+  const top = M
 
-  doc.setFont('helvetica', 'bold')
-  doc.setFontSize(22)
-  doc.setTextColor(INK[0], INK[1], INK[2])
-  const titleLines = doc.splitTextToSize(displayTitle || 'Untitled song', CW - 110) as string[]
-  for (const line of titleLines) {
-    doc.text(line, M, y)
-    y += 26
+  // Brand wordmark: the official logo, embedded as a raster so it prints and
+  // renders identically everywhere. Falls back to a typeset wordmark if the
+  // image cannot be added.
+  // Tight-cropped wordmark: its left edge is the "W", so placing it at M lines
+  // the logo up exactly with the body text margin.
+  const logoH = 25.3
+  const logoW = logoH * WORDMARK_ASPECT
+  try {
+    doc.addImage(WORDMARK_PNG, 'PNG', M, top - 2, logoW, logoH)
+  } catch {
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(26)
+    doc.setTextColor(BLUE[0], BLUE[1], BLUE[2])
+    doc.text('Worship', M, top + 20)
+    const wWorship = doc.getTextWidth('Worship')
+    doc.setTextColor(MUTED[0], MUTED[1], MUTED[2])
+    doc.text('Lens', M + wWorship, top + 20)
   }
 
-  doc.setFont('helvetica', 'normal')
-  doc.setFontSize(11)
-  doc.setTextColor(MUTED[0], MUTED[1], MUTED[2])
-  doc.text(meta.artist || fd.artist || 'Artist unknown', M, y)
-
-  // Score, set flush right against the title block
+  // Overall score + verdict label, flush right
   const score = Number(review?.overall_score || 0)
   const sc = scoreRgb(score)
   doc.setFont('helvetica', 'bold')
-  doc.setFontSize(30)
+  doc.setFontSize(34)
   doc.setTextColor(sc[0], sc[1], sc[2])
-  doc.text(score.toFixed(1), PW - M, M + 34, { align: 'right' })
+  doc.text(score.toFixed(1), PW - M, top + 24, { align: 'right' })
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(8)
-  doc.setTextColor(MUTED[0], MUTED[1], MUTED[2])
-  doc.text(String(review?.recommendation || '').toUpperCase(), PW - M, M + 50, { align: 'right' })
+  doc.setTextColor(sc[0], sc[1], sc[2])
+  doc.text(String(review?.recommendation || '').toUpperCase(), PW - M, top + 40, { align: 'right' })
 
-  y += 20
+  // Mini score meters: one bar per scored lens. Excluded lenses (e.g. melodic
+  // Singability on a lyrics-only review) are dropped, matching the site card.
+  const meters = LENSES
+    .map(l => ({ l, d: review?.lenses?.[l.key] }))
+    .filter(({ d }) => d && !(d.excluded === true || d.score === null || d.score === undefined))
+    .map(({ l, d }) => ({ short: SHORT_LABEL[l.key] || l.label, score: Number(d.score || 0) }))
+
+  const cardW = 250
+  const cardX = PW - M - cardW
+  const cardY = top + 54
+  const rowH = 16
+  const cardH = meters.length ? 12 + meters.length * rowH + 8 : 0
+  if (meters.length) {
+    doc.setFillColor(CARD_BG[0], CARD_BG[1], CARD_BG[2])
+    doc.roundedRect(cardX, cardY, cardW, cardH, 6, 6, 'F')
+    const trackX = cardX + 108
+    const trackW = cardW - 108 - 34
+    meters.forEach((m, i) => {
+      const cy = cardY + 12 + i * rowH + 6
+      doc.setFont('helvetica', 'normal')
+      doc.setFontSize(7.5)
+      doc.setTextColor(MUTED[0], MUTED[1], MUTED[2])
+      doc.text(m.short, cardX + 12, cy + 2)
+      doc.setFillColor(TRACK[0], TRACK[1], TRACK[2])
+      doc.roundedRect(trackX, cy - 1, trackW, 3, 1.5, 1.5, 'F')
+      const b = barRgb(m.score)
+      doc.setFillColor(b[0], b[1], b[2])
+      doc.roundedRect(trackX, cy - 1, Math.max(2, trackW * Math.min(1, m.score / 10)), 3, 1.5, 1.5, 'F')
+      const nc = scoreRgb(m.score)
+      doc.setFont('helvetica', 'bold')
+      doc.setFontSize(8.5)
+      doc.setTextColor(nc[0], nc[1], nc[2])
+      doc.text(m.score.toFixed(1), cardX + cardW - 12, cy + 2, { align: 'right' })
+    })
+  }
+
+  // Title block on the left, below the wordmark, kept clear of the meter card
+  const leftColW = cardX - M - 20
+  let ly = top + 64
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(9)
+  doc.setTextColor(BLUE[0], BLUE[1], BLUE[2])
+  doc.text('SONG REVIEW', M, ly)
+  ly += 22
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(22)
+  doc.setTextColor(INK[0], INK[1], INK[2])
+  const titleLines = doc.splitTextToSize(displayTitle || 'Untitled song', leftColW) as string[]
+  for (const line of titleLines) {
+    doc.text(line, M, ly)
+    ly += 26
+  }
+  doc.setFont('helvetica', 'normal')
+  doc.setFontSize(11)
+  doc.setTextColor(MUTED[0], MUTED[1], MUTED[2])
+  doc.text(meta.artist || fd.artist || 'Artist unknown', M, ly)
+
+  // Continue below whichever column is taller
+  y = Math.max(ly, meters.length ? cardY + cardH : 0) + 24
   doc.setDrawColor(RULE[0], RULE[1], RULE[2])
+  doc.setLineWidth(0.5)
   doc.line(M, y, M + CW, y)
   y += 20
 
@@ -322,11 +404,19 @@ export async function buildReviewPdf(review: any, displayTitle: string) {
     doc.setDrawColor(RULE[0], RULE[1], RULE[2])
     doc.setLineWidth(0.5)
     doc.line(M, PH - M + 12, PW - M, PH - M + 12)
+    // Official brand mark
+    const markS = 11
+    try {
+      doc.addImage(MARK_PNG, 'PNG', M, PH - M + 16, markS, markS)
+    } catch {
+      doc.setFillColor(BLUE[0], BLUE[1], BLUE[2])
+      doc.circle(M + 5, PH - M + 21, 4, 'F')
+    }
     doc.setFont('helvetica', 'normal')
     doc.setFontSize(8)
     doc.setTextColor(MUTED[0], MUTED[1], MUTED[2])
-    doc.text('WorshipLens - worshiplens.com', M, PH - M + 26)
-    doc.text(`Page ${i} of ${pages}`, PW - M, PH - M + 26, { align: 'right' })
+    doc.text('worshiplens.com', M + markS + 6, PH - M + 25)
+    doc.text(`Page ${i} of ${pages}`, PW - M, PH - M + 25, { align: 'right' })
   }
 
   return doc
