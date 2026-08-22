@@ -215,6 +215,19 @@ export default function AboutPage() {
         </div>
       </section>
 
+      {/* THE WORSHIP DILEMMA */}
+      <section style={{ padding: '64px 24px', borderBottom: '0.5px solid #E8EDF2' }}>
+        <div style={{ maxWidth: 720, margin: '0 auto' }}>
+          <SectionHeading eyebrow="The Tension" title="The Worship Dilemma" />
+          <p style={{ ...BODY, marginBottom: 16 }}>
+            The conversation around worship music is one the Church has never fully resolved, and perhaps never will. Since the earliest centuries of gathered worship, Christians have debated what is appropriate, what is reverent, and what belongs in the sanctuary. Hymns were once the radical departure. Gospel, Southern Gospel, contemporary Christian music, modern hymns, praise choruses, and the countless genres that have followed each carried their own season of controversy. The arguments are familiar: this song is too repetitive, that lyric is grammatically imprecise, this genre feels too informal, that style belongs to the world. These are not new objections. They have simply worn new clothes in every generation.
+          </p>
+          <p style={{ ...BODY, marginBottom: 0 }}>
+            But underneath every one of them is a question worth asking honestly: is this personal preference masquerading as theological conviction? We were designed to worship. God created every genre. And while man is imperfect and the songs he writes will always carry that imperfection, the more urgent question is not whether a lyric or style is polished, but whether the song, at its center, points to the truth, the way, and the life. Whether it glorifies God. Whether it opens the heart to encounter the risen Christ. That is the standard. Everything else is a conversation worth having with humility.
+          </p>
+        </div>
+      </section>
+
       {/* SHORT BIO */}
       <section style={{ padding: '44px 24px', background: '#F7F9FC', borderBottom: '0.5px solid #E8EDF2' }}>
         <div style={{ maxWidth: 720, margin: '0 auto' }}>
@@ -277,19 +290,6 @@ export default function AboutPage() {
           </p>
           <p style={{ ...BODY, marginBottom: 0 }}>
             And at the center of it all is a simple reminder: worship is not ultimately about us. It is about Him. Sing to the audience of One.
-          </p>
-        </div>
-      </section>
-
-      {/* THE WORSHIP DILEMMA */}
-      <section style={{ padding: '64px 24px', borderBottom: '0.5px solid #E8EDF2' }}>
-        <div style={{ maxWidth: 720, margin: '0 auto' }}>
-          <SectionHeading eyebrow="The Tension" title="The Worship Dilemma" />
-          <p style={{ ...BODY, marginBottom: 16 }}>
-            The conversation around worship music is one the Church has never fully resolved, and perhaps never will. Since the earliest centuries of gathered worship, Christians have debated what is appropriate, what is reverent, and what belongs in the sanctuary. Hymns were once the radical departure. Gospel, Southern Gospel, contemporary Christian music, modern hymns, praise choruses, and the countless genres that have followed each carried their own season of controversy. The arguments are familiar: this song is too repetitive, that lyric is grammatically imprecise, this genre feels too informal, that style belongs to the world. These are not new objections. They have simply worn new clothes in every generation.
-          </p>
-          <p style={{ ...BODY, marginBottom: 0 }}>
-            But underneath every one of them is a question worth asking honestly: is this personal preference masquerading as theological conviction? We were designed to worship. God created every genre. And while man is imperfect and the songs he writes will always carry that imperfection, the more urgent question is not whether a lyric or style is polished, but whether the song, at its center, points to the truth, the way, and the life. Whether it glorifies God. Whether it opens the heart to encounter the risen Christ. That is the standard. Everything else is a conversation worth having with humility.
           </p>
         </div>
       </section>
