@@ -328,6 +328,20 @@ reasoning: 2 to 3 sentences a worship leader without music theory training can f
 
 Reply with one JSON object and nothing else:
 {"time_signature":"","meter_pattern":"","meter_name":"","poetic_foot":"","reasoning":""}`,
+
+      themes: `Read these worship song lyrics and identify their key themes and the Scripture they most clearly echo.
+
+LYRICS:
+${lyrics}
+
+RULES:
+- 3 to 5 themes, each 1 to 3 words, drawn from what the lyric actually says rather than what a worship song usually says.
+- 1 or 2 Scripture references the lyric genuinely echoes, formatted Book Chapter:Verse.
+- Only include a reference where the connection is plain in the words. A shared word like "grace" or "light" is not an echo on its own.
+- If nothing rises to that bar, return an empty scriptures list. Do not invent a reference to fill the slot.
+
+Reply with one JSON object and nothing else:
+{"themes":["",""],"scriptures":[""]}`,
     }
 
     const prompt = prompts[kind as string]

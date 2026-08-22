@@ -15,9 +15,10 @@ export type ParsedSong = {
   album: string
   timeSignature: string
   themes: string
+  email: string
   lyrics: string
 }
-export type MetaKey = 'title' | 'artist' | 'ccli' | 'key' | 'album' | 'timeSignature' | 'themes'
+export type MetaKey = 'title' | 'artist' | 'ccli' | 'key' | 'album' | 'timeSignature' | 'themes' | 'email'
 export type ReviewResult = Record<string, any>
 export type TabKey = 'scores' | 'review' | 'defense' | 'technical' | 'story' | 'similar'
 
@@ -29,13 +30,15 @@ export const META_FIELDS: {
   label: string
   placeholder: string
   span?: number
-  generate?: 'title' | 'meter'
+  generate?: 'title' | 'meter' | 'themes'
+  note?: string
 }[] = [
   { key: 'title', label: 'Song Title', placeholder: 'Goodness of God', span: 3, generate: 'title' },
   { key: 'artist', label: 'Name or Author(s)', placeholder: 'Bethel Music, Jenn Johnson', span: 3 },
   { key: 'key', label: 'Key (optional)', placeholder: 'Eb', span: 3 },
   { key: 'timeSignature', label: 'Time Signature (optional)', placeholder: 'Leave blank to recommend', span: 3, generate: 'meter' },
-  { key: 'themes', label: 'Key Themes / Scriptures (optional)', placeholder: 'Matthew 5:6, mercy, hunger for righteousness', span: 6 },
+  { key: 'themes', label: 'Key Themes / Scriptures (optional)', placeholder: 'Matthew 5:6, mercy, hunger for righteousness', span: 3, generate: 'themes' },
+  { key: 'email', label: 'Your Email (optional)', placeholder: 'you@example.com', span: 3, note: 'Never shared or published. Used only to reach you about your song.' },
 ]
 
 export const LENS_CONFIG = [
@@ -86,7 +89,7 @@ export function LogoWhite({ height = 22 }: { height?: number }) {
 // header, a pipe-separated credit line, a CCLI number, or a Default Key). A
 // bare lyric dump gets no invented title - the first line of a chorus is not
 // a song title, and guessing one poisons the analysis downstream.
-export const EMPTY_PARSE: ParsedSong = { title: '', artist: '', ccli: '', key: '', album: '', timeSignature: '', themes: '', lyrics: '' }
+export const EMPTY_PARSE: ParsedSong = { title: '', artist: '', ccli: '', key: '', album: '', timeSignature: '', themes: '', email: '', lyrics: '' }
 
 export function smartParse(raw: string): ParsedSong {
   if (!raw.trim()) return EMPTY_PARSE
@@ -94,6 +97,7 @@ export function smartParse(raw: string): ParsedSong {
   const lines = raw.split('\n').map(l => l.trim())
   let title = '', artist = '', ccli = '', key = '', album = '', timeSignature = '', lyrics = ''
   const themes = ''   // author-supplied only; never inferred from the paste
+  const email = ''    // contact detail, never parsed out of a lyric sheet
 
   const ccliMatch = raw.match(/CCLI\s*(?:Song\s*)?#\s*(\d{5,8})/i) ||
     raw.match(/Song\s+Number\s*\n\s*(\d{5,8})/i)
@@ -180,7 +184,7 @@ export function smartParse(raw: string): ParsedSong {
       .trim()
   }
 
-  return { title, artist, ccli, key, album, timeSignature, themes, lyrics }
+  return { title, artist, ccli, key, album, timeSignature, themes, email, lyrics }
 }
 
 export function scoreColor(s: number) {
@@ -216,7 +220,7 @@ export const METER_PATTERNS = [
 export function MeterHelp() {
   return (
     <details className="az-details">
-      <summary className="az-summary">How is a time signature recommended?</summary>
+      <summary className="az-summary">How is a time signature calculated?</summary>
       <div style={{ paddingTop: 12, fontSize: 12, lineHeight: 1.75, color: 'rgba(255,255,255,0.45)' }}>
         <p style={{ marginBottom: 12 }}>
           Two things about a lyric decide how it wants to be counted: how many syllables each line has, and where the stresses fall inside them.
@@ -285,17 +289,18 @@ export function DetailFields(props: {
   setField: (k: MetaKey, v: string) => void
   onReset: () => void
   hasEdits: boolean
-  onGenerate: (kind: 'title' | 'meter') => void
-  generating: 'title' | 'meter' | null
+  onGenerate: (kind: 'title' | 'meter' | 'themes') => void
+  generating: 'title' | 'meter' | 'themes' | null
   canGenerate: boolean
   titleOptions: string[]
   onPickTitle: (t: string) => void
   meterNote: string
+  onClear: (kind: 'meter' | 'themes') => void
   genError: string
 }) {
   const {
     fieldValue, isAutoFilled, setField, onReset, hasEdits,
-    onGenerate, generating, canGenerate, titleOptions, onPickTitle, meterNote, genError,
+    onGenerate, generating, canGenerate, titleOptions, onPickTitle, meterNote, onClear, genError,
   } = props
 
   return (
@@ -304,11 +309,6 @@ export function DetailFields(props: {
         <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)' }}>
           Details <span style={{ color: 'rgba(255,255,255,0.25)' }}>- all optional</span>
         </div>
-        {hasEdits && (
-          <button onClick={onReset} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.3)', fontSize: 11, cursor: 'pointer', fontFamily: "'Sora', sans-serif", textDecoration: 'underline' }}>
-            Reset to detected
-          </button>
-        )}
       </div>
 
       <div className="az-detail-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 12 }}>
@@ -329,7 +329,16 @@ export function DetailFields(props: {
                     ? 'Working...'
                     : f.generate === 'title'
                       ? 'Generate Song Title'
-                      : 'Suggest from poetic rhythm'}
+                      : f.generate === 'meter'
+                        ? 'Suggest from poetic rhythm'
+                        : 'Suggest from song lyrics'}
+                </button>
+              )}
+              {(f.generate === 'meter' || f.generate === 'themes')
+                && generating === null
+                && (fieldValue(f.key) || (f.generate === 'meter' && meterNote)) && (
+                <button type="button" className="az-clear-btn" onClick={() => onClear(f.generate as 'meter' | 'themes')}>
+                  Clear
                 </button>
               )}
             </label>
@@ -349,8 +358,14 @@ export function DetailFields(props: {
               </div>
             )}
 
+            {f.note && (
+              <div style={{ fontSize: 10.5, color: 'rgba(255,255,255,0.28)', marginTop: 5, lineHeight: 1.55 }}>
+                {f.note}
+              </div>
+            )}
+
             {f.key === 'timeSignature' && meterNote && (
-              <div style={{ marginTop: 8, fontSize: 11.5, lineHeight: 1.65, color: 'rgba(255,255,255,0.45)', background: 'rgba(0,181,255,0.05)', border: '0.5px solid rgba(0,181,255,0.2)', borderRadius: 6, padding: '9px 12px' }}>
+              <div style={{ marginTop: 8, fontSize: 11.5, lineHeight: 1.65, color: 'rgba(255,255,255,0.45)', background: 'rgba(0,181,255,0.05)', border: '0.5px solid rgba(0,181,255,0.2)', borderRadius: 6, padding: '9px 12px', whiteSpace: 'pre-line' }}>
                 {meterNote}
               </div>
             )}
@@ -365,7 +380,7 @@ export function DetailFields(props: {
       )}
 
       <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.28)', marginTop: 12, lineHeight: 1.6 }}>
-        Leave <strong style={{ fontWeight: 600, color: 'rgba(255,255,255,0.4)' }}>Time Signature</strong> blank and WorshipLens will recommend one from the lyric meter, with its reasoning shown in the Technical tab.
+        Leave it blank and WorshipLens recommends one from the lyric meter, with its reasoning in the Technical tab.
       </div>
       <div style={{ marginTop: 8 }}>
         <MeterHelp />

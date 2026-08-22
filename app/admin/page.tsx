@@ -123,12 +123,12 @@ export default function AdminPage() {
 
 
   // Generate helpers (title / meter) - callable before the full analysis
-  const [generating, setGenerating] = useState<'title' | 'meter' | null>(null)
+  const [generating, setGenerating] = useState<'title' | 'meter' | 'themes' | null>(null)
   const [titleOptions, setTitleOptions] = useState<string[]>([])
   const [meterNote, setMeterNote] = useState('')
   const [genError, setGenError] = useState('')
 
-  async function handleGenerate(kind: 'title' | 'meter') {
+  async function handleGenerate(kind: 'title' | 'meter' | 'themes') {
     const d = getSongData()
     if (!d.lyrics) { setGenError('Paste the lyrics first.'); return }
     setGenerating(kind); setGenError('')
@@ -147,16 +147,31 @@ export default function AdminPage() {
         const titles = Array.isArray(res.titles) ? res.titles.filter(Boolean) : []
         if (!titles.length) throw new Error('No titles came back. Try again.')
         setTitleOptions(titles)
+      } else if (kind === 'themes') {
+        const themes = Array.isArray(res.themes) ? res.themes.filter(Boolean) : []
+        const scriptures = Array.isArray(res.scriptures) ? res.scriptures.filter(Boolean) : []
+        if (!themes.length && !scriptures.length) throw new Error('Nothing came back. Try again.')
+        setField('themes', [...themes, ...scriptures].join(', '))
       } else {
         if (res.time_signature) setField('timeSignature', res.time_signature)
         const bits = [res.meter_pattern, res.meter_name, res.poetic_foot].filter(Boolean).join(' · ')
-        setMeterNote([bits, res.reasoning].filter(Boolean).join(' — '))
+        setMeterNote([bits, res.reasoning].filter(Boolean).join('\n'))
       }
     } catch (e: any) {
       setGenError(e.message || 'Could not generate that.')
     } finally {
       setGenerating(null)
     }
+  }
+
+  function clearGenerated(kind: 'meter' | 'themes') {
+    if (kind === 'meter') {
+      setField('timeSignature', '')
+      setMeterNote('')
+    } else {
+      setField('themes', '')
+    }
+    setGenError('')
   }
 
   // ── Get active song data ──
@@ -171,6 +186,7 @@ export default function AdminPage() {
       album: fieldValue('album').trim(),
       timeSignature: fieldValue('timeSignature').trim(),
       themes: fieldValue('themes').trim(),
+      email: fieldValue('email').trim(),
       lyrics: auto.lyrics,
     }
   }
@@ -330,6 +346,8 @@ export default function AdminPage() {
     .az-gen-btn { font-family: 'Sora', sans-serif; font-size: 9px; font-weight: 600; letter-spacing: 0.03em; text-transform: none; padding: 3px 9px; border-radius: 20px; border: 0.5px solid rgba(0,181,255,0.35); background: rgba(0,181,255,0.08); color: ${BLUE}; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
     .az-gen-btn:hover:not(:disabled) { background: rgba(0,181,255,0.18); border-color: ${BLUE}; }
     .az-gen-btn:disabled { opacity: 0.35; cursor: default; }
+    .az-clear-btn { font-family: 'Sora', sans-serif; font-size: 9px; font-weight: 600; letter-spacing: 0.03em; text-transform: none; padding: 3px 9px; border-radius: 20px; border: 0.5px solid rgba(255,255,255,0.18); background: none; color: rgba(255,255,255,0.4); cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+    .az-clear-btn:hover { border-color: rgba(255,255,255,0.4); color: rgba(255,255,255,0.7); }
     .az-details { border: 0.5px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px 14px; background: rgba(255,255,255,0.02); }
     .az-summary { cursor: pointer; font-size: 11px; font-weight: 600; letter-spacing: 0.04em; color: ${BLUE}; list-style: none; user-select: none; }
     .az-summary::-webkit-details-marker { display: none; }
@@ -540,6 +558,7 @@ export default function AdminPage() {
               titleOptions={titleOptions}
               onPickTitle={(t) => { setField('title', t); setTitleOptions([]) }}
               meterNote={meterNote}
+              onClear={clearGenerated}
               genError={genError}
             />
 

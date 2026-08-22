@@ -38,12 +38,12 @@ export default function AnalyzePage() {
 
 
   // Generate helpers (title / meter) - callable before the full analysis
-  const [generating, setGenerating] = useState<'title' | 'meter' | null>(null)
+  const [generating, setGenerating] = useState<'title' | 'meter' | 'themes' | null>(null)
   const [titleOptions, setTitleOptions] = useState<string[]>([])
   const [meterNote, setMeterNote] = useState('')
   const [genError, setGenError] = useState('')
 
-  async function handleGenerate(kind: 'title' | 'meter') {
+  async function handleGenerate(kind: 'title' | 'meter' | 'themes') {
     const d = getSongData()
     if (!d.lyrics) { setGenError('Paste the lyrics first.'); return }
     setGenerating(kind); setGenError('')
@@ -62,16 +62,31 @@ export default function AnalyzePage() {
         const titles = Array.isArray(res.titles) ? res.titles.filter(Boolean) : []
         if (!titles.length) throw new Error('No titles came back. Try again.')
         setTitleOptions(titles)
+      } else if (kind === 'themes') {
+        const themes = Array.isArray(res.themes) ? res.themes.filter(Boolean) : []
+        const scriptures = Array.isArray(res.scriptures) ? res.scriptures.filter(Boolean) : []
+        if (!themes.length && !scriptures.length) throw new Error('Nothing came back. Try again.')
+        setField('themes', [...themes, ...scriptures].join(', '))
       } else {
         if (res.time_signature) setField('timeSignature', res.time_signature)
         const bits = [res.meter_pattern, res.meter_name, res.poetic_foot].filter(Boolean).join(' · ')
-        setMeterNote([bits, res.reasoning].filter(Boolean).join(' — '))
+        setMeterNote([bits, res.reasoning].filter(Boolean).join('\n'))
       }
     } catch (e: any) {
       setGenError(e.message || 'Could not generate that.')
     } finally {
       setGenerating(null)
     }
+  }
+
+  function clearGenerated(kind: 'meter' | 'themes') {
+    if (kind === 'meter') {
+      setField('timeSignature', '')
+      setMeterNote('')
+    } else {
+      setField('themes', '')
+    }
+    setGenError('')
   }
 
   function getSongData(): ParsedSong {
@@ -83,6 +98,7 @@ export default function AnalyzePage() {
       album: fieldValue('album').trim(),
       timeSignature: fieldValue('timeSignature').trim(),
       themes: fieldValue('themes').trim(),
+      email: fieldValue('email').trim(),
       lyrics: auto.lyrics,
     }
   }
@@ -147,7 +163,6 @@ export default function AnalyzePage() {
   // lyrics never leave the browser, and the API refuses the request anyway.
   const [consent, setConsent] = useState(false)
   const [submitterName, setSubmitterName] = useState('')
-  const [submitterEmail, setSubmitterEmail] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [submitMsg, setSubmitMsg] = useState<{ type: 'ok' | 'err'; text: string } | null>(null)
 
@@ -173,7 +188,7 @@ export default function AnalyzePage() {
             overall_score: review.overall_score,
             review,
             submitterName: submitterName.trim(),
-            submitterEmail: submitterEmail.trim(),
+            submitterEmail: d.email,
           },
         }),
       })
@@ -190,7 +205,7 @@ export default function AnalyzePage() {
   function handleReset() {
     setReview(null); setPasteRaw(''); setEdits({})
     setAnalyzeError(''); setChosenTitle(''); setPdfError('')
-    setConsent(false); setSubmitterName(''); setSubmitterEmail(''); setSubmitMsg(null)
+    setConsent(false); setSubmitterName(''); setSubmitMsg(null)
   }
 
   const styles = `
@@ -208,6 +223,8 @@ export default function AnalyzePage() {
     .az-gen-btn { font-family: 'Sora', sans-serif; font-size: 9px; font-weight: 600; letter-spacing: 0.03em; text-transform: none; padding: 3px 9px; border-radius: 20px; border: 0.5px solid rgba(0,181,255,0.35); background: rgba(0,181,255,0.08); color: ${BLUE}; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
     .az-gen-btn:hover:not(:disabled) { background: rgba(0,181,255,0.18); border-color: ${BLUE}; }
     .az-gen-btn:disabled { opacity: 0.35; cursor: default; }
+    .az-clear-btn { font-family: 'Sora', sans-serif; font-size: 9px; font-weight: 600; letter-spacing: 0.03em; text-transform: none; padding: 3px 9px; border-radius: 20px; border: 0.5px solid rgba(255,255,255,0.18); background: none; color: rgba(255,255,255,0.4); cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+    .az-clear-btn:hover { border-color: rgba(255,255,255,0.4); color: rgba(255,255,255,0.7); }
     .az-details { border: 0.5px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px 14px; background: rgba(255,255,255,0.02); }
     .az-summary { cursor: pointer; font-size: 11px; font-weight: 600; letter-spacing: 0.04em; color: ${BLUE}; list-style: none; user-select: none; }
     .az-summary::-webkit-details-marker { display: none; }
@@ -304,6 +321,7 @@ export default function AnalyzePage() {
               titleOptions={titleOptions}
               onPickTitle={(t) => { setField('title', t); setTitleOptions([]) }}
               meterNote={meterNote}
+              onClear={clearGenerated}
               genError={genError}
             />
 
@@ -606,14 +624,11 @@ export default function AnalyzePage() {
                   </label>
 
                   {consent && (
-                    <div className="az-grid2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
-                      <div>
-                        <label style={{ display: 'block', fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>Your Name (optional)</label>
-                        <input className="az-input" placeholder="Jane Writer" value={submitterName} onChange={e => setSubmitterName(e.target.value)} />
-                      </div>
-                      <div>
-                        <label style={{ display: 'block', fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>Your Email (optional)</label>
-                        <input className="az-input" placeholder="jane@example.com" value={submitterEmail} onChange={e => setSubmitterEmail(e.target.value)} />
+                    <div style={{ marginBottom: 14 }}>
+                      <label style={{ display: 'block', fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>Your Name (optional)</label>
+                      <input className="az-input" placeholder="Jane Writer" value={submitterName} onChange={e => setSubmitterName(e.target.value)} />
+                      <div style={{ fontSize: 10.5, color: 'rgba(255,255,255,0.28)', marginTop: 5 }}>
+                        Your email is taken from the Details section above, if you entered one.
                       </div>
                     </div>
                   )}
