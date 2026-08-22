@@ -17,9 +17,15 @@ CCLI #: ${supplied(p.ccli)}
 Key: ${supplied(p.key)}
 Album: ${supplied(p.album)}
 Time signature: ${supplied(p.timeSignature)}
+Themes or Scriptures the submitter flagged: ${supplied(p.themes)}
 
 LYRICS (PRIVATE - for analysis only, never reproduced):
 ${p.lyrics}
+
+SUBMITTER-FLAGGED THEMES:
+- Anything listed above under "Themes or Scriptures the submitter flagged" is a claim to check, not a fact to accept. Treat it as a pointer to look at, then judge it against the lyric itself.
+- Where the lyric genuinely supports it, include it in scripture_map or technical.themes as you normally would.
+- Where the lyric does not support it, leave it out and say plainly in full_analysis that the connection was suggested but the text does not carry it. Do not stretch the reading to make a submitted reference fit.
 
 MISSING METADATA:
 - The lyrics are the only guaranteed input. Never refuse or shorten the analysis because metadata is missing.
@@ -61,7 +67,7 @@ SCORING: Each lens scored 0-10. Overall 10/10 is unreachable by design. Deductio
 
 Generate a complete WorshipLens review as a single valid JSON object. No text outside the JSON. No markdown fences.
 
-{"meta":{"title":"","artist":"","identified_from_lyrics":false,"suggested_titles":[],"ccli_number":"","slug":"","key_original":"","key_recommended":"","range_original":"","range_recommended":"","time_signature":"","time_signature_source":"recommended","time_signature_reasoning":"","meter_pattern":"","meter_name":"","poetic_foot":"","tempo_bpm":0,"copyright":"","release_year":"","album":"","genre":"","hymn_lineage_badge":null},"overall_score":0.0,"overall_verdict":"","recommendation":"Recommended","lenses":{"scriptural_fidelity":{"score":0.0,"deduction_line":"","summary":"","watchpoints":[],"lyric_examples":[]},"theological_clarity":{"score":0.0,"deduction_line":"","summary":"","radio_test_result":"Passes","radio_test_note":"","theological_arc":"","watchpoints":[]},"congregational_singability":{"score":0.0,"deduction_line":"","summary":"","key_original":"","key_recommended":"","range_original":"","range_recommended":"","ceiling_note":"","melody_accessibility":""},"poetic_lyrical_quality":{"score":0.0,"deduction_line":"","summary":"","repetition_ratio_pct":0,"cliche_density":"low","imagery_quality":"","voice_distribution":{"individual_pct":0,"corporate_pct":0,"flag":null,"note":""},"grammar_notes":[],"lyric_modifications":[],"watchpoints":[]},"defense_brief":{"score":0.0,"summary":"","objections":[{"objection":"","who_raises_it":"","tag":"Theological","scripture_response":"","suggested_framing":"","ccli_modification_note":"","honest_concession":""}]}},"full_analysis":{"paragraphs":["","","",""]},"scripture_map":{"primary":[{"reference":"","connection":""}],"supporting":[{"reference":"","connection":""}]},"theological_nuances":{"affirmed":[{"label":"","note":""}],"flagged":[]},"hymn_lineage":null,"story_behind_song":{"available":true,"publisher_note":null,"items":[{"text":"","source":""}]},"technical":{"themes":[],"sermon_series_fit":[],"seasonal_tags":[],"audience_fit":{"spiritual_maturity":"","age_group":"","service_type":"","visitor_friendliness":"","special_contexts":""}},"set_intelligence":{"available_at_500_songs":true,"pairs_well_with":[],"avoid_pairing_with":[],"set_arc":null},"similar_songs":{"if_you_love_this":[],"if_this_concerns_you":[]}}`
+{"meta":{"title":"","artist":"","identified_from_lyrics":false,"suggested_titles":[],"submitted_themes_note":"","ccli_number":"","slug":"","key_original":"","key_recommended":"","range_original":"","range_recommended":"","time_signature":"","time_signature_source":"recommended","time_signature_reasoning":"","meter_pattern":"","meter_name":"","poetic_foot":"","tempo_bpm":0,"copyright":"","release_year":"","album":"","genre":"","hymn_lineage_badge":null},"overall_score":0.0,"overall_verdict":"","recommendation":"Recommended","lenses":{"scriptural_fidelity":{"score":0.0,"deduction_line":"","summary":"","watchpoints":[],"lyric_examples":[]},"theological_clarity":{"score":0.0,"deduction_line":"","summary":"","radio_test_result":"Passes","radio_test_note":"","theological_arc":"","watchpoints":[]},"congregational_singability":{"score":0.0,"deduction_line":"","summary":"","key_original":"","key_recommended":"","range_original":"","range_recommended":"","ceiling_note":"","melody_accessibility":""},"poetic_lyrical_quality":{"score":0.0,"deduction_line":"","summary":"","repetition_ratio_pct":0,"cliche_density":"low","imagery_quality":"","voice_distribution":{"individual_pct":0,"corporate_pct":0,"flag":null,"note":""},"grammar_notes":[],"lyric_modifications":[],"watchpoints":[]},"defense_brief":{"score":0.0,"summary":"","objections":[{"objection":"","who_raises_it":"","tag":"Theological","scripture_response":"","suggested_framing":"","ccli_modification_note":"","honest_concession":""}]}},"full_analysis":{"paragraphs":["","","",""]},"scripture_map":{"primary":[{"reference":"","connection":""}],"supporting":[{"reference":"","connection":""}]},"theological_nuances":{"affirmed":[{"label":"","note":""}],"flagged":[]},"hymn_lineage":null,"story_behind_song":{"available":true,"publisher_note":null,"items":[{"text":"","source":""}]},"technical":{"themes":[],"sermon_series_fit":[],"seasonal_tags":[],"audience_fit":{"spiritual_maturity":"","age_group":"","service_type":"","visitor_friendliness":"","special_contexts":""}},"set_intelligence":{"available_at_500_songs":true,"pairs_well_with":[],"avoid_pairing_with":[],"set_arc":null},"similar_songs":{"if_you_love_this":[],"if_this_concerns_you":[]}}`
 }
 
 type Role = 'admin' | 'guest'
@@ -160,6 +166,86 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ result })
     } catch (e: any) {
       return NextResponse.json({ error: e.message || 'Analysis failed' }, { status: 500 })
+    }
+  }
+
+  // Small, fast helpers the form can call before committing to a full review.
+  if (action === 'suggest') {
+    const { kind, songData } = body
+    if (!ANTHROPIC_API_KEY) {
+      return NextResponse.json({ error: 'ANTHROPIC_API_KEY not configured on server' }, { status: 500 })
+    }
+    const lyrics = String(songData?.lyrics || '').trim()
+    if (!lyrics) {
+      return NextResponse.json({ error: 'Paste the lyrics first.' }, { status: 400 })
+    }
+
+    const prompts: Record<string, string> = {
+      title: `Read these worship song lyrics and propose 3 candidate titles.
+
+LYRICS:
+${lyrics}
+
+RULES:
+- Hook-line style, the way worship songs are actually titled: lift the most memorable repeated or emphatic phrase from the lyric rather than inventing an abstract theme. Think "Goodness of God", "Way Maker".
+- 2 to 5 words each. Title Case. No quotation marks, no trailing punctuation, no subtitles.
+- Make the three genuinely different, drawing on different parts of the lyric. Not three rewordings of one phrase.
+- If you recognise the song and know its real published title, return that as the first entry and set recognised to true.
+
+Reply with one JSON object and nothing else:
+{"recognised":false,"titles":["","",""]}`,
+
+      meter: `Analyse the meter of these worship song lyrics and recommend a time signature.
+
+LYRICS:
+${lyrics}
+
+METHOD:
+1. Count syllables per line across a representative stanza; record the numeric pattern, for example "8.6.8.6".
+2. Name the classic hymn meter if it matches: 8.6.8.6 is Common Meter (CM), 8.8.8.8 is Long Meter (LM), 6.6.8.6 is Short Meter (SM). Doubled stanzas take CMD, LMD, SMD. Otherwise leave meter_name empty.
+3. Identify the dominant poetic foot: iambic, trochaic, dactylic, anapestic, or irregular.
+4. Map foot to signature: iambic or trochaic to 4/4 (2/2 only for a clearly fast two-beat feel); dactylic or anapestic to 6/8, or 3/4 on a slower triple pulse.
+5. Irregular modern lyrics with no consistent foot default to 4/4, meter_pattern empty.
+6. If you recognise the song and its established tune contradicts the pattern, follow the tune and explain why in the reasoning.
+
+reasoning: 2 to 3 sentences a worship leader without music theory training can follow. No em dashes.
+
+Reply with one JSON object and nothing else:
+{"time_signature":"","meter_pattern":"","meter_name":"","poetic_foot":"","reasoning":""}`,
+    }
+
+    const prompt = prompts[kind as string]
+    if (!prompt) {
+      return NextResponse.json({ error: 'Unknown suggestion type' }, { status: 400 })
+    }
+
+    try {
+      const r = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': ANTHROPIC_API_KEY,
+          'anthropic-version': '2023-06-01',
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-5',
+          max_tokens: 1200,
+          messages: [{ role: 'user', content: prompt }],
+        }),
+      })
+      if (!r.ok) {
+        const err = await r.json().catch(() => ({}))
+        return NextResponse.json({ error: (err as any)?.error?.message || `API error ${r.status}` }, { status: 502 })
+      }
+      const data = await r.json()
+      let txt = ''
+      for (const b of (data.content || [])) { if (b.type === 'text') txt += b.text }
+      txt = txt.replace(/```json/g, '').replace(/```/g, '').trim()
+      const js = txt.indexOf('{'), je = txt.lastIndexOf('}')
+      if (js >= 0 && je > js) txt = txt.slice(js, je + 1)
+      return NextResponse.json({ result: JSON.parse(txt) })
+    } catch (e: any) {
+      return NextResponse.json({ error: e.message || 'Suggestion failed' }, { status: 500 })
     }
   }
 

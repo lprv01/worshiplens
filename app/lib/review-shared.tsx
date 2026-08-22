@@ -14,19 +14,28 @@ export type ParsedSong = {
   key: string
   album: string
   timeSignature: string
+  themes: string
   lyrics: string
 }
-export type MetaKey = 'title' | 'artist' | 'ccli' | 'key' | 'album' | 'timeSignature'
+export type MetaKey = 'title' | 'artist' | 'ccli' | 'key' | 'album' | 'timeSignature' | 'themes'
 export type ReviewResult = Record<string, any>
 export type TabKey = 'scores' | 'review' | 'defense' | 'technical' | 'story' | 'similar'
 
-export const META_FIELDS: { key: MetaKey; label: string; placeholder: string; span?: number }[] = [
-  { key: 'title', label: 'Song Title', placeholder: 'Goodness of God', span: 3 },
-  { key: 'artist', label: 'Artist / Authors', placeholder: 'Bethel Music, Jenn Johnson', span: 3 },
-  { key: 'ccli', label: 'CCLI #', placeholder: '7117726', span: 2 },
-  { key: 'key', label: 'Default Key', placeholder: 'Eb', span: 2 },
-  { key: 'album', label: 'Album', placeholder: 'Victory', span: 2 },
-  { key: 'timeSignature', label: 'Time Signature', placeholder: 'Leave blank to recommend', span: 2 },
+// CCLI and album no longer have inputs, but the parser still recovers them
+// from a pasted export and the analysis still returns them - dropping the
+// fields only removes the manual entry, not the data.
+export const META_FIELDS: {
+  key: MetaKey
+  label: string
+  placeholder: string
+  span?: number
+  generate?: 'title' | 'meter'
+}[] = [
+  { key: 'title', label: 'Song Title', placeholder: 'Goodness of God', span: 3, generate: 'title' },
+  { key: 'artist', label: 'Name or Author(s)', placeholder: 'Bethel Music, Jenn Johnson', span: 3 },
+  { key: 'key', label: 'Key (optional)', placeholder: 'Eb', span: 3 },
+  { key: 'timeSignature', label: 'Time Signature (optional)', placeholder: 'Leave blank to recommend', span: 3, generate: 'meter' },
+  { key: 'themes', label: 'Key Themes / Scriptures (optional)', placeholder: 'Matthew 5:6, mercy, hunger for righteousness', span: 6 },
 ]
 
 export const LENS_CONFIG = [
@@ -77,13 +86,14 @@ export function LogoWhite({ height = 22 }: { height?: number }) {
 // header, a pipe-separated credit line, a CCLI number, or a Default Key). A
 // bare lyric dump gets no invented title - the first line of a chorus is not
 // a song title, and guessing one poisons the analysis downstream.
-export const EMPTY_PARSE: ParsedSong = { title: '', artist: '', ccli: '', key: '', album: '', timeSignature: '', lyrics: '' }
+export const EMPTY_PARSE: ParsedSong = { title: '', artist: '', ccli: '', key: '', album: '', timeSignature: '', themes: '', lyrics: '' }
 
 export function smartParse(raw: string): ParsedSong {
   if (!raw.trim()) return EMPTY_PARSE
 
   const lines = raw.split('\n').map(l => l.trim())
   let title = '', artist = '', ccli = '', key = '', album = '', timeSignature = '', lyrics = ''
+  const themes = ''   // author-supplied only; never inferred from the paste
 
   const ccliMatch = raw.match(/CCLI\s*(?:Song\s*)?#\s*(\d{5,8})/i) ||
     raw.match(/Song\s+Number\s*\n\s*(\d{5,8})/i)
@@ -170,7 +180,7 @@ export function smartParse(raw: string): ParsedSong {
       .trim()
   }
 
-  return { title, artist, ccli, key, album, timeSignature, lyrics }
+  return { title, artist, ccli, key, album, timeSignature, themes, lyrics }
 }
 
 export function scoreColor(s: number) {
@@ -189,3 +199,177 @@ export function makeSlug(title: string) {
   return title.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-').trim()
 }
 
+
+// ── Meter explainer ──────────────────────────────────────────────────────────
+// Collapsed by default. Explains how a syllable pattern plus a stress pattern
+// implies a time signature, which is otherwise opaque to anyone who has not
+// worked with hymn meter.
+export const METER_PATTERNS = [
+  { pattern: '8.6.8.6', name: 'Common Meter (CM)', foot: 'iambic', sig: '4/4', example: 'Amazing Grace; O God Our Help in Ages Past' },
+  { pattern: '8.8.8.8', name: 'Long Meter (LM)', foot: 'iambic', sig: '4/4', example: 'When I Survey the Wondrous Cross' },
+  { pattern: '6.6.8.6', name: 'Short Meter (SM)', foot: 'iambic', sig: '4/4', example: 'Blest Be the Tie That Binds' },
+  { pattern: '8.7.8.7', name: 'no classic name', foot: 'trochaic', sig: '4/4', example: 'Come Thou Fount of Every Blessing' },
+  { pattern: '11.11.11.11', name: 'no classic name', foot: 'anapestic', sig: '6/8 or 3/4', example: 'How Firm a Foundation' },
+  { pattern: 'irregular', name: 'non-metrical', foot: 'irregular', sig: '4/4', example: 'most contemporary worship writing' },
+]
+
+export function MeterHelp() {
+  return (
+    <details className="az-details">
+      <summary className="az-summary">How is a time signature recommended?</summary>
+      <div style={{ paddingTop: 12, fontSize: 12, lineHeight: 1.75, color: 'rgba(255,255,255,0.45)' }}>
+        <p style={{ marginBottom: 12 }}>
+          Two things about a lyric decide how it wants to be counted: how many syllables each line has, and where the stresses fall inside them.
+        </p>
+
+        <p style={{ marginBottom: 6, color: 'rgba(255,255,255,0.6)', fontWeight: 600 }}>Step one - count syllables per line.</p>
+        <p style={{ marginBottom: 12 }}>
+          Write the count for each line of one stanza. Amazing Grace gives 8, 6, 8, 6:
+        </p>
+        <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 6, padding: '10px 14px', marginBottom: 12, fontFamily: 'ui-monospace, monospace', fontSize: 11.5, color: 'rgba(255,255,255,0.55)' }}>
+          A-maz-ing grace how sweet the sound &nbsp;<span style={{ color: BLUE }}>8</span><br />
+          That saved a wretch like me &nbsp;<span style={{ color: BLUE }}>6</span><br />
+          I once was lost but now am found &nbsp;<span style={{ color: BLUE }}>8</span><br />
+          Was blind but now I see &nbsp;<span style={{ color: BLUE }}>6</span>
+        </div>
+        <p style={{ marginBottom: 12 }}>
+          That 8.6.8.6 pattern is so common in English hymnody it has a name: Common Meter. It is why any Common Meter text can be sung to any Common Meter tune, which is how House of the Rising Sun and Amazing Grace trade melodies.
+        </p>
+
+        <p style={{ marginBottom: 6, color: 'rgba(255,255,255,0.6)', fontWeight: 600 }}>Step two - find the stress pattern.</p>
+        <p style={{ marginBottom: 12 }}>
+          Say a line aloud and listen for the beat. <strong style={{ color: 'rgba(255,255,255,0.6)' }}>Iambic</strong> is da-DUM (a-MAZ-ing GRACE how SWEET the SOUND). <strong style={{ color: 'rgba(255,255,255,0.6)' }}>Trochaic</strong> is the reverse, DUM-da (COME thou FOUNT of EV-ery BLESS-ing). <strong style={{ color: 'rgba(255,255,255,0.6)' }}>Dactylic</strong> and <strong style={{ color: 'rgba(255,255,255,0.6)' }}>anapestic</strong> feet carry three syllables instead of two, which is what gives a lyric its lilt or waltz feel.
+        </p>
+
+        <p style={{ marginBottom: 6, color: 'rgba(255,255,255,0.6)', fontWeight: 600 }}>Step three - map the foot to a signature.</p>
+        <p style={{ marginBottom: 12 }}>
+          Two-syllable feet (iambic, trochaic) sit naturally in a duple count, so they default to 4/4. Three-syllable feet (dactylic, anapestic) push toward a triple count, so 6/8 or 3/4.
+        </p>
+
+        <div style={{ overflowX: 'auto', marginBottom: 12 }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11.5, minWidth: 460 }}>
+            <thead>
+              <tr style={{ color: 'rgba(255,255,255,0.35)', textAlign: 'left' }}>
+                <th style={{ padding: '6px 8px 6px 0', fontWeight: 600 }}>Syllables</th>
+                <th style={{ padding: '6px 8px', fontWeight: 600 }}>Meter</th>
+                <th style={{ padding: '6px 8px', fontWeight: 600 }}>Foot</th>
+                <th style={{ padding: '6px 8px', fontWeight: 600 }}>Signature</th>
+              </tr>
+            </thead>
+            <tbody>
+              {METER_PATTERNS.map(m => (
+                <tr key={m.pattern} style={{ borderTop: '0.5px solid rgba(255,255,255,0.08)' }}>
+                  <td style={{ padding: '7px 8px 7px 0', fontFamily: 'ui-monospace, monospace', color: 'rgba(255,255,255,0.6)' }}>{m.pattern}</td>
+                  <td style={{ padding: '7px 8px' }}>{m.name}</td>
+                  <td style={{ padding: '7px 8px', textTransform: 'capitalize' }}>{m.foot}</td>
+                  <td style={{ padding: '7px 8px', color: BLUE, fontWeight: 600 }}>{m.sig}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <p style={{ fontSize: 11.5, color: 'rgba(255,255,255,0.35)' }}>
+          The table is a starting point, not a rule. Amazing Grace scans as iambic Common Meter, which points to 4/4, but almost every congregation sings it in 3/4 because the New Britain tune carries a triple pulse. Where a well-known tune disagrees with the pattern, the tune wins - and the analysis will say so in its reasoning.
+        </p>
+      </div>
+    </details>
+  )
+}
+
+// ── Detail fields block ──────────────────────────────────────────────────────
+// Shared by both analyzers so the two forms cannot drift.
+export function DetailFields(props: {
+  fieldValue: (k: MetaKey) => string
+  isAutoFilled: (k: MetaKey) => boolean
+  setField: (k: MetaKey, v: string) => void
+  onReset: () => void
+  hasEdits: boolean
+  onGenerate: (kind: 'title' | 'meter') => void
+  generating: 'title' | 'meter' | null
+  canGenerate: boolean
+  titleOptions: string[]
+  onPickTitle: (t: string) => void
+  meterNote: string
+  genError: string
+}) {
+  const {
+    fieldValue, isAutoFilled, setField, onReset, hasEdits,
+    onGenerate, generating, canGenerate, titleOptions, onPickTitle, meterNote, genError,
+  } = props
+
+  return (
+    <div style={{ marginBottom: 20 }}>
+      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 10 }}>
+        <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)' }}>
+          Details <span style={{ color: 'rgba(255,255,255,0.25)' }}>- all optional</span>
+        </div>
+        {hasEdits && (
+          <button onClick={onReset} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.3)', fontSize: 11, cursor: 'pointer', fontFamily: "'Sora', sans-serif", textDecoration: 'underline' }}>
+            Reset to detected
+          </button>
+        )}
+      </div>
+
+      <div className="az-detail-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 12 }}>
+        {META_FIELDS.map(f => (
+          <div key={f.key} style={{ gridColumn: `span ${f.span || 2}` }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: 6, minHeight: 18 }}>
+              <span>{f.label}</span>
+              {isAutoFilled(f.key) && <span className="az-auto-chip">Detected</span>}
+              {f.generate && (
+                <button
+                  type="button"
+                  className="az-gen-btn"
+                  disabled={!canGenerate || generating !== null}
+                  title={canGenerate ? undefined : 'Paste the lyrics first'}
+                  onClick={() => onGenerate(f.generate!)}
+                >
+                  {generating === f.generate
+                    ? 'Working...'
+                    : f.generate === 'title'
+                      ? 'Generate Song Title'
+                      : 'Suggest from poetic rhythm'}
+                </button>
+              )}
+            </label>
+            <input
+              className="az-input"
+              placeholder={f.placeholder}
+              value={fieldValue(f.key)}
+              onChange={e => setField(f.key, e.target.value)}
+              style={isAutoFilled(f.key) ? { borderColor: 'rgba(0,181,255,0.35)' } : undefined}
+            />
+
+            {f.key === 'title' && titleOptions.length > 0 && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
+                {titleOptions.map(t => (
+                  <button key={t} type="button" className="az-title-chip" onClick={() => onPickTitle(t)}>{t}</button>
+                ))}
+              </div>
+            )}
+
+            {f.key === 'timeSignature' && meterNote && (
+              <div style={{ marginTop: 8, fontSize: 11.5, lineHeight: 1.65, color: 'rgba(255,255,255,0.45)', background: 'rgba(0,181,255,0.05)', border: '0.5px solid rgba(0,181,255,0.2)', borderRadius: 6, padding: '9px 12px' }}>
+                {meterNote}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {genError && (
+        <div style={{ marginTop: 10, padding: '8px 12px', borderRadius: 6, fontSize: 12, background: '#1a0505', border: '0.5px solid #f87171', color: '#f87171' }}>
+          {genError}
+        </div>
+      )}
+
+      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.28)', marginTop: 12, lineHeight: 1.6 }}>
+        Leave <strong style={{ fontWeight: 600, color: 'rgba(255,255,255,0.4)' }}>Time Signature</strong> blank and WorshipLens will recommend one from the lyric meter, with its reasoning shown in the Technical tab.
+      </div>
+      <div style={{ marginTop: 8 }}>
+        <MeterHelp />
+      </div>
+    </div>
+  )
+}

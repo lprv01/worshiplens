@@ -5,7 +5,7 @@ import Link from 'next/link'
 import {
   NAVY, BLUE,
   LogoWhite, smartParse, scoreColor,
-  META_FIELDS, LENS_CONFIG, PROGRESS_STEPS,
+  LENS_CONFIG, PROGRESS_STEPS, DetailFields,
   type ParsedSong, type MetaKey, type ReviewResult, type TabKey,
 } from '../lib/review-shared'
 
@@ -35,6 +35,44 @@ export default function GuestAnalyzePage() {
   const isAutoFilled = (k: MetaKey) => edits[k] === undefined && !!auto[k]
   const setField = (k: MetaKey, v: string) => setEdits(e => ({ ...e, [k]: v }))
 
+
+  // Generate helpers (title / meter) - callable before the full analysis
+  const [generating, setGenerating] = useState<'title' | 'meter' | null>(null)
+  const [titleOptions, setTitleOptions] = useState<string[]>([])
+  const [meterNote, setMeterNote] = useState('')
+  const [genError, setGenError] = useState('')
+
+  async function handleGenerate(kind: 'title' | 'meter') {
+    const d = getSongData()
+    if (!d.lyrics) { setGenError('Paste the lyrics first.'); return }
+    setGenerating(kind); setGenError('')
+    if (kind === 'title') setTitleOptions([])
+    if (kind === 'meter') setMeterNote('')
+    try {
+      const r = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'suggest', kind, password: pwInput.trim(), songData: d }),
+      })
+      const data = await r.json().catch(() => ({}))
+      if (!r.ok) throw new Error((data as any)?.error || `Request failed (${r.status})`)
+      const res = (data as any).result || {}
+      if (kind === 'title') {
+        const titles = Array.isArray(res.titles) ? res.titles.filter(Boolean) : []
+        if (!titles.length) throw new Error('No titles came back. Try again.')
+        setTitleOptions(titles)
+      } else {
+        if (res.time_signature) setField('timeSignature', res.time_signature)
+        const bits = [res.meter_pattern, res.meter_name, res.poetic_foot].filter(Boolean).join(' · ')
+        setMeterNote([bits, res.reasoning].filter(Boolean).join(' — '))
+      }
+    } catch (e: any) {
+      setGenError(e.message || 'Could not generate that.')
+    } finally {
+      setGenerating(null)
+    }
+  }
+
   function getSongData(): ParsedSong {
     return {
       title: fieldValue('title').trim(),
@@ -43,6 +81,7 @@ export default function GuestAnalyzePage() {
       key: fieldValue('key').trim(),
       album: fieldValue('album').trim(),
       timeSignature: fieldValue('timeSignature').trim(),
+      themes: fieldValue('themes').trim(),
       lyrics: auto.lyrics,
     }
   }
@@ -120,6 +159,14 @@ export default function GuestAnalyzePage() {
     .az-input:focus { border-color: rgba(255,255,255,0.3); }
     .az-btn { width: 100%; padding: 13px; border: none; border-radius: 8px; font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
     .az-btn:disabled { opacity: 0.35; cursor: default; }
+    .az-gen-btn { font-family: 'Sora', sans-serif; font-size: 9px; font-weight: 600; letter-spacing: 0.03em; text-transform: none; padding: 3px 9px; border-radius: 20px; border: 0.5px solid rgba(0,181,255,0.35); background: rgba(0,181,255,0.08); color: ${BLUE}; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+    .az-gen-btn:hover:not(:disabled) { background: rgba(0,181,255,0.18); border-color: ${BLUE}; }
+    .az-gen-btn:disabled { opacity: 0.35; cursor: default; }
+    .az-details { border: 0.5px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 12px 14px; background: rgba(255,255,255,0.02); }
+    .az-summary { cursor: pointer; font-size: 11px; font-weight: 600; letter-spacing: 0.04em; color: ${BLUE}; list-style: none; user-select: none; }
+    .az-summary::-webkit-details-marker { display: none; }
+    .az-summary::before { content: '+ '; font-weight: 700; }
+    .az-details[open] .az-summary::before { content: '- '; }
     .az-title-chip { font-family: 'Sora', sans-serif; font-size: 12px; font-weight: 500; padding: 5px 12px; border-radius: 20px; border: 0.5px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.65); cursor: pointer; transition: all 0.15s; }
     .az-title-chip:hover { border-color: rgba(0,181,255,0.5); color: #fff; }
     .az-title-chip.active { background: ${BLUE}; border-color: ${BLUE}; color: ${NAVY}; font-weight: 600; }
@@ -189,7 +236,7 @@ export default function GuestAnalyzePage() {
             </div>
 
             <div style={{ marginBottom: 20 }}>
-              <label style={{ display: 'block', fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: 8 }}>Song Export or Lyrics *</label>
+              <label style={{ display: 'block', fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: 8 }}>Add Song Lyrics *</label>
               <textarea
                 className="az-input" rows={14}
                 placeholder={'Paste anything here - a SongSelect export, a WorshipTools dump, or just the raw lyrics.\n\nFor example:\n\nTurn Your Eyes\n\nAuthors\nAndrew Holt | Bernie Herms\n\nDefault Key\nC\n\nVerse 1\nO soul are you weary...\n\nCCLI Song # 7158162'}
@@ -199,34 +246,20 @@ export default function GuestAnalyzePage() {
               <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', marginTop: 4 }}>Lyrics are used for analysis only. Never stored or displayed.</div>
             </div>
 
-            <div style={{ marginBottom: 20 }}>
-              <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 10 }}>
-                <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)' }}>
-                  Details <span style={{ color: 'rgba(255,255,255,0.25)' }}>- all optional</span>
-                </div>
-                {Object.keys(edits).length > 0 && (
-                  <button onClick={() => setEdits({})} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.3)', fontSize: 11, cursor: 'pointer', fontFamily: "'Sora', sans-serif", textDecoration: 'underline' }}>Reset to detected</button>
-                )}
-              </div>
-              <div className="az-detail-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 12 }}>
-                {META_FIELDS.map(f => (
-                  <div key={f.key} style={{ gridColumn: `span ${f.span || 2}` }}>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>
-                      {f.label}
-                      {isAutoFilled(f.key) && <span className="az-auto-chip">Detected</span>}
-                    </label>
-                    <input
-                      className="az-input" placeholder={f.placeholder}
-                      value={fieldValue(f.key)} onChange={e => setField(f.key, e.target.value)}
-                      style={isAutoFilled(f.key) ? { borderColor: 'rgba(0,181,255,0.35)' } : undefined}
-                    />
-                  </div>
-                ))}
-              </div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.28)', marginTop: 10, lineHeight: 1.6 }}>
-                Leave <strong style={{ fontWeight: 600, color: 'rgba(255,255,255,0.4)' }}>Time Signature</strong> blank and WorshipLens will recommend one from the lyric meter, with its reasoning shown in the Technical tab.
-              </div>
-            </div>
+                        <DetailFields
+              fieldValue={fieldValue}
+              isAutoFilled={isAutoFilled}
+              setField={setField}
+              onReset={() => setEdits({})}
+              hasEdits={Object.keys(edits).length > 0}
+              onGenerate={handleGenerate}
+              generating={generating}
+              canGenerate={!!auto.lyrics}
+              titleOptions={titleOptions}
+              onPickTitle={(t) => { setField('title', t); setTitleOptions([]) }}
+              meterNote={meterNote}
+              genError={genError}
+            />
 
             {auto.lyrics && (
               <div style={{ background: 'rgba(255,255,255,0.04)', border: '0.5px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '12px 14px', marginBottom: 16 }}>
